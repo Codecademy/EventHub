@@ -6,6 +6,8 @@ import com.mobicrave.eventtracker.Event;
 import com.mobicrave.eventtracker.EventIndex;
 import com.mobicrave.eventtracker.EventStorage;
 import com.mobicrave.eventtracker.EventTracker;
+import com.mobicrave.eventtracker.JournalEventStorage;
+import com.mobicrave.eventtracker.MemEventStorage;
 import com.mobicrave.eventtracker.User;
 import com.mobicrave.eventtracker.UserEventIndex;
 import com.mobicrave.eventtracker.UserStorage;
@@ -87,15 +89,30 @@ public class EventTrackerHandler extends AbstractHandler {
   public static void main(String[] args) throws Exception {
     EventIndex eventIndexMap = EventIndex.build();
     UserEventIndex userEventIndex = UserEventIndex.build();
-    EventStorage eventStorage = EventStorage.build();
+//    EventStorage eventStorage = MemEventStorage.build();
+    final JournalEventStorage eventStorage = JournalEventStorage.build("/tmp/event_tracker/");
     UserStorage userStorage = UserStorage.build();
     EventTracker eventTracker = new EventTracker(eventIndexMap, userEventIndex, eventStorage, userStorage);
 
     EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker);
-    Server server = new Server(8080);
+    final Server server = new Server(8080);
     server.setHandler(eventHandler);
 
     server.start();
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+      @Override
+      public void run() {
+        if (server.isStarted()) {
+          try {
+            server.stop();
+            eventStorage.close();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    },"Stop Jetty Hook"));
+
     server.join();
   }
 }

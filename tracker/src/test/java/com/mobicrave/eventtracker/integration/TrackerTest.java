@@ -5,6 +5,7 @@ import com.mobicrave.eventtracker.Event;
 import com.mobicrave.eventtracker.EventIndex;
 import com.mobicrave.eventtracker.EventStorage;
 import com.mobicrave.eventtracker.EventTracker;
+import com.mobicrave.eventtracker.MemEventStorage;
 import com.mobicrave.eventtracker.User;
 import com.mobicrave.eventtracker.UserEventIndex;
 import com.mobicrave.eventtracker.UserStorage;
@@ -19,7 +20,7 @@ public class TrackerTest {
   public void setUp() throws Exception {
     EventIndex eventIndexMap = EventIndex.build();
     UserEventIndex userEventIndex = UserEventIndex.build();
-    EventStorage eventStorage = EventStorage.build();
+    EventStorage eventStorage = MemEventStorage.build();
     UserStorage userStorage = UserStorage.build();
     tracker = new EventTracker(eventIndexMap, userEventIndex, eventStorage, userStorage);
   }

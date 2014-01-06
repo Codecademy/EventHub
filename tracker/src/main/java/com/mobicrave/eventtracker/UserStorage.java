@@ -1,9 +1,7 @@
 package com.mobicrave.eventtracker;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 

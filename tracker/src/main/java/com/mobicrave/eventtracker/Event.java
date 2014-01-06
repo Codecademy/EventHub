@@ -1,5 +1,9 @@
 package com.mobicrave.eventtracker;
 
+import com.google.gson.Gson;
+
+import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class Event {
@@ -8,7 +12,8 @@ public class Event {
   private final String date;
   private final Map<String, String> properties;
 
-  public Event(String eventType, String externalUserId, String date, Map<String, String> properties) {
+  public Event(String eventType, String externalUserId,
+      String date, Map<String, String> properties) {
     this.eventType = eventType;
     this.externalUserId = externalUserId;
     this.date = date;
@@ -27,17 +32,30 @@ public class Event {
     return externalUserId;
   }
 
-  public MetaData getMetaData(long userId, int eventTypeId) {
-    return new MetaData(userId, eventTypeId);
+  public MetaData getMetaData(long userId, int eventTypeId, byte[] location) {
+    return new MetaData(userId, eventTypeId, location);
   }
 
-  public static class MetaData {
-    private final long userId;
-    private int eventTypeId;
+  public ByteBuffer toByteBuffer() {
+    Gson gson = new Gson();
+    return ByteBuffer.wrap(gson.toJson(this).getBytes());
+  }
 
-    public MetaData(long userId, int eventTypeId) {
+  public static Event fromByteBuffer(ByteBuffer byteBuffer) {
+    Gson gson = new Gson();
+    return gson.fromJson(new String(byteBuffer.array()), Event.class);
+  }
+
+  public static class MetaData implements Serializable {
+    private static final long serialVersionUID = 8287763037256921937L;
+    private final long userId;
+    private final byte[] location;
+    private final int eventTypeId;
+
+    public MetaData(long userId, int eventTypeId, byte[] location) {
       this.userId = userId;
       this.eventTypeId = eventTypeId;
+      this.location = location;
     }
 
     public long getUserId() {
@@ -46,6 +64,20 @@ public class Event {
 
     public int getEventTypeId() {
       return eventTypeId;
+    }
+
+    public byte[] getLocation() {
+      return location;
+    }
+
+    public ByteBuffer toByteBuffer() {
+      Gson gson = new Gson();
+      return ByteBuffer.wrap(gson.toJson(this).getBytes());
+    }
+
+    public static MetaData fromByteBuffer(ByteBuffer byteBuffer) {
+      Gson gson = new Gson();
+      return gson.fromJson(new String(byteBuffer.array()), MetaData.class);
     }
   }
 

@@ -16,20 +16,20 @@ public class JournalUserStorage implements UserStorage {
   private final Journal metaDataJournal;
   private User.MetaData[] metaDatas;
   private final Map<String, Integer> idMap;
-  private AtomicInteger numUsers;
+  private AtomicInteger currentId;
 
   public JournalUserStorage(Journal userJournal, Journal metaDataJournal, User.MetaData[] metaDatas,
-      Map<String, Integer> idMap, AtomicInteger numUsers) {
+      Map<String, Integer> idMap, AtomicInteger currentId) {
     this.userJournal = userJournal;
     this.metaDataJournal = metaDataJournal;
     this.metaDatas = metaDatas;
     this.idMap = idMap;
-    this.numUsers = numUsers;
+    this.currentId = currentId;
   }
 
   @Override
   public int addUser(User user) {
-    int id = numUsers.incrementAndGet();
+    int id = currentId.getAndIncrement();
     if (id >= metaDatas.length) {
       synchronized (this) {
         if (id >= metaDatas.length) {
@@ -98,6 +98,6 @@ public class JournalUserStorage implements UserStorage {
       throw new RuntimeException(e);
     }
     return new JournalUserStorage(userJournal, metaDataJournal,
-        metaDatas.toArray(new User.MetaData[1024]), idMap, new AtomicInteger(metaDatas.size() - 1));
+        metaDatas.toArray(new User.MetaData[1024]), idMap, new AtomicInteger(metaDatas.size()));
   }
 }

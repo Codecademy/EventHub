@@ -54,7 +54,6 @@ public class EventIndex {
   }
 
   public int add(String eventType) {
-    // TODO: DI
     IndividualEventIndex individualEventIndex = eventIndexMap.get(eventType);
     if (individualEventIndex != null) {
       return individualEventIndex.getId();

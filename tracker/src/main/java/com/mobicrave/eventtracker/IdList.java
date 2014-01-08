@@ -1,31 +1,38 @@
 package com.mobicrave.eventtracker;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class IdList {
   private long[] list;
-  private int numElements;
+  private final AtomicInteger currentOffset;
 
-  public IdList(long[] list) {
+  public IdList(long[] list, AtomicInteger currentOffset) {
     this.list = list;
+    this.currentOffset = currentOffset;
   }
 
-  // TODO: may need synchronization
   public void add(long id) {
-    if (numElements == list.length) {
-      long[] newList = new long[list.length * 2];
-      System.arraycopy(list, 0, newList, 0, list.length);
-      list = newList;
+    int offset = currentOffset.getAndIncrement();
+    if (offset >= list.length) {
+      synchronized (this) {
+        if (offset >= list.length) {
+          long[] newList = new long[list.length * 2];
+          System.arraycopy(list, 0, newList, 0, list.length);
+          list = newList;
+        }
+      }
     }
-    list[numElements++] = id;
+    list[offset] = id;
   }
 
   public Iterator subList(long firstStepEventId, long maxLastEventId) {
-    int start = Arrays.binarySearch(list, 0, numElements, firstStepEventId);
+    int offset = currentOffset.get();
+    int start = Arrays.binarySearch(list, 0, offset, firstStepEventId);
     if (start < 0) {
       start = -start - 1;
     }
-    int end = Arrays.binarySearch(list, 0, numElements, maxLastEventId);
+    int end = Arrays.binarySearch(list, 0, offset, maxLastEventId);
     if (end < 0) {
       end = -end - 1;
     }
@@ -33,11 +40,11 @@ public class IdList {
   }
 
   public Iterator iterator() {
-    return new Iterator(list, 0, numElements);
+    return new Iterator(list, 0, currentOffset.get());
   }
 
   public static IdList build() {
-    return new IdList(new long[128]);
+    return new IdList(new long[128], new AtomicInteger(0));
   }
 
   public static class Iterator {
@@ -50,6 +57,7 @@ public class IdList {
       this.list = list;
       this.start = start;
       this.end = end;
+      this.offset = 0;
     }
 
     public boolean hasNext() {

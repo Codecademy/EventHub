@@ -13,20 +13,20 @@ public class JournalEventStorage implements EventStorage {
   private final Journal eventJournal;
   private final Journal metaDataJournal;
   private Event.MetaData[] metaDatas;
-  private AtomicLong numEvents;
+  private AtomicLong currentId;
 
   private JournalEventStorage(Journal eventJournal, Journal metaDataJournal, Event.MetaData[] metaDatas,
-      AtomicLong numEvents) {
+      AtomicLong currentId) {
     this.eventJournal = eventJournal;
     this.metaDataJournal = metaDataJournal;
     this.metaDatas = metaDatas;
-    this.numEvents = numEvents;
+    this.currentId = currentId;
   }
 
   @Override
   public long addEvent(Event event, long userId, int eventTypeId) {
     // TODO: 4B constraint
-    int id = (int) numEvents.incrementAndGet();
+    int id = (int) currentId.getAndIncrement();
     if (id >= metaDatas.length) {
       synchronized (this) {
         if (id >= metaDatas.length) {
@@ -86,6 +86,6 @@ public class JournalEventStorage implements EventStorage {
       throw new RuntimeException(e);
     }
     return new JournalEventStorage(eventJournal, metaDataJournal,
-        metaDatas.toArray(new Event.MetaData[1024]), new AtomicLong(metaDatas.size() - 1));
+        metaDatas.toArray(new Event.MetaData[1024]), new AtomicLong(metaDatas.size()));
   }
 }

@@ -2,15 +2,7 @@ package com.mobicrave.eventtracker.web;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import com.mobicrave.eventtracker.Event;
-import com.mobicrave.eventtracker.EventIndex;
-import com.mobicrave.eventtracker.EventStorage;
-import com.mobicrave.eventtracker.EventTracker;
-import com.mobicrave.eventtracker.JournalEventStorage;
-import com.mobicrave.eventtracker.MemEventStorage;
-import com.mobicrave.eventtracker.User;
-import com.mobicrave.eventtracker.UserEventIndex;
-import com.mobicrave.eventtracker.UserStorage;
+import com.mobicrave.eventtracker.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -88,10 +80,14 @@ public class EventTrackerHandler extends AbstractHandler {
 
   public static void main(String[] args) throws Exception {
     EventIndex eventIndexMap = EventIndex.build();
-    UserEventIndex userEventIndex = UserEventIndex.build();
-//    EventStorage eventStorage = MemEventStorage.build();
-    final JournalEventStorage eventStorage = JournalEventStorage.build("/tmp/event_tracker/");
-    UserStorage userStorage = UserStorage.build();
+    final UserEventIndex userEventIndex = UserEventIndex.build();
+
+//    final EventStorage eventStorage = MemEventStorage.build();
+//    final UserStorage userStorage = MemUserStorage.build();
+
+    final EventStorage eventStorage = JournalEventStorage.build("/tmp/event_tracker/");
+    final UserStorage userStorage = JournalUserStorage.build("/tmp/user_tracker/");
+
     EventTracker eventTracker = new EventTracker(eventIndexMap, userEventIndex, eventStorage, userStorage);
 
     EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker);
@@ -106,6 +102,7 @@ public class EventTrackerHandler extends AbstractHandler {
           try {
             server.stop();
             eventStorage.close();
+            userStorage.close();
           } catch (Exception e) {
             e.printStackTrace();
           }

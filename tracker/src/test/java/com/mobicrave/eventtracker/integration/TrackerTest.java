@@ -1,14 +1,7 @@
 package com.mobicrave.eventtracker.integration;
 
 import com.google.common.collect.Maps;
-import com.mobicrave.eventtracker.Event;
-import com.mobicrave.eventtracker.EventIndex;
-import com.mobicrave.eventtracker.EventStorage;
-import com.mobicrave.eventtracker.EventTracker;
-import com.mobicrave.eventtracker.MemEventStorage;
-import com.mobicrave.eventtracker.User;
-import com.mobicrave.eventtracker.UserEventIndex;
-import com.mobicrave.eventtracker.UserStorage;
+import com.mobicrave.eventtracker.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +14,7 @@ public class TrackerTest {
     EventIndex eventIndexMap = EventIndex.build();
     UserEventIndex userEventIndex = UserEventIndex.build();
     EventStorage eventStorage = MemEventStorage.build();
-    UserStorage userStorage = UserStorage.build();
+    UserStorage userStorage = MemUserStorage.build();
     tracker = new EventTracker(eventIndexMap, userEventIndex, eventStorage, userStorage);
   }
 

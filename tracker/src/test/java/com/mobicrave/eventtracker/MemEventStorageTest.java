@@ -12,7 +12,7 @@ public class MemEventStorageTest {
   public void testAll() throws Exception {
     EventStorage eventStorage = MemEventStorage.build();
     String[] eventTypes = new String[] { "a", "b", "c" };
-    String[] externalUserIds = new String[] { "x", "y", "z" };
+    String[] externalIds = new String[] { "x", "y", "z" };
     String[] dates = new String[] { "20130101", "20130102", "20131111" };
     Map<String, String>[] properties = new Map[] {
         ImmutableMap.<String, String>builder().put("foo1", "bar1").build(),
@@ -24,14 +24,15 @@ public class MemEventStorageTest {
 
     for (int i = 0; i < eventTypes.length; i++) {
       eventStorage.addEvent(new Event.Builder(
-          eventTypes[i], externalUserIds[i], dates[i], properties[i]).build(),
+          eventTypes[i], externalIds[i], dates[i], properties[i]).build(),
           userIds[i], eventTypeIds[i]);
     }
 
     for (int i = 0; i < eventTypes.length; i++) {
       Assert.assertEquals(eventTypes[i], eventStorage.getEvent(i).getEventType());
-      Assert.assertEquals(externalUserIds[i], eventStorage.getEvent(i).getExternalUserId());
+      Assert.assertEquals(externalIds[i], eventStorage.getEvent(i).getExternalUserId());
       Assert.assertEquals(dates[i], eventStorage.getEvent(i).getDate());
+      Assert.assertEquals(properties[i], eventStorage.getEvent(i).getProperties());
       Event.MetaData eventMetaData = eventStorage.getEventMetaData(i);
       Assert.assertEquals(userIds[i], eventMetaData.getUserId());
       Assert.assertEquals(eventTypeIds[i], eventMetaData.getEventTypeId());

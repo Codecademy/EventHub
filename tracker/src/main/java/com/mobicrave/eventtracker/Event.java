@@ -32,6 +32,10 @@ public class Event {
     return externalUserId;
   }
 
+  public Map<String, String> getProperties() {
+    return properties;
+  }
+
   public MetaData getMetaData(long userId, int eventTypeId, byte[] location) {
     return new MetaData(userId, eventTypeId, location);
   }

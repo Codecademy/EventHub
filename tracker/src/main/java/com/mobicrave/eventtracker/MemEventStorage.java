@@ -44,6 +44,9 @@ public class MemEventStorage implements EventStorage {
     return events[(int) eventId];
   }
 
+  @Override
+  public void close() {}
+
   public static MemEventStorage build() {
     return new MemEventStorage(new Event[1024], new Event.MetaData[1024], new AtomicLong(-1));
   }

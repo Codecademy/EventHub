@@ -1,12 +1,10 @@
 package com.mobicrave.eventtracker;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,7 +38,7 @@ public class JournalEventStorage implements EventStorage {
     }
 
     try {
-      byte[] location = locationToBytes(eventJournal.write(event.toByteBuffer(), true));
+      byte[] location = JournalUtil.locationToBytes(eventJournal.write(event.toByteBuffer(), true));
       Event.MetaData metaData = event.getMetaData(userId, eventTypeId, location);
       metaDatas[id] = metaData;
       metaDataJournal.write(metaData.toByteBuffer(), true);
@@ -66,6 +64,7 @@ public class JournalEventStorage implements EventStorage {
     }
   }
 
+  @Override
   public void close() {
     try {
       eventJournal.close();
@@ -75,16 +74,10 @@ public class JournalEventStorage implements EventStorage {
     }
   }
 
-  private byte[] locationToBytes(Location location) throws IOException {
-    ByteArrayDataOutput dos = ByteStreams.newDataOutput();
-    location.writeExternal(dos);
-    return dos.toByteArray();
-  }
-
   public static JournalEventStorage build(String dataDir) {
     List<Event.MetaData> metaDatas = Lists.newArrayList();
-    Journal eventJournal = createJournal(dataDir + "/event_journal/eventJournal/");
-    Journal metaDataJournal = createJournal(dataDir + "/event_journal/metaDataJournal/");
+    Journal eventJournal = JournalUtil.createJournal(dataDir + "/event_journal/eventJournal/");
+    Journal metaDataJournal = JournalUtil.createJournal(dataDir + "/event_journal/metaDataJournal/");
     try {
       for (Location location : metaDataJournal) {
         metaDatas.add(Event.MetaData.fromByteBuffer(metaDataJournal.read(location)));
@@ -93,22 +86,6 @@ public class JournalEventStorage implements EventStorage {
       throw new RuntimeException(e);
     }
     return new JournalEventStorage(eventJournal, metaDataJournal,
-        metaDatas.toArray(new Event.MetaData[1024]), new AtomicLong(-1));
-  }
-
-  private static Journal createJournal(String dirPath) {
-    Journal journal = new Journal();
-    File directory = new File(dirPath);
-    directory.mkdirs();
-    journal.setDirectory(directory);
-    journal.setMaxFileLength(1024);
-    journal.setMaxWriteBatchSize(1024);
-
-    try {
-      journal.open();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return journal;
+        metaDatas.toArray(new Event.MetaData[1024]), new AtomicLong(metaDatas.size() - 1));
   }
 }

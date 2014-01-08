@@ -38,6 +38,7 @@ public class JournalEventStorageTest {
       Assert.assertEquals(eventTypes[i], eventStorage.getEvent(i).getEventType());
       Assert.assertEquals(externalUserIds[i], eventStorage.getEvent(i).getExternalUserId());
       Assert.assertEquals(dates[i], eventStorage.getEvent(i).getDate());
+      Assert.assertEquals(properties[i], eventStorage.getEvent(i).getProperties());
       Event.MetaData eventMetaData = eventStorage.getEventMetaData(i);
       Assert.assertEquals(userIds[i], eventMetaData.getUserId());
       Assert.assertEquals(eventTypeIds[i], eventMetaData.getEventTypeId());

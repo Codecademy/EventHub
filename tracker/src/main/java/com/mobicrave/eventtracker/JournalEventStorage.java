@@ -76,8 +76,8 @@ public class JournalEventStorage implements EventStorage {
 
   public static JournalEventStorage build(String dataDir) {
     List<Event.MetaData> metaDatas = Lists.newArrayList();
-    Journal eventJournal = JournalUtil.createJournal(dataDir + "/event_journal/eventJournal/");
-    Journal metaDataJournal = JournalUtil.createJournal(dataDir + "/event_journal/metaDataJournal/");
+    Journal eventJournal = JournalUtil.createJournal(dataDir + "/event_journal/");
+    Journal metaDataJournal = JournalUtil.createJournal(dataDir + "/meta_data_journal/");
     try {
       for (Location location : metaDataJournal) {
         metaDatas.add(Event.MetaData.fromByteBuffer(metaDataJournal.read(location)));

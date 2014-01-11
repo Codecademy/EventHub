@@ -20,8 +20,8 @@ public class JournalUtil {
     File directory = new File(dirPath);
     directory.mkdirs();
     journal.setDirectory(directory);
-    journal.setMaxFileLength(1024);
-    journal.setMaxWriteBatchSize(1024);
+    journal.setMaxFileLength(1024 * 1024 * 1024);
+    journal.setMaxWriteBatchSize(1024 * 10);
 
     try {
       journal.open();

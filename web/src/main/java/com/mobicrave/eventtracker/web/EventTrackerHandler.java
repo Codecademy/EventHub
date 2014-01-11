@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
+// TODO: fast startup
 public class EventTrackerHandler extends AbstractHandler {
   private final EventTracker eventTracker;
 
@@ -79,16 +80,20 @@ public class EventTrackerHandler extends AbstractHandler {
   }
 
   public static void main(String[] args) throws Exception {
-    EventIndex eventIndexMap = EventIndex.build();
-    final UserEventIndex userEventIndex = UserEventIndex.build();
+    final String directory = "/tmp/event_tracker/";
+    final String eventIndexDirectory = directory + "/event_index/";
+    final String userEventIndexDirectory = directory + "/user_event_index/";
+    final String eventStorageDirectory = directory + "/event_storage/";
+    final String userStorageDirectory = directory + "/tmp/event_tracker/user_storage/";
 
+    final EventIndex eventIndex = EventIndex.build(eventIndexDirectory);
+    final UserEventIndex userEventIndex = UserEventIndex.build(userEventIndexDirectory);
+    final EventStorage eventStorage = JournalEventStorage.build(eventStorageDirectory);
+    final UserStorage userStorage = JournalUserStorage.build(userStorageDirectory);
 //    final EventStorage eventStorage = MemEventStorage.build();
 //    final UserStorage userStorage = MemUserStorage.build();
 
-    final EventStorage eventStorage = JournalEventStorage.build("/tmp/event_tracker/");
-    final UserStorage userStorage = JournalUserStorage.build("/tmp/user_tracker/");
-
-    EventTracker eventTracker = new EventTracker(eventIndexMap, userEventIndex, eventStorage, userStorage);
+    EventTracker eventTracker = new EventTracker(eventIndex, userEventIndex, eventStorage, userStorage);
 
     EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker);
     final Server server = new Server(8080);
@@ -103,6 +108,8 @@ public class EventTrackerHandler extends AbstractHandler {
             server.stop();
             eventStorage.close();
             userStorage.close();
+            eventIndex.close(eventIndexDirectory);
+            userEventIndex.close(userEventIndexDirectory);
           } catch (Exception e) {
             e.printStackTrace();
           }

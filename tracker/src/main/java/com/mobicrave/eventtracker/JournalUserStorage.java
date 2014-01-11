@@ -84,8 +84,8 @@ public class JournalUserStorage implements UserStorage {
 
   public static JournalUserStorage build(String dataDir) {
     List<User.MetaData> metaDatas = Lists.newArrayList();
-    Journal userJournal = JournalUtil.createJournal(dataDir + "/user_journal/userJournal/");
-    Journal metaDataJournal = JournalUtil.createJournal(dataDir + "/user_journal/metaDataJournal/");
+    Journal userJournal = JournalUtil.createJournal(dataDir + "/user_journal/");
+    Journal metaDataJournal = JournalUtil.createJournal(dataDir + "/meta_data_journal/");
     Map<String,Integer> idMap = Maps.newConcurrentMap();
     try {
       int id = 0;

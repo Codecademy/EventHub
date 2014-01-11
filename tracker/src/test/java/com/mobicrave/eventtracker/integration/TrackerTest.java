@@ -11,8 +11,8 @@ public class TrackerTest {
 
   @Before
   public void setUp() throws Exception {
-    EventIndex eventIndexMap = EventIndex.build();
-    UserEventIndex userEventIndex = UserEventIndex.build();
+    EventIndex eventIndexMap = EventIndex.build("");
+    UserEventIndex userEventIndex = UserEventIndex.build("");
     EventStorage eventStorage = MemEventStorage.build();
     UserStorage userStorage = MemUserStorage.build();
     tracker = new EventTracker(eventIndexMap, userEventIndex, eventStorage, userStorage);

@@ -81,8 +81,7 @@ public class User {
     }
 
     public User build() {
-      User user = new User(externalUserId, properties);
-      return user;
+      return new User(externalUserId, properties);
     }
   }
 }

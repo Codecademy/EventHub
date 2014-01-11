@@ -104,8 +104,7 @@ public class Event {
     }
 
     public Event build() {
-      Event event = new Event(eventType, externalUserId, date, properties);
-      return event;
+      return new Event(eventType, externalUserId, date, properties);
     }
   }
 }

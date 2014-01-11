@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 
 import java.util.Set;
 
+// TODO: who should make sure dates are increasing
 public class EventTracker {
   private final EventIndex eventIndex;
   private final UserEventIndex userEventIndex;
@@ -52,7 +53,7 @@ public class EventTracker {
   }
 
   public int addEventType(String eventType) {
-    return eventIndex.add(eventType);
+    return eventIndex.addEventType(eventType);
   }
 
   public long addEvent(Event event) {

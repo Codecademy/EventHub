@@ -1,9 +1,13 @@
 package com.mobicrave.eventtracker;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IdList {
+// TODO: manage serialization myself
+public class IdList implements Serializable {
+  private static final long serialVersionUID = -8811306746467325812L;
+
   private long[] list;
   private final AtomicInteger currentOffset;
 

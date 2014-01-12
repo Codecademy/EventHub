@@ -5,6 +5,9 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Memory implementation doesn't support persistence nor can it store >4B events
+ */
 public class MemUserStorage implements UserStorage {
   private User[] users;
   private User.MetaData[] metaDatas;
@@ -36,7 +39,7 @@ public class MemUserStorage implements UserStorage {
     }
     users[id] = user;
     idMap.put(user.getExternalId(), id);
-    metaDatas[id] = user.getMetaData(user.getExternalId(), null);
+    metaDatas[id] = user.getMetaData(null);
     return id;
   }
 

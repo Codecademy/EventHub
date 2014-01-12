@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
-// TODO: fast startup
 public class EventTrackerHandler extends AbstractHandler {
   private final EventTracker eventTracker;
 

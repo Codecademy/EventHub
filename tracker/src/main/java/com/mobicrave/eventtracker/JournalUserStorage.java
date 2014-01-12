@@ -1,49 +1,34 @@
 package com.mobicrave.eventtracker;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class JournalUserStorage implements UserStorage {
   private final Journal userJournal;
-  private final Journal metaDataJournal;
-  private User.MetaData[] metaDatas;
+  private MemMappedList<User.MetaData> metaDataList;
   private final Map<String, Integer> idMap;
-  private AtomicInteger currentId;
+  private int currentId;
 
-  public JournalUserStorage(Journal userJournal, Journal metaDataJournal, User.MetaData[] metaDatas,
-      Map<String, Integer> idMap, AtomicInteger currentId) {
+  public JournalUserStorage(Journal userJournal, MemMappedList<User.MetaData> metaDataList,
+      Map<String, Integer> idMap, int currentId) {
     this.userJournal = userJournal;
-    this.metaDataJournal = metaDataJournal;
-    this.metaDatas = metaDatas;
+    this.metaDataList = metaDataList;
     this.idMap = idMap;
     this.currentId = currentId;
   }
 
   @Override
-  public int addUser(User user) {
-    int id = currentId.getAndIncrement();
-    if (id >= metaDatas.length) {
-      synchronized (this) {
-        if (id >= metaDatas.length) {
-          User.MetaData[] newMetaDatas = new User.MetaData[metaDatas.length * 2];
-          System.arraycopy(metaDatas, 0, newMetaDatas, 0, metaDatas.length);
-          metaDatas = newMetaDatas;
-        }
-      }
-    }
+  public synchronized int addUser(User user) {
     try {
+      int id = currentId++;
       byte[] location = JournalUtil.locationToBytes(userJournal.write(user.toByteBuffer(), true));
-      User.MetaData metaData = user.getMetaData(user.getExternalId(), location);
-      metaDatas[id] = metaData;
-      metaDataJournal.write(metaData.toByteBuffer(), true);
+      User.MetaData metaData = user.getMetaData(location);
+      metaDataList.write(metaData);
       idMap.put(user.getExternalId(), id);
       return id;
     } catch (IOException e) {
@@ -53,7 +38,7 @@ public class JournalUserStorage implements UserStorage {
 
   @Override
   public User.MetaData getUserMetaData(int userId) {
-    return metaDatas[userId];
+    return metaDataList.get(userId);
   }
 
   @Override
@@ -76,28 +61,26 @@ public class JournalUserStorage implements UserStorage {
   public void close() {
     try {
       userJournal.close();
-      metaDataJournal.close();
+      metaDataList.close();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   public static JournalUserStorage build(String dataDir) {
-    List<User.MetaData> metaDatas = Lists.newArrayList();
     Journal userJournal = JournalUtil.createJournal(dataDir + "/user_journal/");
-    Journal metaDataJournal = JournalUtil.createJournal(dataDir + "/meta_data_journal/");
+    MemMappedList<User.MetaData> metaDataList = MemMappedList.build(User.MetaData.getSchema(),
+        dataDir + "/meta_data_list.mem");
     Map<String,Integer> idMap = Maps.newConcurrentMap();
     try {
       int id = 0;
-      for (Location location : metaDataJournal) {
-        User.MetaData metadata = User.MetaData.fromByteBuffer(metaDataJournal.read(location));
-        metaDatas.add(metadata);
-        idMap.put(metadata.getExternalId(), id++);
+      for (Location location : userJournal) {
+        User user = User.fromByteBuffer(userJournal.read(location));
+        idMap.put(user.getExternalId(), id++);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return new JournalUserStorage(userJournal, metaDataJournal,
-        metaDatas.toArray(new User.MetaData[1024]), idMap, new AtomicInteger(metaDatas.size()));
+    return new JournalUserStorage(userJournal, metaDataList, idMap, (int) metaDataList.getNumRecords());
   }
 }

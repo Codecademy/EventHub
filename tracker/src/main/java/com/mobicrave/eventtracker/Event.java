@@ -2,7 +2,6 @@ package com.mobicrave.eventtracker;
 
 import com.google.gson.Gson;
 
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -50,8 +49,7 @@ public class Event {
     return gson.fromJson(new String(byteBuffer.array()), Event.class);
   }
 
-  public static class MetaData implements Serializable {
-    private static final long serialVersionUID = 8287763037256921937L;
+  public static class MetaData {
     private final long userId;
     private final byte[] location;
     private final int eventTypeId;
@@ -74,14 +72,34 @@ public class Event {
       return location;
     }
 
-    public ByteBuffer toByteBuffer() {
-      Gson gson = new Gson();
-      return ByteBuffer.wrap(gson.toJson(this).getBytes());
+    public static Schema<MetaData> getSchema() {
+      return new MetaDataSchema();
     }
 
-    public static MetaData fromByteBuffer(ByteBuffer byteBuffer) {
-      Gson gson = new Gson();
-      return gson.fromJson(new String(byteBuffer.array()), MetaData.class);
+    private static class MetaDataSchema implements Schema<MetaData> {
+      @Override
+      public int getObjectSize() {
+        return 8 + 13 + 4;
+      }
+
+      @Override
+      public byte[] toBytes(MetaData metaData) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(getObjectSize());
+        byteBuffer.putLong(metaData.userId)
+                  .putInt(metaData.eventTypeId)
+                  .put(metaData.location);
+        return byteBuffer.array();
+      }
+
+      @Override
+      public MetaData fromBytes(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        long userId = byteBuffer.getLong();
+        int eventTypeId = byteBuffer.getInt();
+        byte[] location = new byte[13];
+        byteBuffer.get(location);
+        return new MetaData(userId, eventTypeId, location);
+      }
     }
   }
 

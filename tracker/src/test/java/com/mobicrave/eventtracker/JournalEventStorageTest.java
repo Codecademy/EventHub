@@ -28,13 +28,13 @@ public class JournalEventStorageTest {
     int[] userIds = new int[] { 1, 2, 3 };
     int[] eventTypeIds = new int[] { 4, 5, 6 };
 
-    for (int i = 0; i < eventTypes.length; i++) {
+    for (int i = 0; i < eventTypes.length - 1; i++) {
       eventStorage.addEvent(new Event.Builder(
           eventTypes[i], externalUserIds[i], dates[i], properties[i]).build(),
           userIds[i], eventTypeIds[i]);
     }
 
-    for (int i = 0; i < eventTypes.length; i++) {
+    for (int i = 0; i < eventTypes.length - 1; i++) {
       Assert.assertEquals(eventTypes[i], eventStorage.getEvent(i).getEventType());
       Assert.assertEquals(externalUserIds[i], eventStorage.getEvent(i).getExternalUserId());
       Assert.assertEquals(dates[i], eventStorage.getEvent(i).getDate());
@@ -48,6 +48,10 @@ public class JournalEventStorageTest {
     eventStorage.close();
 
     eventStorage = JournalEventStorage.build(dataDir);
+    eventStorage.addEvent(new Event.Builder(
+        eventTypes[eventTypes.length - 1], externalUserIds[eventTypes.length - 1],
+        dates[eventTypes.length - 1], properties[eventTypes.length - 1]).build(),
+        userIds[eventTypes.length - 1], eventTypeIds[eventTypes.length - 1]);
     for (int i = 0; i < eventTypes.length; i++) {
       Assert.assertEquals(eventTypes[i], eventStorage.getEvent(i).getEventType());
       Assert.assertEquals(externalUserIds[i], eventStorage.getEvent(i).getExternalUserId());

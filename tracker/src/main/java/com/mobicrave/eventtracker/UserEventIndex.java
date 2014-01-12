@@ -28,12 +28,10 @@ public class UserEventIndex implements Closeable {
   }
 
   public void addEvent(long eventId, long userId) {
-    // TODO: userId needs to be < 4B
     index[(int) userId].add(eventId);
   }
 
   public void addUser(long userId) {
-    // TODO: userId needs to be < 4B
     if (userId >= index.length) {
       synchronized (this) {
         if (userId >= index.length) {

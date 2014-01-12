@@ -2,8 +2,10 @@ package com.mobicrave.eventtracker;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Memory implementation doesn't support persistence nor can it store >4B events
+ */
 public class MemEventStorage implements EventStorage {
-  // TODO: 4B constraints
   private Event[] events;
   private Event.MetaData[] metaDatas;
   private AtomicLong numEvents;

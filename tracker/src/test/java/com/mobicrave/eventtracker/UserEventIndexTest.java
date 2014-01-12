@@ -43,7 +43,7 @@ public class UserEventIndexTest {
     userEventIndex.enumerateEventIds(3, 50, 80, callback);
     callback.verify();
 
-    userEventIndex.close(dataDir);
+    userEventIndex.close();
     userEventIndex = UserEventIndex.build(dataDir);
 
     callback = new IdVerificationCallback(new int[] { 20, 50, 80, 110 });

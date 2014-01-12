@@ -108,8 +108,8 @@ public class EventTrackerHandler extends AbstractHandler {
             server.stop();
             eventStorage.close();
             userStorage.close();
-            eventIndex.close(eventIndexDirectory);
-            userEventIndex.close(userEventIndexDirectory);
+            eventIndex.close();
+            userEventIndex.close();
           } catch (Exception e) {
             e.printStackTrace();
           }

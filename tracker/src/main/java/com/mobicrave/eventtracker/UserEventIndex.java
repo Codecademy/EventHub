@@ -1,5 +1,6 @@
 package com.mobicrave.eventtracker;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,11 +8,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class UserEventIndex {
+public class UserEventIndex implements Closeable {
   private IdList[] index;
+  private final String directory;
 
-  private UserEventIndex(IdList[] index) {
+  private UserEventIndex(IdList[] index, String directory) {
     this.index = index;
+    this.directory = directory;
   }
 
   public void enumerateEventIds(long userId, long firstStepEventId, long maxLastEventId,
@@ -43,7 +46,8 @@ public class UserEventIndex {
     index[(int) userId] = IdList.build();
   }
 
-  public void close(String directory) {
+  @Override
+  public void close() {
     new File(directory).mkdirs();
     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getSerializationFile(directory)))) {
       oos.writeObject(index);
@@ -62,12 +66,12 @@ public class UserEventIndex {
       try {
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
         IdList[] index = (IdList[]) ois.readObject();
-        return new UserEventIndex(index);
+        return new UserEventIndex(index, directory);
       } catch (IOException | ClassNotFoundException e) {
         throw new RuntimeException(e);
       }
     }
-    return new UserEventIndex(new IdList[1024]);
+    return new UserEventIndex(new IdList[1024], directory);
   }
 
   public static interface Callback {

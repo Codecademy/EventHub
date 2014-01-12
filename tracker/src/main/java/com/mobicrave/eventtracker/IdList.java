@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 // TODO: manage serialization myself
+// TODO: compression
 public class IdList implements Serializable {
   private static final long serialVersionUID = -8811306746467325812L;
 

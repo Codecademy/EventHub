@@ -24,7 +24,8 @@ public class JournalEventStorage implements EventStorage {
   }
 
   @Override
-  public long addEvent(Event event, long userId, int eventTypeId) {
+  public synchronized long addEvent(Event event, long userId, int eventTypeId) {
+    // TODO: remove this synchronized constraint
     // TODO: 4B constraint
     int id = (int) currentId.getAndIncrement();
     if (id >= metaDatas.length) {

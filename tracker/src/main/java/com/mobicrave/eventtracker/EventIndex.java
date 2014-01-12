@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,8 +18,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.SortedMap;
 
-// TODO: autoclosable index and storage
-public class EventIndex {
+public class EventIndex implements Closeable {
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
   // O(numEventTypes)
   private final Map<String, IndividualEventIndex> eventIndexMap;
@@ -27,13 +27,15 @@ public class EventIndex {
   // O(numDays)
   private final ArrayList<Long> earliestEventIds;
   private String currentDate;
+  private final String directory;
 
-  private EventIndex(Map<String, IndividualEventIndex> eventIndexMap,
-      ArrayList<String> dates, ArrayList<Long> earliestEventIds, String currentDate) {
+  private EventIndex(Map<String, IndividualEventIndex> eventIndexMap, ArrayList<String> dates,
+      ArrayList<Long> earliestEventIds, String currentDate, String directory) {
     this.eventIndexMap = eventIndexMap;
     this.dates = dates;
     this.earliestEventIds = earliestEventIds;
     this.currentDate = currentDate;
+    this.directory = directory;
   }
 
   public void enumerateEventIds(String eventType, String startDate, String endDate, Callback aggregateUserIdsCallback) {
@@ -87,7 +89,8 @@ public class EventIndex {
     return eventIndexMap.get(eventType).getId();
   }
 
-  public void close(String directory) {
+  @Override
+  public void close() {
     new File(directory).mkdirs();
     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getSerializationFile(directory)))) {
       ArrayList<String> eventIndexNames = Lists.newArrayList();
@@ -119,13 +122,13 @@ public class EventIndex {
           eventIndexMap.put(eventIndexName, IndividualEventIndex.build(
               getSerializationFile(directory, eventIndexName)));
         }
-        return new EventIndex(eventIndexMap, dates, earliestEventIds, currentDate);
+        return new EventIndex(eventIndexMap, dates, earliestEventIds, currentDate, directory);
       } catch (IOException | ClassNotFoundException e) {
         throw new RuntimeException(e);
       }
     }
     return new EventIndex(Maps.<String,IndividualEventIndex>newHashMap(),
-        Lists.<String>newArrayList(), Lists.<Long>newArrayList(), null);
+        Lists.<String>newArrayList(), Lists.<Long>newArrayList(), null, directory);
   }
 
   private static String getSerializationFile(String directory, String eventIndexName) {

@@ -42,7 +42,7 @@ public class EventIndexTest {
     Assert.assertEquals(3, eventIndex.findFirstEventIdOnDate(2, 1));
     Assert.assertEquals(16, eventIndex.findFirstEventIdOnDate(2, 2));
 
-    eventIndex.close(dataDir);
+    eventIndex.close();
     eventIndex = EventIndex.build(dataDir);
 
     for (int i = 0; i < eventTypes.length; i++) {

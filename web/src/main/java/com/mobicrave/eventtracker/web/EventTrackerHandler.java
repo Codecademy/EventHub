@@ -6,15 +6,20 @@ import com.mobicrave.eventtracker.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Map;
 
 public class EventTrackerHandler extends AbstractHandler {
+  private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
   private final EventTracker eventTracker;
 
   public EventTrackerHandler(EventTracker eventTracker) {
@@ -26,7 +31,7 @@ public class EventTrackerHandler extends AbstractHandler {
     response.setStatus(HttpServletResponse.SC_OK);
     switch (target) {
       case "/register_user":
-        long userId = adduser(request);
+        long userId = addUser(request);
         response.getWriter().println(userId);
         break;
       case "/track_event":
@@ -46,7 +51,7 @@ public class EventTrackerHandler extends AbstractHandler {
     baseRequest.setHandled(true);
   }
 
-  private long adduser(HttpServletRequest request) {
+  private long addUser(HttpServletRequest request) {
     return eventTracker.addUser(new User.Builder(
         request.getParameter("external_user_id"),
         toProperties(request)).build());
@@ -61,10 +66,14 @@ public class EventTrackerHandler extends AbstractHandler {
   }
 
   private long addEvent(final HttpServletRequest request) {
+    String date = request.getParameter("date");
+    if (date == null) {
+      date = new DateTime().toString(FORMATTER);
+    }
     Event event = new Event.Builder(
         request.getParameter("event_type"),
         request.getParameter("external_user_id"),
-        request.getParameter("date"),
+        date,
         toProperties(request)).build();
     return eventTracker.addEvent(event);
   }

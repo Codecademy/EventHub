@@ -60,7 +60,7 @@ public class JournalEventStorage implements EventStorage {
   public static JournalEventStorage build(String dataDir) {
     Journal eventJournal = JournalUtil.createJournal(dataDir + "/event_journal/");
     MemMappedList<Event.MetaData> metaDataList = MemMappedList.build(Event.MetaData.getSchema(),
-        dataDir + "/meta_data_list.mem");
+        dataDir + "/meta_data_list.mem", 1024 * 1024 /* defaultCapacity */);
     return new JournalEventStorage(eventJournal, metaDataList, metaDataList.getNumRecords());
   }
 }

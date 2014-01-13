@@ -13,6 +13,7 @@ import java.nio.channels.FileChannel;
  * The class is not thread-safe
  */
 public class MemMappedList<T> implements Closeable {
+  private static final int META_DATA_SIZE = 8; // offset for numRecords
   private final String filename;
   private final Schema<T> schema;
   private MappedByteBuffer buffer;
@@ -33,9 +34,11 @@ public class MemMappedList<T> implements Closeable {
       buffer.force();
       try {
         RandomAccessFile raf = new RandomAccessFile(filename, "rw");
-        raf.setLength(capacity * 2 * schema.getObjectSize());
-        capacity *= 2;
+        int objectSize = schema.getObjectSize();
+        raf.setLength(META_DATA_SIZE + 2 * capacity * objectSize);
         buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
+        buffer.position(META_DATA_SIZE + (int) capacity * objectSize);
+        capacity *= 2;
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -49,7 +52,7 @@ public class MemMappedList<T> implements Closeable {
     byte[] bytes = new byte[objectSize];
     // 4B constraints
     ByteBuffer newBuffer = buffer.duplicate();
-    newBuffer.position(8 /* offset for numRecords */ + (int) kthRecord * objectSize);
+    newBuffer.position(META_DATA_SIZE + (int) kthRecord * objectSize);
     newBuffer.get(bytes, 0, objectSize);
     return schema.fromBytes(bytes);
   }
@@ -63,13 +66,13 @@ public class MemMappedList<T> implements Closeable {
     return numRecords;
   }
 
-  public static <T> MemMappedList<T> build(Schema<T> schema, String filename) {
+  public static <T> MemMappedList<T> build(Schema<T> schema, String filename, int defaultCapacity) {
     try {
       File file = new File(filename);
       if (!file.exists()) {
         file.createNewFile();
         RandomAccessFile raf = new RandomAccessFile(new File(filename), "rw");
-        raf.setLength(1024 * 1024 * schema.getObjectSize());
+        raf.setLength(META_DATA_SIZE + defaultCapacity * schema.getObjectSize());
         raf.close();
       }
       RandomAccessFile raf = new RandomAccessFile(new File(filename), "rw");
@@ -77,7 +80,7 @@ public class MemMappedList<T> implements Closeable {
       long size = buffer.getLong();
       long capacity = raf.length() / schema.getObjectSize();
       // 4B constraints
-      buffer.position((int) (8 /* offset for numRecords */ + size * schema.getObjectSize()));
+      buffer.position((int) (META_DATA_SIZE + size * schema.getObjectSize()));
       return new MemMappedList<T>(filename, schema, buffer, size, capacity);
     } catch (IOException e) {
       throw new RuntimeException(e);

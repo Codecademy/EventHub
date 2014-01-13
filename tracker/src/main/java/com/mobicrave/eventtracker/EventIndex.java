@@ -139,6 +139,7 @@ public class EventIndex implements Closeable {
     return directory + "/event_index.ser";
   }
 
+  // TODO: mem-map it
   // TODO: extract interface and try different implementation
   private static class IndividualEventIndex {
     private final int id;

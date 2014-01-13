@@ -4,7 +4,11 @@ import com.google.common.collect.Sets;
 
 import java.util.Set;
 
-// TODO: who should make sure dates are increasing
+// TODO: mem-map index
+// TODO: properties filtering & bloomfilter
+// TODO: property statistics for segmentation
+// TODO: charting
+// TODO: query language
 public class EventTracker {
   private final EventIndex eventIndex;
   private final UserEventIndex userEventIndex;

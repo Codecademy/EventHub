@@ -70,7 +70,7 @@ public class JournalUserStorage implements UserStorage {
   public static JournalUserStorage build(String dataDir) {
     Journal userJournal = JournalUtil.createJournal(dataDir + "/user_journal/");
     MemMappedList<User.MetaData> metaDataList = MemMappedList.build(User.MetaData.getSchema(),
-        dataDir + "/meta_data_list.mem");
+        dataDir + "/meta_data_list.mem", 10 * 1024 /* defaultCapacity */);
     Map<String,Integer> idMap = Maps.newConcurrentMap();
     try {
       int id = 0;

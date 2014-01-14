@@ -1,7 +1,9 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
+import com.mobicrave.eventtracker.list.MemMappedList;
+import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 

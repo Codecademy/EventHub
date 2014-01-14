@@ -1,4 +1,4 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.base;
 
 public interface Schema<T> {
   public int getObjectSize();

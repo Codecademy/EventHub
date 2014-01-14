@@ -1,6 +1,7 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.model;
 
 import com.google.gson.Gson;
+import com.mobicrave.eventtracker.base.Schema;
 
 import java.nio.ByteBuffer;
 import java.util.Map;

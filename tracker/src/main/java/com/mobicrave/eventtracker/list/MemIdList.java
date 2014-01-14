@@ -1,4 +1,4 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.list;
 
 import java.io.File;
 import java.io.FileInputStream;

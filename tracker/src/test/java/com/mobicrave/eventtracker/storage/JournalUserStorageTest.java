@@ -1,6 +1,8 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.ImmutableMap;
+import com.mobicrave.eventtracker.model.User;
+import com.mobicrave.eventtracker.storage.JournalUserStorage;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

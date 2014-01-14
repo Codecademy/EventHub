@@ -1,6 +1,14 @@
 package com.mobicrave.eventtracker;
 
 import com.google.common.collect.Sets;
+import com.mobicrave.eventtracker.index.EventIndex;
+import com.mobicrave.eventtracker.index.UserEventIndex;
+import com.mobicrave.eventtracker.list.IdList;
+import com.mobicrave.eventtracker.list.MemIdList;
+import com.mobicrave.eventtracker.model.Event;
+import com.mobicrave.eventtracker.model.User;
+import com.mobicrave.eventtracker.storage.EventStorage;
+import com.mobicrave.eventtracker.storage.UserStorage;
 
 import java.util.Set;
 

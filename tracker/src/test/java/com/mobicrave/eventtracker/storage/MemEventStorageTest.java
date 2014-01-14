@@ -1,7 +1,10 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.storage;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.mobicrave.eventtracker.model.Event;
+import com.mobicrave.eventtracker.storage.EventStorage;
+import com.mobicrave.eventtracker.storage.MemEventStorage;
 import org.junit.Assert;
 import org.junit.Test;
 

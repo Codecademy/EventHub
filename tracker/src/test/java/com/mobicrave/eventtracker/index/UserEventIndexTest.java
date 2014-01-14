@@ -1,5 +1,6 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.index;
 
+import com.mobicrave.eventtracker.index.UserEventIndex;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

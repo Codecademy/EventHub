@@ -1,4 +1,6 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.storage;
+
+import com.mobicrave.eventtracker.model.User;
 
 import java.io.Closeable;
 

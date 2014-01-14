@@ -1,4 +1,4 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.storage;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;

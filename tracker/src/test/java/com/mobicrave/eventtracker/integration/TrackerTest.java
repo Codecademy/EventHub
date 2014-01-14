@@ -2,6 +2,14 @@ package com.mobicrave.eventtracker.integration;
 
 import com.google.common.collect.Maps;
 import com.mobicrave.eventtracker.*;
+import com.mobicrave.eventtracker.index.EventIndex;
+import com.mobicrave.eventtracker.index.UserEventIndex;
+import com.mobicrave.eventtracker.model.Event;
+import com.mobicrave.eventtracker.model.User;
+import com.mobicrave.eventtracker.storage.EventStorage;
+import com.mobicrave.eventtracker.storage.MemEventStorage;
+import com.mobicrave.eventtracker.storage.MemUserStorage;
+import com.mobicrave.eventtracker.storage.UserStorage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

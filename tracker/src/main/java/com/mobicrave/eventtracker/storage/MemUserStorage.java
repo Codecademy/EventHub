@@ -1,6 +1,7 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.Maps;
+import com.mobicrave.eventtracker.model.User;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;

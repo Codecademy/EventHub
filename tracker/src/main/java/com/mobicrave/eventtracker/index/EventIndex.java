@@ -1,7 +1,9 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mobicrave.eventtracker.list.IdList;
+import com.mobicrave.eventtracker.list.MemIdList;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;

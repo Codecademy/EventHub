@@ -1,4 +1,6 @@
-package com.mobicrave.eventtracker;
+package com.mobicrave.eventtracker.list;
+
+import com.mobicrave.eventtracker.base.Schema;
 
 import java.io.Closeable;
 import java.io.File;

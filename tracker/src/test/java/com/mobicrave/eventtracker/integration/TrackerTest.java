@@ -2,32 +2,22 @@ package com.mobicrave.eventtracker.integration;
 
 import com.google.common.collect.Maps;
 import com.mobicrave.eventtracker.*;
-import com.mobicrave.eventtracker.index.EventIndex;
-import com.mobicrave.eventtracker.index.UserEventIndex;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
-import com.mobicrave.eventtracker.storage.EventStorage;
-import com.mobicrave.eventtracker.storage.MemEventStorage;
-import com.mobicrave.eventtracker.storage.MemUserStorage;
-import com.mobicrave.eventtracker.storage.UserStorage;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class TrackerTest {
-  private EventTracker tracker;
-
-  @Before
-  public void setUp() throws Exception {
-    EventIndex eventIndexMap = EventIndex.build("");
-    UserEventIndex userEventIndex = UserEventIndex.build("");
-    EventStorage eventStorage = MemEventStorage.build();
-    UserStorage userStorage = MemUserStorage.build();
-    tracker = new EventTracker(eventIndexMap, userEventIndex, eventStorage, userStorage);
-  }
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
 
   @Test
   public void testSingleUser() throws Exception {
+    String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
+    EventTracker tracker = EventTracker.build(directory);
+
     final String[] USER_IDS = { "10" };
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
@@ -61,7 +51,9 @@ public class TrackerTest {
 
   @Test
   public void testAll() throws Exception {
-    // TODO: need to add user before adding events
+    String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
+    EventTracker tracker = EventTracker.build(directory);
+
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4" };
     final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
@@ -103,6 +95,16 @@ public class TrackerTest {
     addEvent(tracker, EVENT_TYPES[2], USER_IDS[4], DATES[3]);
 
     final String[] funnelSteps = { EVENT_TYPES[0], EVENT_TYPES[1], EVENT_TYPES[3] };
+    Assert.assertArrayEquals(new int[] { 8, 7, 6 },
+        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+    Assert.assertArrayEquals(new int[] { 4, 3, 2 },
+        tracker.getCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+    Assert.assertArrayEquals(new int[] { 4, 1, 0 },
+        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */));
+
+    tracker.close();
+    tracker = EventTracker.build(directory);
+
     Assert.assertArrayEquals(new int[] { 8, 7, 6 },
         tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */));
     Assert.assertArrayEquals(new int[] { 4, 3, 2 },

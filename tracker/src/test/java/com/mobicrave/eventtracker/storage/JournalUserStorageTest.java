@@ -2,7 +2,6 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.ImmutableMap;
 import com.mobicrave.eventtracker.model.User;
-import com.mobicrave.eventtracker.storage.JournalUserStorage;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,7 +18,7 @@ public class JournalUserStorageTest {
     String dataDir = folder.newFolder("journal-user-storage-test").getCanonicalPath() + "/";
     JournalUserStorage userStorage = JournalUserStorage.build(dataDir);
     String[] externalIds = new String[] { "x", "y", "z" };
-    Map<String, String>[] properties = new Map[] {
+    Map<String, String>[] properties = (Map<String, String>[]) new Map[] {
         ImmutableMap.<String, String>builder().put("foo1", "bar1").build(),
         ImmutableMap.<String, String>builder().put("foo2", "bar2").build(),
         ImmutableMap.<String, String>builder().put("foo3", "bar3").build()

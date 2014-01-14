@@ -54,6 +54,7 @@ public class MemIdList implements IdList, Serializable {
   public void close() throws IOException {
     File file = new File(filename);
     if (!file.exists()) {
+      //noinspection ResultOfMethodCallIgnored
       file.getParentFile().mkdirs();
     }
     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {

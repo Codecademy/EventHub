@@ -8,11 +8,17 @@ import com.mobicrave.eventtracker.list.MemIdList;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.EventStorage;
+import com.mobicrave.eventtracker.storage.JournalEventStorage;
+import com.mobicrave.eventtracker.storage.JournalUserStorage;
 import com.mobicrave.eventtracker.storage.UserStorage;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
-// TODO: refactor serialization code
+// TODO: poorly formatted user event index idlist filename
+// TODO: make MemX persistent with serialization
 // TODO: MemIdListTest
 // TODO: UserEventIndex assumes userId and numRecords in sync
 // TODO: double check whose responsibility to synchronize
@@ -26,16 +32,19 @@ import java.util.Set;
 // TODO: query language
 // TODO: more compact serialization format for Event & User
 // TODO: 4B & 4G constraints
+// TODO: need to add user before adding events
 // TODO: MemMappedList still have 4G size constraint
 // TODO: native byte order for performance
-public class EventTracker {
+public class EventTracker implements Closeable {
+  private final String directory;
   private final EventIndex eventIndex;
   private final UserEventIndex userEventIndex;
   private final EventStorage eventStorage;
   private final UserStorage userStorage;
 
-  public EventTracker(EventIndex eventIndex, UserEventIndex userEventIndex,
+  public EventTracker(String directory, EventIndex eventIndex, UserEventIndex userEventIndex,
       EventStorage eventStorage, UserStorage userStorage) {
+    this.directory = directory;
     this.eventIndex = eventIndex;
     this.userEventIndex = userEventIndex;
     this.eventStorage = eventStorage;
@@ -94,6 +103,32 @@ public class EventTracker {
       eventTypeIds[i] = eventIndex.getEventTypeId(eventTypes[i]);
     }
     return eventTypeIds;
+  }
+
+  @Override
+  public void close() throws IOException {
+    //noinspection ResultOfMethodCallIgnored
+    new File(directory).mkdirs();
+    eventStorage.close();
+    userStorage.close();
+    eventIndex.close();
+    userEventIndex.close();
+  }
+
+  public static EventTracker build(String directory) {
+    String eventIndexDirectory = directory + "/event_index/";
+    String userEventIndexDirectory = directory + "/user_event_index/";
+    String eventStorageDirectory = directory + "/event_storage/";
+    String userStorageDirectory = directory + "/user_storage/";
+
+    EventIndex eventIndex = EventIndex.build(eventIndexDirectory);
+    UserEventIndex userEventIndex = UserEventIndex.build(userEventIndexDirectory);
+    EventStorage eventStorage = JournalEventStorage.build(eventStorageDirectory);
+    UserStorage userStorage = JournalUserStorage.build(userStorageDirectory);
+//    EventStorage eventStorage = MemEventStorage.build();
+//    UserStorage userStorage = MemUserStorage.build();
+
+    return new EventTracker(directory, eventIndex, userEventIndex, eventStorage, userStorage);
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

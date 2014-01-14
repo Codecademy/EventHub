@@ -45,13 +45,13 @@ public class MemMappedList<T> implements Closeable {
     return schema.fromBytes(bytes);
   }
 
+  public long getNumRecords() {
+    return numRecords;
+  }
+
   @Override
   public void close() {
     buffer.force();
-  }
-
-  public long getNumRecords() {
-    return numRecords;
   }
 
   private void expandBuffer(long newSize) {
@@ -72,6 +72,7 @@ public class MemMappedList<T> implements Closeable {
     try {
       File file = new File(filename);
       if (!file.exists()) {
+        //noinspection ResultOfMethodCallIgnored
         file.createNewFile();
         RandomAccessFile raf = new RandomAccessFile(new File(filename), "rw");
         raf.setLength(META_DATA_SIZE + defaultCapacity * schema.getObjectSize());
@@ -83,7 +84,7 @@ public class MemMappedList<T> implements Closeable {
       long capacity = raf.length() / schema.getObjectSize();
       // TODO: 4B constraints
       buffer.position((int) (META_DATA_SIZE + size * schema.getObjectSize()));
-      return new MemMappedList<T>(filename, schema, buffer, size, capacity);
+      return new MemMappedList<>(filename, schema, buffer, size, capacity);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -7,7 +7,10 @@ import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Map;
 
 public class JournalUserStorage implements UserStorage {
@@ -60,28 +63,35 @@ public class JournalUserStorage implements UserStorage {
   }
 
   @Override
-  public void close() {
-    try {
-      userJournal.close();
-      metaDataList.close();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  public void close() throws IOException {
+    userJournal.close();
+    metaDataList.close();
   }
 
-  public static JournalUserStorage build(String dataDir) {
-    Journal userJournal = JournalUtil.createJournal(dataDir + "/user_journal/");
+  private static String getMetaDataSerializationFile(String directory) {
+    return directory + "/meta_data_list.mem";
+  }
+
+  private static String getJournalDirectory(String directory) {
+    return directory + "/user_journal/";
+  }
+
+  private static String getIdMapSerializationFile(String directory) {
+    return directory + "/id_map.ser";
+  }
+
+  public static JournalUserStorage build(String directory) {
+    Journal userJournal = JournalUtil.createJournal(getJournalDirectory(directory));
     MemMappedList<User.MetaData> metaDataList = MemMappedList.build(User.MetaData.getSchema(),
-        dataDir + "/meta_data_list.mem", 10 * 1024 /* defaultCapacity */);
+        getMetaDataSerializationFile(directory), 10 * 1024 /* defaultCapacity */);
+    File file = new File(getIdMapSerializationFile(directory));
     Map<String,Integer> idMap = Maps.newConcurrentMap();
-    try {
-      int id = 0;
-      for (Location location : userJournal) {
-        User user = User.fromByteBuffer(userJournal.read(location));
-        idMap.put(user.getExternalId(), id++);
+    if (file.exists()) {
+      try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+        idMap = (Map<String, Integer>) ois.readObject();
+      } catch (ClassNotFoundException | IOException e) {
+        throw new RuntimeException(e);
       }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
     return new JournalUserStorage(userJournal, metaDataList, idMap, (int) metaDataList.getNumRecords());
   }

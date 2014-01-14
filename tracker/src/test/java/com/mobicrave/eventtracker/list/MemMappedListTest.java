@@ -1,6 +1,5 @@
 package com.mobicrave.eventtracker.list;
 
-import com.mobicrave.eventtracker.list.MemMappedList;
 import com.mobicrave.eventtracker.model.Event;
 import org.junit.Assert;
 import org.junit.Rule;

@@ -52,6 +52,7 @@ public class UserEventIndex implements Closeable {
 
   @Override
   public void close() throws IOException {
+    //noinspection ResultOfMethodCallIgnored
     new File(directory).mkdirs();
     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
         getSerializationFile(directory)))) {

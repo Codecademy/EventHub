@@ -2,15 +2,9 @@ package com.mobicrave.eventtracker.web;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import com.mobicrave.eventtracker.*;
-import com.mobicrave.eventtracker.index.EventIndex;
-import com.mobicrave.eventtracker.index.UserEventIndex;
+import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
-import com.mobicrave.eventtracker.storage.EventStorage;
-import com.mobicrave.eventtracker.storage.JournalEventStorage;
-import com.mobicrave.eventtracker.storage.JournalUserStorage;
-import com.mobicrave.eventtracker.storage.UserStorage;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -96,20 +90,8 @@ public class EventTrackerHandler extends AbstractHandler {
 
   public static void main(String[] args) throws Exception {
     final String directory = "/tmp/event_tracker/";
-    final String eventIndexDirectory = directory + "/event_index/";
-    final String userEventIndexDirectory = directory + "/user_event_index/";
-    final String eventStorageDirectory = directory + "/event_storage/";
-    final String userStorageDirectory = directory + "/user_storage/";
 
-    final EventIndex eventIndex = EventIndex.build(eventIndexDirectory);
-    final UserEventIndex userEventIndex = UserEventIndex.build(userEventIndexDirectory);
-    final EventStorage eventStorage = JournalEventStorage.build(eventStorageDirectory);
-    final UserStorage userStorage = JournalUserStorage.build(userStorageDirectory);
-//    final EventStorage eventStorage = MemEventStorage.build();
-//    final UserStorage userStorage = MemUserStorage.build();
-
-    EventTracker eventTracker = new EventTracker(eventIndex, userEventIndex, eventStorage, userStorage);
-
+    final EventTracker eventTracker = EventTracker.build(directory);
     EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker);
     final Server server = new Server(8080);
     server.setHandler(eventHandler);
@@ -121,10 +103,7 @@ public class EventTrackerHandler extends AbstractHandler {
         if (server.isStarted()) {
           try {
             server.stop();
-            eventStorage.close();
-            userStorage.close();
-            eventIndex.close();
-            userEventIndex.close();
+            eventTracker.close();
           } catch (Exception e) {
             e.printStackTrace();
           }

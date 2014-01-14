@@ -50,19 +50,23 @@ public class JournalEventStorage implements EventStorage {
   }
 
   @Override
-  public void close() {
-    try {
-      eventJournal.close();
-      metaDataList.close();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  public void close() throws IOException {
+    eventJournal.close();
+    metaDataList.close();
   }
 
-  public static JournalEventStorage build(String dataDir) {
-    Journal eventJournal = JournalUtil.createJournal(dataDir + "/event_journal/");
+  private static String getMetaDataSerializationFile(String directory) {
+    return directory + "/meta_data_list.mem";
+  }
+
+  private static String getJournalDirectory(String directory) {
+    return directory + "/event_journal/";
+  }
+
+  public static JournalEventStorage build(String directory) {
+    Journal eventJournal = JournalUtil.createJournal(getJournalDirectory(directory));
     MemMappedList<Event.MetaData> metaDataList = MemMappedList.build(Event.MetaData.getSchema(),
-        dataDir + "/meta_data_list.mem", 1024 * 1024 /* defaultCapacity */);
+        getMetaDataSerializationFile(directory), 1024 * 1024 /* defaultCapacity */);
     return new JournalEventStorage(eventJournal, metaDataList, metaDataList.getNumRecords());
   }
 }

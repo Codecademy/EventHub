@@ -18,6 +18,7 @@ public class JournalUtil {
   public static Journal createJournal(String dirPath) {
     Journal journal = new Journal();
     File directory = new File(dirPath);
+    //noinspection ResultOfMethodCallIgnored
     directory.mkdirs();
     journal.setDirectory(directory);
     journal.setMaxFileLength(1024 * 1024 * 1024);

@@ -60,7 +60,9 @@ public class MemUserStorage implements UserStorage {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+    throw new UnsupportedOperationException();
+  }
 
   public static UserStorage build() {
     return new MemUserStorage(new User[1024], new User.MetaData[1024],

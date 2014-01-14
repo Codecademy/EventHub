@@ -6,7 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class MemMappedListTest {
+public class DmaListTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
@@ -14,7 +14,7 @@ public class MemMappedListTest {
   public void testAll() throws Exception {
     int defaultCapacity = 2;
     String filename = folder.newFolder().getCanonicalPath() + "/test.mem";
-    MemMappedList<Event.MetaData> list = MemMappedList.build(Event.MetaData.getSchema(),
+    DmaList<Event.MetaData> list = DmaList.build(Event.MetaData.getSchema(),
         filename, defaultCapacity);
     Event.MetaData[] metaDatas = new Event.MetaData[] {
         new Event.MetaData(1, 2, new byte[] { 0b00000000, 0, 0, 0, 0b00101010, 0, 0, 0, 0b00110011, 0, 0, 0, 0b00000001 } ),
@@ -33,7 +33,7 @@ public class MemMappedListTest {
     }
 
     list.close();
-    list = MemMappedList.build(Event.MetaData.getSchema(), filename, defaultCapacity);
+    list = DmaList.build(Event.MetaData.getSchema(), filename, defaultCapacity);
     list.add(metaDatas[3]);
     for (int i = 0; i < metaDatas.length; i++) {
       Assert.assertEquals(metaDatas[i].getUserId(), list.get(i).getUserId());

@@ -2,7 +2,7 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
-import com.mobicrave.eventtracker.list.MemMappedList;
+import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
@@ -15,11 +15,11 @@ import java.util.Map;
 
 public class JournalUserStorage implements UserStorage {
   private final Journal userJournal;
-  private MemMappedList<User.MetaData> metaDataList;
+  private DmaList<User.MetaData> metaDataList;
   private final Map<String, Integer> idMap;
   private int currentId;
 
-  public JournalUserStorage(Journal userJournal, MemMappedList<User.MetaData> metaDataList,
+  public JournalUserStorage(Journal userJournal, DmaList<User.MetaData> metaDataList,
       Map<String, Integer> idMap, int currentId) {
     this.userJournal = userJournal;
     this.metaDataList = metaDataList;
@@ -82,7 +82,7 @@ public class JournalUserStorage implements UserStorage {
 
   public static JournalUserStorage build(String directory) {
     Journal userJournal = JournalUtil.createJournal(getJournalDirectory(directory));
-    MemMappedList<User.MetaData> metaDataList = MemMappedList.build(User.MetaData.getSchema(),
+    DmaList<User.MetaData> metaDataList = DmaList.build(User.MetaData.getSchema(),
         getMetaDataSerializationFile(directory), 10 * 1024 /* defaultCapacity */);
     File file = new File(getIdMapSerializationFile(directory));
     Map<String,Integer> idMap = Maps.newConcurrentMap();

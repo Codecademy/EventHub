@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import com.mobicrave.eventtracker.index.EventIndex;
 import com.mobicrave.eventtracker.index.UserEventIndex;
 import com.mobicrave.eventtracker.list.IdList;
-import com.mobicrave.eventtracker.list.MemIdList;
+import com.mobicrave.eventtracker.list.SimpleIdList;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.EventStorage;
@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Set;
 
 // TODO: poorly formatted user event index idlist filename
-// TODO: make MemX persistent with serialization
 // TODO: MemIdListTest
 // TODO: UserEventIndex assumes userId and numRecords in sync
 // TODO: double check whose responsibility to synchronize
@@ -33,7 +32,7 @@ import java.util.Set;
 // TODO: more compact serialization format for Event & User
 // TODO: 4B & 4G constraints
 // TODO: need to add user before adding events
-// TODO: MemMappedList still have 4G size constraint
+// TODO: DmaList still have 4G size constraint
 // TODO: native byte order for performance
 public class EventTracker implements Closeable {
   private final String directory;
@@ -53,8 +52,8 @@ public class EventTracker implements Closeable {
 
   public int[] getCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
       int numDaysToCompleteFunnel) {
-    IdList userIdList = MemIdList.build("", 10000);
-    IdList firstStepEventIdList = MemIdList.build("", 10000);
+    IdList userIdList = SimpleIdList.build("", 10000);
+    IdList firstStepEventIdList = SimpleIdList.build("", 10000);
     int[] funnelStepsEventTypeIds = getEventTypeIds(funnelStepsEventTypes);
 
     EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
@@ -62,8 +61,8 @@ public class EventTracker implements Closeable {
     eventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
-    MemIdList.Iterator userIdIterator = userIdList.iterator();
-    MemIdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
+    SimpleIdList.Iterator userIdIterator = userIdList.iterator();
+    SimpleIdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
     while (userIdIterator.hasNext()) {
       long userId = userIdIterator.next();
       long firstStepEventId = firstStepEventIdIterator.next();

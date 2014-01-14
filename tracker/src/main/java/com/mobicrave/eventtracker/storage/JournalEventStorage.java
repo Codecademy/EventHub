@@ -1,8 +1,8 @@
 package com.mobicrave.eventtracker.storage;
 
 import com.google.common.io.ByteStreams;
+import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
-import com.mobicrave.eventtracker.list.MemMappedList;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 
@@ -10,10 +10,10 @@ import java.io.IOException;
 
 public class JournalEventStorage implements EventStorage {
   private final Journal eventJournal;
-  private final MemMappedList<Event.MetaData> metaDataList;
+  private final DmaList<Event.MetaData> metaDataList;
   private long currentId;
 
-  private JournalEventStorage(Journal eventJournal, MemMappedList<Event.MetaData> metaDataList,
+  private JournalEventStorage(Journal eventJournal, DmaList<Event.MetaData> metaDataList,
       long currentId) {
     this.eventJournal = eventJournal;
     this.metaDataList = metaDataList;
@@ -65,7 +65,7 @@ public class JournalEventStorage implements EventStorage {
 
   public static JournalEventStorage build(String directory) {
     Journal eventJournal = JournalUtil.createJournal(getJournalDirectory(directory));
-    MemMappedList<Event.MetaData> metaDataList = MemMappedList.build(Event.MetaData.getSchema(),
+    DmaList<Event.MetaData> metaDataList = DmaList.build(Event.MetaData.getSchema(),
         getMetaDataSerializationFile(directory), 1024 * 1024 /* defaultCapacity */);
     return new JournalEventStorage(eventJournal, metaDataList, metaDataList.getNumRecords());
   }

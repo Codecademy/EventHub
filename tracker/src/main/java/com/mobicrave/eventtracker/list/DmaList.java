@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-public class MemMappedList<T> implements Closeable {
+public class DmaList<T> implements Closeable {
   private static final int META_DATA_SIZE = 8; // size for numRecords
   private final String filename;
   private final Schema<T> schema;
@@ -18,7 +18,7 @@ public class MemMappedList<T> implements Closeable {
   private long numRecords;
   private long capacity;
 
-  public MemMappedList(String filename, Schema<T> schema, MappedByteBuffer buffer, long numRecords,
+  public DmaList(String filename, Schema<T> schema, MappedByteBuffer buffer, long numRecords,
       long capacity) {
     this.filename = filename;
     this.schema = schema;
@@ -68,7 +68,7 @@ public class MemMappedList<T> implements Closeable {
     }
   }
 
-  public static <T> MemMappedList<T> build(Schema<T> schema, String filename, int defaultCapacity) {
+  public static <T> DmaList<T> build(Schema<T> schema, String filename, int defaultCapacity) {
     try {
       File file = new File(filename);
       if (!file.exists()) {
@@ -84,7 +84,7 @@ public class MemMappedList<T> implements Closeable {
       long capacity = raf.length() / schema.getObjectSize();
       // TODO: 4B constraints
       buffer.position((int) (META_DATA_SIZE + size * schema.getObjectSize()));
-      return new MemMappedList<>(filename, schema, buffer, size, capacity);
+      return new DmaList<>(filename, schema, buffer, size, capacity);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -9,14 +9,14 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class MemIdList implements IdList, Serializable {
+public class SimpleIdList implements IdList, Serializable {
   private static final long serialVersionUID = 8806039426767633834L;
 
   private final String filename;
   private long[] list;
   private int numRecords;
 
-  public MemIdList(String filename, long[] list, int numRecords) {
+  public SimpleIdList(String filename, long[] list, int numRecords) {
     this.filename = filename;
     this.list = list;
     this.numRecords = numRecords;
@@ -62,16 +62,16 @@ public class MemIdList implements IdList, Serializable {
     }
   }
 
-  public static MemIdList build(String filename, int defaultCapacity) {
+  public static SimpleIdList build(String filename, int defaultCapacity) {
     File file = new File(filename);
     if (file.exists()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-        return (MemIdList) ois.readObject();
+        return (SimpleIdList) ois.readObject();
       } catch (ClassNotFoundException | IOException e) {
         throw new RuntimeException(e);
       }
     }
-    return new MemIdList(filename, new long[defaultCapacity], 0);
+    return new SimpleIdList(filename, new long[defaultCapacity], 0);
   }
 
   public static class Iterator implements IdList.Iterator {

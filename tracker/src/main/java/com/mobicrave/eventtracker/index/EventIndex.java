@@ -3,7 +3,7 @@ package com.mobicrave.eventtracker.index;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mobicrave.eventtracker.list.IdList;
-import com.mobicrave.eventtracker.list.MemIdList;
+import com.mobicrave.eventtracker.list.SimpleIdList;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -159,7 +159,7 @@ public class EventIndex implements Closeable {
 
     public void enumerateEventIds(String startDate, String endDate, Callback callback) {
       for (IdList idList : eventIdListMap.subMap(startDate, endDate).values()) {
-        MemIdList.Iterator eventIdIterator = idList.iterator();
+        SimpleIdList.Iterator eventIdIterator = idList.iterator();
         while (eventIdIterator.hasNext()) {
           callback.onEventId(eventIdIterator.next());
         }
@@ -169,7 +169,7 @@ public class EventIndex implements Closeable {
     public void addEvent(long eventId, String date) {
       IdList idList = eventIdListMap.get(date);
       if (idList == null) {
-        idList = MemIdList.build(getIdListSerializationFile(directory, date), 1024);
+        idList = SimpleIdList.build(getIdListSerializationFile(directory, date), 1024);
         eventIdListMap.put(date, idList);
       }
       idList.add(eventId);
@@ -205,7 +205,7 @@ public class EventIndex implements Closeable {
           List<String> dates = (List<String>) ois.readObject();
           SortedMap<String, IdList> eventIdListMap = Maps.newTreeMap();
           for (String date : dates) {
-            eventIdListMap.put(date, MemIdList.build(
+            eventIdListMap.put(date, SimpleIdList.build(
                 getIdListSerializationFile(directory, date), 1024));
           }
           return new IndividualEventIndex(directory, eventIdListMap);

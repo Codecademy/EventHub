@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Set;
 
 // TODO: poorly formatted user event index idlist filename
-// TODO: MemIdListTest
 // TODO: UserEventIndex assumes userId and numRecords in sync
 // TODO: double check whose responsibility to synchronize
 // TODO: not only write write sync, but also read write sync
@@ -61,8 +60,8 @@ public class EventTracker implements Closeable {
     eventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
-    SimpleIdList.Iterator userIdIterator = userIdList.iterator();
-    SimpleIdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
+    IdList.Iterator userIdIterator = userIdList.iterator();
+    IdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
     while (userIdIterator.hasNext()) {
       long userId = userIdIterator.next();
       long firstStepEventId = firstStepEventIdIterator.next();

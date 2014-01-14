@@ -9,18 +9,22 @@ import org.fusesource.hawtjournal.api.Location;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Map;
 
 public class JournalUserStorage implements UserStorage {
+  private final String directory;
   private final Journal userJournal;
   private DmaList<User.MetaData> metaDataList;
   private final Map<String, Integer> idMap;
   private int currentId;
 
-  public JournalUserStorage(Journal userJournal, DmaList<User.MetaData> metaDataList,
+  public JournalUserStorage(String directory, Journal userJournal, DmaList<User.MetaData> metaDataList,
       Map<String, Integer> idMap, int currentId) {
+    this.directory = directory;
     this.userJournal = userJournal;
     this.metaDataList = metaDataList;
     this.idMap = idMap;
@@ -64,6 +68,14 @@ public class JournalUserStorage implements UserStorage {
 
   @Override
   public void close() throws IOException {
+    //noinspection ResultOfMethodCallIgnored
+    new File(directory).mkdirs();
+
+    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
+        getIdMapSerializationFile(directory)))) {
+      oos.writeObject(idMap);
+      oos.writeInt(currentId);
+    }
     userJournal.close();
     metaDataList.close();
   }
@@ -86,13 +98,16 @@ public class JournalUserStorage implements UserStorage {
         getMetaDataSerializationFile(directory), 10 * 1024 /* defaultCapacity */);
     File file = new File(getIdMapSerializationFile(directory));
     Map<String,Integer> idMap = Maps.newConcurrentMap();
+    int currentId = 0;
     if (file.exists()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
         idMap = (Map<String, Integer>) ois.readObject();
+        currentId = ois.readInt();
       } catch (ClassNotFoundException | IOException e) {
         throw new RuntimeException(e);
       }
     }
-    return new JournalUserStorage(userJournal, metaDataList, idMap, (int) metaDataList.getNumRecords());
+    return new JournalUserStorage(directory, userJournal, metaDataList, idMap,
+        currentId);
   }
 }

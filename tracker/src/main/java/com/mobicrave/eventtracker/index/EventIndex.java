@@ -159,7 +159,7 @@ public class EventIndex implements Closeable {
 
     public void enumerateEventIds(String startDate, String endDate, Callback callback) {
       for (IdList idList : eventIdListMap.subMap(startDate, endDate).values()) {
-        SimpleIdList.Iterator eventIdIterator = idList.iterator();
+        IdList.Iterator eventIdIterator = idList.iterator();
         while (eventIdIterator.hasNext()) {
           callback.onEventId(eventIdIterator.next());
         }

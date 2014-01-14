@@ -15,8 +15,8 @@ public class JournalUserStorageTest {
 
   @Test
   public void testAll() throws Exception {
-    String dataDir = folder.newFolder("journal-user-storage-test").getCanonicalPath() + "/";
-    JournalUserStorage userStorage = JournalUserStorage.build(dataDir);
+    String directory = folder.newFolder("journal-user-storage-test").getCanonicalPath() + "/";
+    JournalUserStorage userStorage = JournalUserStorage.build(directory);
     String[] externalIds = new String[] { "x", "y", "z" };
     Map<String, String>[] properties = (Map<String, String>[]) new Map[] {
         ImmutableMap.<String, String>builder().put("foo1", "bar1").build(),
@@ -35,7 +35,7 @@ public class JournalUserStorageTest {
     }
     userStorage.close();
 
-    userStorage = JournalUserStorage.build(dataDir);
+    userStorage = JournalUserStorage.build(directory);
     userStorage.addUser(
         new User.Builder(externalIds[externalIds.length - 1], properties[externalIds.length - 1])
             .build());

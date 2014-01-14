@@ -2,18 +2,14 @@ package com.mobicrave.eventtracker;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-/**
- * The class is not thread-safe
- */
 public class MemMappedList<T> implements Closeable {
-  private static final int META_DATA_SIZE = 8; // offset for numRecords
+  private static final int META_DATA_SIZE = 8; // size for numRecords
   private final String filename;
   private final Schema<T> schema;
   private MappedByteBuffer buffer;
@@ -29,19 +25,9 @@ public class MemMappedList<T> implements Closeable {
     this.capacity = capacity;
   }
 
-  public void write(T t) {
+  public void add(T t) {
     if (numRecords == capacity) {
-      buffer.force();
-      try {
-        RandomAccessFile raf = new RandomAccessFile(filename, "rw");
-        int objectSize = schema.getObjectSize();
-        raf.setLength(META_DATA_SIZE + 2 * capacity * objectSize);
-        buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
-        buffer.position(META_DATA_SIZE + (int) capacity * objectSize);
-        capacity *= 2;
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      expandBuffer(META_DATA_SIZE + 2 * capacity * schema.getObjectSize());
     }
     buffer.putLong(0, ++numRecords);
     buffer.put(schema.toBytes(t));
@@ -50,7 +36,7 @@ public class MemMappedList<T> implements Closeable {
   public T get(long kthRecord) {
     int objectSize = schema.getObjectSize();
     byte[] bytes = new byte[objectSize];
-    // 4B constraints
+    // TODO: 4B constraints
     ByteBuffer newBuffer = buffer.duplicate();
     newBuffer.position(META_DATA_SIZE + (int) kthRecord * objectSize);
     newBuffer.get(bytes, 0, objectSize);
@@ -66,6 +52,20 @@ public class MemMappedList<T> implements Closeable {
     return numRecords;
   }
 
+  private void expandBuffer(long newSize) {
+    buffer.force();
+    try {
+      int oldPosition = buffer.position();
+      RandomAccessFile raf = new RandomAccessFile(filename, "rw");
+      raf.setLength(newSize);
+      buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
+      buffer.position(oldPosition);
+      capacity *= 2;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public static <T> MemMappedList<T> build(Schema<T> schema, String filename, int defaultCapacity) {
     try {
       File file = new File(filename);
@@ -79,7 +79,7 @@ public class MemMappedList<T> implements Closeable {
       MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
       long size = buffer.getLong();
       long capacity = raf.length() / schema.getObjectSize();
-      // 4B constraints
+      // TODO: 4B constraints
       buffer.position((int) (META_DATA_SIZE + size * schema.getObjectSize()));
       return new MemMappedList<T>(filename, schema, buffer, size, capacity);
     } catch (IOException e) {

@@ -15,13 +15,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
 public class EventIndex implements Closeable {
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
-  // O(numEventTypes)
+  // O(numEventTypes), from eventType to its index
   private final Map<String, IndividualEventIndex> eventIndexMap;
+  // O(numEventTypes)
+  private final Map<String, Integer> eventTypeIdMap;
   // O(numDays)
   private final ArrayList<String> dates;
   // O(numDays)
@@ -29,9 +32,11 @@ public class EventIndex implements Closeable {
   private String currentDate;
   private final String directory;
 
-  private EventIndex(Map<String, IndividualEventIndex> eventIndexMap, ArrayList<String> dates,
+  private EventIndex(Map<String, IndividualEventIndex> eventIndexMap,
+      Map<String, Integer> eventTypeIdMap, ArrayList<String> dates,
       ArrayList<Long> earliestEventIds, String currentDate, String directory) {
     this.eventIndexMap = eventIndexMap;
+    this.eventTypeIdMap = eventTypeIdMap;
     this.dates = dates;
     this.earliestEventIds = earliestEventIds;
     this.currentDate = currentDate;
@@ -64,15 +69,15 @@ public class EventIndex implements Closeable {
     return earliestEventIds.get(endDateOffset);
   }
 
-  public int addEventType(String eventType) {
+  public void addEventType(String eventType) {
     IndividualEventIndex individualEventIndex = eventIndexMap.get(eventType);
     if (individualEventIndex != null) {
-      return individualEventIndex.getId();
+      return ;
     }
     synchronized (this) {
-      int eventIndexId = eventIndexMap.size();
-      eventIndexMap.put(eventType, IndividualEventIndex.build(eventIndexId));
-      return eventIndexId;
+      eventTypeIdMap.put(eventType, eventIndexMap.size());
+      eventIndexMap.put(eventType, IndividualEventIndex.build(
+          String.format("%s/%s/", directory, eventType)));
     }
   }
 
@@ -86,25 +91,23 @@ public class EventIndex implements Closeable {
   }
 
   public int getEventTypeId(String eventType) {
-    return eventIndexMap.get(eventType).getId();
+    return eventTypeIdMap.get(eventType);
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     new File(directory).mkdirs();
     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getSerializationFile(directory)))) {
-      ArrayList<String> eventIndexNames = Lists.newArrayList();
-      for (String eventIndexName : eventIndexMap.keySet()) {
-        eventIndexNames.add(eventIndexName);
-        IndividualEventIndex individualEventIndex = eventIndexMap.get(eventIndexName);
-        individualEventIndex.close(getSerializationFile(directory, eventIndexName));
+      ArrayList<String> eventTypes = Lists.newArrayList();
+      for (String eventType : eventIndexMap.keySet()) {
+        eventTypes.add(eventType);
+        eventIndexMap.get(eventType).close();
       }
-      oos.writeObject(eventIndexNames);
+      oos.writeObject(eventTypes);
+      oos.writeObject(eventTypeIdMap);
       oos.writeObject(dates);
       oos.writeObject(earliestEventIds);
       oos.writeObject(currentDate);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -113,51 +116,42 @@ public class EventIndex implements Closeable {
     if (file.exists()) {
       try {
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-        ArrayList<String> eventIndexNames = (ArrayList<String>) ois.readObject();
+        ArrayList<String> eventTypes = (ArrayList<String>) ois.readObject();
+        Map<String, Integer> eventTypeIdMap = (Map<String, Integer>) ois.readObject();
         ArrayList<String> dates = (ArrayList<String>) ois.readObject();
         ArrayList<Long> earliestEventIds = (ArrayList<Long>) ois.readObject();
         String currentDate = (String) ois.readObject();
         Map<String, IndividualEventIndex> eventIndexMap = Maps.newHashMap();
-        for (String eventIndexName : eventIndexNames) {
-          eventIndexMap.put(eventIndexName, IndividualEventIndex.build(
-              getSerializationFile(directory, eventIndexName)));
+        for (String eventType : eventTypes) {
+          eventIndexMap.put(eventType, IndividualEventIndex.build(String.format("%s/%s/", directory, eventType)));
         }
-        return new EventIndex(eventIndexMap, dates, earliestEventIds, currentDate, directory);
+        return new EventIndex(eventIndexMap, eventTypeIdMap, dates, earliestEventIds, currentDate,
+            directory);
       } catch (IOException | ClassNotFoundException e) {
         throw new RuntimeException(e);
       }
     }
-    return new EventIndex(Maps.<String,IndividualEventIndex>newHashMap(),
+    return new EventIndex(Maps.<String,IndividualEventIndex>newHashMap(), Maps.<String, Integer>newHashMap(),
         Lists.<String>newArrayList(), Lists.<Long>newArrayList(), null, directory);
-  }
-
-  private static String getSerializationFile(String directory, String eventIndexName) {
-    return directory + "/" + eventIndexName + ".ser";
   }
 
   private static String getSerializationFile(String directory) {
     return directory + "/event_index.ser";
   }
 
-  // TODO: mem-map it
-  // TODO: extract interface and try different implementation
-  private static class IndividualEventIndex {
-    private final int id;
+  private static class IndividualEventIndex implements Closeable {
+    private final String directory;
     // from date string to IdList of eventId
     private final SortedMap<String, IdList> eventIdListMap;
 
-    private IndividualEventIndex(int id, SortedMap<String, IdList> eventIdListMap) {
-      this.id = id;
+    private IndividualEventIndex(String directory, SortedMap<String, IdList> eventIdListMap) {
+      this.directory = directory;
       this.eventIdListMap = eventIdListMap;
-    }
-
-    public int getId() {
-      return id;
     }
 
     public void enumerateEventIds(String startDate, String endDate, Callback callback) {
       for (IdList idList : eventIdListMap.subMap(startDate, endDate).values()) {
-        IdList.Iterator eventIdIterator = idList.iterator();
+        MemIdList.Iterator eventIdIterator = idList.iterator();
         while (eventIdIterator.hasNext()) {
           callback.onEventId(eventIdIterator.next());
         }
@@ -167,35 +161,42 @@ public class EventIndex implements Closeable {
     public void addEvent(long eventId, String date) {
       IdList idList = eventIdListMap.get(date);
       if (idList == null) {
-        idList = IdList.build();
+        idList = MemIdList.build(String.format("%s/%s.ser", directory, date), 1024);
         eventIdListMap.put(date, idList);
       }
       idList.add(eventId);
     }
 
-    public void close(String file) {
-      try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-        oos.writeObject(id);
-        oos.writeObject(eventIdListMap);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+    @Override
+    public void close() throws IOException {
+      new File(directory).mkdirs();
+      try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
+          String.format("%s/individual_event_index.ser", directory)))) {
+        List<String> dates = Lists.newArrayList();
+        for (Map.Entry<String, IdList> entry : eventIdListMap.entrySet()) {
+          entry.getValue().close();
+          dates.add(entry.getKey());
+        }
+        oos.writeObject(dates);
       }
     }
 
-    public static IndividualEventIndex build(int id) {
-      return new IndividualEventIndex(id, Maps.<String, IdList>newTreeMap());
-    }
-
-    public static IndividualEventIndex build(String file) {
-      try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-        int id = (Integer) ois.readObject();
-        SortedMap<String, IdList> eventIdListMap = (SortedMap<String, IdList>) ois.readObject();
-        return new IndividualEventIndex(id, eventIdListMap);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
+    public static IndividualEventIndex build(String directory) {
+      File file = new File(String.format("%s/individual_event_index.ser", directory));
+      if (file.exists()) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+          List<String> dates = (List<String>) ois.readObject();
+          SortedMap<String, IdList> eventIdListMap = Maps.newTreeMap();
+          for (String date : dates) {
+            eventIdListMap.put(date, MemIdList.build(
+                String.format("%s/%s.ser", directory, date), 1024));
+          }
+          return new IndividualEventIndex(directory, eventIdListMap);
+        } catch (IOException | ClassNotFoundException e) {
+          throw new RuntimeException(e);
+        }
       }
+      return new IndividualEventIndex(directory, Maps.<String, IdList>newTreeMap());
     }
   }
 

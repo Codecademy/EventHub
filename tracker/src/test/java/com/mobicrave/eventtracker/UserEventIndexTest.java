@@ -14,48 +14,48 @@ public class UserEventIndexTest {
     String dataDir = folder.newFolder("user-event-index-test").getCanonicalPath() + "/";
 
     UserEventIndex userEventIndex = UserEventIndex.build(dataDir);
+    userEventIndex.addUser(0);
     userEventIndex.addUser(1);
-    userEventIndex.addUser(3);
-    userEventIndex.addUser(5);
+    userEventIndex.addUser(2);
 
-    userEventIndex.addEvent(10, 1);
-    userEventIndex.addEvent(20, 3);
-    userEventIndex.addEvent(30, 5);
-    userEventIndex.addEvent(40, 1);
-    userEventIndex.addEvent(50, 3);
-    userEventIndex.addEvent(60, 5);
-    userEventIndex.addEvent(70, 1);
-    userEventIndex.addEvent(80, 3);
-    userEventIndex.addEvent(90, 5);
-    userEventIndex.addEvent(100, 1);
-    userEventIndex.addEvent(110, 3);
-    userEventIndex.addEvent(120, 5);
+    userEventIndex.addEvent(0, 10);
+    userEventIndex.addEvent(1, 20);
+    userEventIndex.addEvent(2, 30);
+    userEventIndex.addEvent(0, 40);
+    userEventIndex.addEvent(1, 50);
+    userEventIndex.addEvent(2, 60);
+    userEventIndex.addEvent(0, 70);
+    userEventIndex.addEvent(1, 80);
+    userEventIndex.addEvent(2, 90);
+    userEventIndex.addEvent(0, 100);
+    userEventIndex.addEvent(1, 110);
+    userEventIndex.addEvent(2, 120);
 
     IdVerificationCallback callback = new IdVerificationCallback(new int[] { 20, 50, 80, 110 });
-    userEventIndex.enumerateEventIds(3, 1, 1000, callback);
+    userEventIndex.enumerateEventIds(1, 1, 1000, callback);
     callback.verify();
 
     callback = new IdVerificationCallback(new int[] { 50, 80 });
-    userEventIndex.enumerateEventIds(3, 50, 81, callback);
+    userEventIndex.enumerateEventIds(1, 50, 81, callback);
     callback.verify();
 
     callback = new IdVerificationCallback(new int[] { 50 });
-    userEventIndex.enumerateEventIds(3, 50, 80, callback);
+    userEventIndex.enumerateEventIds(1, 50, 80, callback);
     callback.verify();
 
     userEventIndex.close();
     userEventIndex = UserEventIndex.build(dataDir);
 
     callback = new IdVerificationCallback(new int[] { 20, 50, 80, 110 });
-    userEventIndex.enumerateEventIds(3, 1, 1000, callback);
+    userEventIndex.enumerateEventIds(1, 1, 1000, callback);
     callback.verify();
 
     callback = new IdVerificationCallback(new int[] { 50, 80 });
-    userEventIndex.enumerateEventIds(3, 50, 81, callback);
+    userEventIndex.enumerateEventIds(1, 50, 81, callback);
     callback.verify();
 
     callback = new IdVerificationCallback(new int[] { 50 });
-    userEventIndex.enumerateEventIds(3, 50, 80, callback);
+    userEventIndex.enumerateEventIds(1, 50, 80, callback);
     callback.verify();
   }
 

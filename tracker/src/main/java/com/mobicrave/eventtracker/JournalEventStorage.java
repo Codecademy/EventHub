@@ -24,7 +24,7 @@ public class JournalEventStorage implements EventStorage {
       long id = currentId++;
       byte[] location = JournalUtil.locationToBytes(eventJournal.write(event.toByteBuffer(), true));
       Event.MetaData metaData = event.getMetaData(userId, eventTypeId, location);
-      metaDataList.write(metaData);
+      metaDataList.add(metaData);
       return id;
     } catch (IOException e) {
       throw new RuntimeException(e);

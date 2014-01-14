@@ -40,8 +40,8 @@ public class EventTrackerHandler extends AbstractHandler {
         response.getWriter().println(eventId);
         break;
       case "/add_event_type":
-        int eventTypeId = eventTracker.addEventType(request.getParameter("event_type"));
-        response.getWriter().println(eventTypeId);
+        eventTracker.addEventType(request.getParameter("event_type"));
+        response.getWriter().println("OK");
         break;
       case "/count_funnel_steps":
         int[] funnelSteps = countFunnelSteps(request);
@@ -92,7 +92,7 @@ public class EventTrackerHandler extends AbstractHandler {
     final String eventIndexDirectory = directory + "/event_index/";
     final String userEventIndexDirectory = directory + "/user_event_index/";
     final String eventStorageDirectory = directory + "/event_storage/";
-    final String userStorageDirectory = directory + "/tmp/event_tracker/user_storage/";
+    final String userStorageDirectory = directory + "/user_storage/";
 
     final EventIndex eventIndex = EventIndex.build(eventIndexDirectory);
     final UserEventIndex userEventIndex = UserEventIndex.build(userEventIndexDirectory);

@@ -4,11 +4,22 @@ import com.google.common.collect.Sets;
 
 import java.util.Set;
 
+// TODO: refactor serialization code
+// TODO: MemIdListTest
+// TODO: UserEventIndex assumes userId and numRecords in sync
+// TODO: double check whose responsibility to synchronize
+// TODO: not only write write sync, but also read write sync
 // TODO: mem-map index
+// TODO: add user if not exist or idempotent adding user
+// TODO: test for concurrent access
 // TODO: properties filtering & bloomfilter
 // TODO: property statistics for segmentation
 // TODO: charting
 // TODO: query language
+// TODO: more compact serialization format for Event & User
+// TODO: 4B & 4G constraints
+// TODO: MemMappedList still have 4G size constraint
+// TODO: native byte order for performance
 public class EventTracker {
   private final EventIndex eventIndex;
   private final UserEventIndex userEventIndex;
@@ -25,8 +36,8 @@ public class EventTracker {
 
   public int[] getCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
       int numDaysToCompleteFunnel) {
-    IdList userIdList = IdList.build();
-    IdList firstStepEventIdList = IdList.build();
+    IdList userIdList = MemIdList.build("", 10000);
+    IdList firstStepEventIdList = MemIdList.build("", 10000);
     int[] funnelStepsEventTypeIds = getEventTypeIds(funnelStepsEventTypes);
 
     EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
@@ -34,8 +45,8 @@ public class EventTracker {
     eventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
-    IdList.Iterator userIdIterator = userIdList.iterator();
-    IdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
+    MemIdList.Iterator userIdIterator = userIdList.iterator();
+    MemIdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
     while (userIdIterator.hasNext()) {
       long userId = userIdIterator.next();
       long firstStepEventId = firstStepEventIdIterator.next();
@@ -56,8 +67,8 @@ public class EventTracker {
     return userId;
   }
 
-  public int addEventType(String eventType) {
-    return eventIndex.addEventType(eventType);
+  public void addEventType(String eventType) {
+    eventIndex.addEventType(eventType);
   }
 
   public long addEvent(Event event) {
@@ -65,7 +76,7 @@ public class EventTracker {
     long eventId = eventStorage.addEvent(event, userId,
         eventIndex.getEventTypeId(event.getEventType()));
     eventIndex.addEvent(eventId, event.getEventType(), event.getDate());
-    userEventIndex.addEvent(eventId, userId);
+    userEventIndex.addEvent(userId, eventId);
     return eventId;
   }
 

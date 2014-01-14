@@ -23,7 +23,7 @@ public class MemMappedListTest {
     };
 
     for (int i = 0; i < metaDatas.length - 1; i++) {
-      list.write(metaDatas[i]);
+      list.add(metaDatas[i]);
     }
     for (int i = 0; i < metaDatas.length - 1; i++) {
       Assert.assertEquals(metaDatas[i].getUserId(), list.get(i).getUserId());
@@ -33,7 +33,7 @@ public class MemMappedListTest {
 
     list.close();
     list = MemMappedList.build(Event.MetaData.getSchema(), filename, defaultCapacity);
-    list.write(metaDatas[3]);
+    list.add(metaDatas[3]);
     for (int i = 0; i < metaDatas.length; i++) {
       Assert.assertEquals(metaDatas[i].getUserId(), list.get(i).getUserId());
       Assert.assertEquals(metaDatas[i].getEventTypeId(), list.get(i).getEventTypeId());

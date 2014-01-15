@@ -1,7 +1,7 @@
 package com.mobicrave.eventtracker.index;
 
+import com.mobicrave.eventtracker.list.DmaIdList;
 import com.mobicrave.eventtracker.list.IdList;
-import com.mobicrave.eventtracker.list.SimpleIdList;
 
 import java.io.Closeable;
 import java.io.File;
@@ -46,7 +46,7 @@ public class UserEventIndex implements Closeable {
       System.arraycopy(index, 0, newIndex, 0, index.length);
       index = newIndex;
     }
-    index[(int) userId] = SimpleIdList.build(getIdListSerializationFile(directory, userId), 128);
+    index[(int) userId] = DmaIdList.build(getIdListSerializationFile(directory, userId), 128);
     numRecords++;
   }
 
@@ -77,16 +77,16 @@ public class UserEventIndex implements Closeable {
     if (file.exists()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
         int numRecords =  ois.readInt();
-        SimpleIdList[] index = new SimpleIdList[numRecords];
+        IdList[] index = new IdList[numRecords];
         for (int i = 0; i < numRecords; i++) {
-          index[i] = SimpleIdList.build(getIdListSerializationFile(directory, i), 100);
+          index[i] = DmaIdList.build(getIdListSerializationFile(directory, i), 100);
         }
         return new UserEventIndex(directory, index, numRecords);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
-    return new UserEventIndex(directory, new SimpleIdList[1024], 0);
+    return new UserEventIndex(directory, new DmaIdList[1024], 0);
   }
 
   public static interface Callback {

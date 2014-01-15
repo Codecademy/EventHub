@@ -81,7 +81,7 @@ public class DmaList<T> implements Closeable {
       RandomAccessFile raf = new RandomAccessFile(new File(filename), "rw");
       MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
       long size = buffer.getLong();
-      long capacity = raf.length() / schema.getObjectSize();
+      long capacity = (raf.length() - META_DATA_SIZE) / schema.getObjectSize();
       // TODO: 4B constraints
       buffer.position((int) (META_DATA_SIZE + size * schema.getObjectSize()));
       return new DmaList<>(filename, schema, buffer, size, capacity);

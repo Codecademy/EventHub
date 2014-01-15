@@ -17,13 +17,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
+// TODO: test for concurrent access
 // TODO: poorly formatted user event index idlist filename
 // TODO: UserEventIndex assumes userId and numRecords in sync
-// TODO: double check whose responsibility to synchronize
-// TODO: not only write write sync, but also read write sync
-// TODO: mem-map index
+// TODO: double check whose responsibility to synchronize, not only write write sync, but also read write sync
 // TODO: add user if not exist or idempotent adding user
-// TODO: test for concurrent access
 // TODO: properties filtering & bloomfilter
 // TODO: property statistics for segmentation
 // TODO: charting

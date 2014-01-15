@@ -56,7 +56,8 @@ public class MemUserStorage implements UserStorage {
 
   @Override
   public int getId(String externalUserId) {
-    return idMap.get(externalUserId);
+    Integer id = idMap.get(externalUserId);
+    return id == null ? USER_NOT_FOUND : id;
   }
 
   @Override

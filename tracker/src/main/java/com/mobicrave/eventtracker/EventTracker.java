@@ -18,19 +18,21 @@ import java.io.IOException;
 import java.util.Set;
 
 // TODO: test for concurrent access
-// TODO: poorly formatted user event index idlist filename
-// TODO: UserEventIndex assumes userId and numRecords in sync
 // TODO: double check whose responsibility to synchronize, not only write write sync, but also read write sync
-// TODO: add user if not exist or idempotent adding user
 // TODO: properties filtering & bloomfilter
-// TODO: property statistics for segmentation
 // TODO: charting
+// TODO: property statistics for segmentation
 // TODO: query language
 // TODO: more compact serialization format for Event & User
 // TODO: 4B & 4G constraints
 // TODO: need to add user before adding events
 // TODO: DmaList still have 4G size constraint
 // TODO: native byte order for performance
+// TODO: poorly formatted user event index idlist filename
+// TODO: UserEventIndex assumes userId and numRecords in sync
+/**
+ * The corresponding user has to be added before his/her event can be tracked
+ */
 public class EventTracker implements Closeable {
   private final String directory;
   private final EventIndex eventIndex;
@@ -75,6 +77,10 @@ public class EventTracker implements Closeable {
   }
 
   public long addUser(User user) {
+    int id = userStorage.getId(user.getExternalId());
+    if (id != UserStorage.USER_NOT_FOUND) {
+      return id;
+    }
     long userId = userStorage.addUser(user);
     userEventIndex.addUser(userId);
     return userId;

@@ -22,6 +22,7 @@ public class MemUserStorageTest {
       userStorage.addUser(new User.Builder(externalIds[i], properties[i]).build());
     }
 
+    Assert.assertEquals(-1, userStorage.getId("NOT EXIST"));
     for (int i = 0; i < externalIds.length; i++) {
       Assert.assertEquals(i, userStorage.getId(externalIds[i]));
       Assert.assertEquals(externalIds[i], userStorage.getUser(i).getExternalId());

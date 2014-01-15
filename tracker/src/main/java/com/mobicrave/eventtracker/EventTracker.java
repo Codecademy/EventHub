@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-// TODO: test for concurrent access
 // TODO: double check whose responsibility to synchronize, not only write write sync, but also read write sync
 // TODO: properties filtering & bloomfilter
 // TODO: charting

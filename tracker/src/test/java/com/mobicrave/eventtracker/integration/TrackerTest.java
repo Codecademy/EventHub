@@ -2,12 +2,22 @@ package com.mobicrave.eventtracker.integration;
 
 import com.google.common.collect.Maps;
 import com.mobicrave.eventtracker.*;
+import com.mobicrave.eventtracker.index.EventIndex;
+import com.mobicrave.eventtracker.index.UserEventIndex;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
+import com.mobicrave.eventtracker.storage.EventStorage;
+import com.mobicrave.eventtracker.storage.JournalEventStorage;
+import com.mobicrave.eventtracker.storage.JournalUserStorage;
+import com.mobicrave.eventtracker.storage.UserStorage;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TrackerTest {
   @Rule
@@ -113,6 +123,100 @@ public class TrackerTest {
         tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */));
   }
 
+  @Test
+  public void testConcurrentAddUser() throws Exception {
+  }
+
+  @Test
+  public void testConcurrentAddEvent() throws Exception {
+    final String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
+    String eventIndexDirectory = directory + "/event_index/";
+    String userEventIndexDirectory = directory + "/user_event_index/";
+    String eventStorageDirectory = directory + "/event_storage/";
+    String userStorageDirectory = directory + "/user_storage/";
+
+    final EventIndex eventIndex = EventIndex.build(eventIndexDirectory);
+    final UserEventIndex userEventIndex = UserEventIndex.build(userEventIndexDirectory);
+    final EventStorage eventStorage = JournalEventStorage.build(eventStorageDirectory);
+    final UserStorage userStorage = JournalUserStorage.build(userStorageDirectory);
+
+    final EventTracker tracker = new EventTracker(directory, eventIndex, userEventIndex,
+        eventStorage, userStorage);
+
+    final int NUM_EVENTS = 1000;
+    final int NUM_THREADS = 5;
+    final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4" };
+    final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
+    final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
+
+    for (String eventType : EVENT_TYPES) {
+      tracker.addEventType(eventType);
+    }
+    for (String userId : USER_IDS) {
+      addUser(tracker, userId);
+    }
+
+    final AtomicInteger counter = new AtomicInteger(0);
+    final Random random = new Random();
+    final CountDownLatch latch = new CountDownLatch(NUM_THREADS);
+    Thread[] threads = new Thread[NUM_THREADS];
+    for (int i = 0; i < NUM_THREADS; i++) {
+      Thread thread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+          latch.countDown();
+          try {
+            latch.await();
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+          for (int j = 0; j < NUM_EVENTS / NUM_THREADS; j++) {
+            int eventTypeIndex = random.nextInt(EVENT_TYPES.length);
+            int userIdIndex = random.nextInt(USER_IDS.length);
+            int dateIndex = counter.getAndIncrement() * DATES.length / NUM_EVENTS;
+            addEvent(tracker, EVENT_TYPES[eventTypeIndex], USER_IDS[userIdIndex], DATES[dateIndex]);
+          }
+        }
+      });
+      threads[i] = thread;
+      thread.start();
+    }
+    for (int i = 0; i < NUM_THREADS; i++) {
+      threads[i].join();
+    }
+
+    for (int eventId = 0; eventId < NUM_EVENTS; eventId++) {
+      Event event = eventStorage.getEvent(eventId);
+      Event.MetaData eventMetaData = eventStorage.getEventMetaData(eventId);
+      Assert.assertEquals(eventMetaData.getEventTypeId(), eventIndex.getEventTypeId(event.getEventType()));
+      Assert.assertEquals(eventMetaData.getUserId(), userStorage.getId(event.getExternalUserId()));
+    }
+
+    for (int eventTypeId = 0; eventTypeId < EVENT_TYPES.length; eventTypeId++) {
+      final int EVENT_TYPE_ID = eventTypeId;
+      // didn't bother check the callback is actually called
+      eventIndex.enumerateEventIds(EVENT_TYPES[eventTypeId], DATES[0], "21991231",
+          new EventIndex.Callback() {
+        @Override
+        public void onEventId(long eventId) {
+          Assert.assertEquals(EVENT_TYPES[EVENT_TYPE_ID],
+              eventStorage.getEvent(eventId).getEventType());
+        }
+      });
+    }
+
+    for (int userId = 0; userId < USER_IDS.length; userId++) {
+      final int USER_ID = userId;
+      userEventIndex.enumerateEventIds(userId, 0, NUM_EVENTS, new UserEventIndex.Callback() {
+        @Override
+        public boolean onEventId(long eventId) {
+          Assert.assertEquals(USER_ID, userStorage.getId(
+              eventStorage.getEvent(eventId).getExternalUserId()));
+          return true;
+        }
+      });
+    }
+  }
 
   @Test
   public void testFilter() throws Exception {

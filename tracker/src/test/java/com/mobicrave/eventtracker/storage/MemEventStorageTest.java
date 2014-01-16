@@ -32,12 +32,9 @@ public class MemEventStorageTest {
       Assert.assertEquals(eventTypes[i], eventStorage.getEvent(i).getEventType());
       Assert.assertEquals(externalIds[i], eventStorage.getEvent(i).getExternalUserId());
       Assert.assertEquals(dates[i], eventStorage.getEvent(i).getDate());
+      Assert.assertEquals(userIds[i], eventStorage.getUserId(i));
+      Assert.assertEquals(eventTypeIds[i], eventStorage.getEventTypeId(i));
       Assert.assertEquals(properties[i], eventStorage.getEvent(i).getProperties());
-      Event.MetaData eventMetaData = eventStorage.getEventMetaData(i);
-      Assert.assertEquals(userIds[i], eventMetaData.getUserId());
-      Assert.assertEquals(eventTypeIds[i], eventMetaData.getEventTypeId());
-      Assert.assertEquals(userIds[i], eventStorage.getEventMetaData(i).getUserId());
-      Assert.assertEquals(eventTypeIds[i], eventStorage.getEventMetaData(i).getEventTypeId());
     }
   }
 }

@@ -187,9 +187,8 @@ public class TrackerTest {
 
     for (int eventId = 0; eventId < NUM_EVENTS; eventId++) {
       Event event = eventStorage.getEvent(eventId);
-      Event.MetaData eventMetaData = eventStorage.getEventMetaData(eventId);
-      Assert.assertEquals(eventMetaData.getEventTypeId(), eventIndex.getEventTypeId(event.getEventType()));
-      Assert.assertEquals(eventMetaData.getUserId(), userStorage.getId(event.getExternalUserId()));
+      Assert.assertEquals(eventIndex.getEventTypeId(event.getEventType()), eventStorage.getEventTypeId(eventId));
+      Assert.assertEquals(userStorage.getId(event.getExternalUserId()), eventStorage.getUserId(eventId));
     }
 
     for (int eventTypeId = 0; eventTypeId < EVENT_TYPES.length; eventTypeId++) {

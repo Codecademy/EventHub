@@ -27,8 +27,8 @@ public class DmaIdList implements IdList, Closeable {
     if (numRecords == capacity) {
       expandBuffer(META_DATA_SIZE + 2 * capacity * SIZE_OF_DATA);
     }
-    buffer.putLong(0, ++numRecords);
     buffer.putLong(id);
+    buffer.putLong(0, ++numRecords);
   }
 
   @Override

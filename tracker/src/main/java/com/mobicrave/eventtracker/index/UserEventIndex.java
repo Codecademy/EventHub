@@ -90,6 +90,7 @@ public class UserEventIndex implements Closeable {
   }
 
   public static interface Callback {
+    // return shouldContinue
     public boolean onEventId(long eventId);
   }
 }

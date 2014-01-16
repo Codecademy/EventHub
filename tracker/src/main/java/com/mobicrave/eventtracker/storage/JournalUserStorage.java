@@ -2,6 +2,7 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
+import com.mobicrave.eventtracker.base.Schema;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
@@ -13,16 +14,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class JournalUserStorage implements UserStorage {
   private final String directory;
   private final Journal userJournal;
-  private DmaList<User.MetaData> metaDataList;
+  private DmaList<MetaData> metaDataList;
   private final Map<String, Integer> idMap;
   private int currentId;
 
-  public JournalUserStorage(String directory, Journal userJournal, DmaList<User.MetaData> metaDataList,
+  public JournalUserStorage(String directory, Journal userJournal, DmaList<MetaData> metaDataList,
       Map<String, Integer> idMap, int currentId) {
     this.directory = directory;
     this.userJournal = userJournal;
@@ -36,18 +38,13 @@ public class JournalUserStorage implements UserStorage {
     try {
       int id = currentId++;
       byte[] location = JournalUtil.locationToBytes(userJournal.write(user.toByteBuffer(), true));
-      User.MetaData metaData = user.getMetaData(location);
+      MetaData metaData = new MetaData(location);
       metaDataList.add(metaData);
       idMap.put(user.getExternalId(), id);
       return id;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Override
-  public User.MetaData getUserMetaData(int userId) {
-    return metaDataList.get(userId);
   }
 
   @Override
@@ -81,6 +78,10 @@ public class JournalUserStorage implements UserStorage {
     metaDataList.close();
   }
 
+  private MetaData getUserMetaData(int userId) {
+    return metaDataList.get(userId);
+  }
+
   private static String getMetaDataSerializationFile(String directory) {
     return directory + "/meta_data_list.mem";
   }
@@ -95,7 +96,7 @@ public class JournalUserStorage implements UserStorage {
 
   public static JournalUserStorage build(String directory) {
     Journal userJournal = JournalUtil.createJournal(getJournalDirectory(directory));
-    DmaList<User.MetaData> metaDataList = DmaList.build(User.MetaData.getSchema(),
+    DmaList<MetaData> metaDataList = DmaList.build(MetaData.getSchema(),
         getMetaDataSerializationFile(directory), 10 * 1024 /* defaultCapacity */);
     File file = new File(getIdMapSerializationFile(directory));
     Map<String,Integer> idMap = Maps.newConcurrentMap();
@@ -110,5 +111,43 @@ public class JournalUserStorage implements UserStorage {
     }
     return new JournalUserStorage(directory, userJournal, metaDataList, idMap,
         currentId);
+  }
+
+  private static class MetaData {
+    private final byte[] location;
+
+    public MetaData(byte[] location) {
+      this.location = location;
+    }
+
+    public byte[] getLocation() {
+      return location;
+    }
+
+    public static Schema<MetaData> getSchema() {
+      return new MetaDataSchema();
+    }
+
+    private static class MetaDataSchema implements Schema<MetaData> {
+      @Override
+      public int getObjectSize() {
+        return 8 + 13 + 4;
+      }
+
+      @Override
+      public byte[] toBytes(MetaData metaData) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(getObjectSize());
+        byteBuffer.put(metaData.location);
+        return byteBuffer.array();
+      }
+
+      @Override
+      public MetaData fromBytes(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        byte[] location = new byte[13];
+        byteBuffer.get(location);
+        return new MetaData(location);
+      }
+    }
   }
 }

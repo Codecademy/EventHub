@@ -9,10 +9,10 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class MemEventStorage implements EventStorage {
   private Event[] events;
-  private Event.MetaData[] metaDatas;
+  private MetaData[] metaDatas;
   private AtomicLong numEvents;
 
-  private MemEventStorage(Event[] events, Event.MetaData[] metaDatas, AtomicLong numEvents) {
+  private MemEventStorage(Event[] events, MetaData[] metaDatas, AtomicLong numEvents) {
     this.events = events;
     this.metaDatas = metaDatas;
     this.numEvents = numEvents;
@@ -27,20 +27,15 @@ public class MemEventStorage implements EventStorage {
           Event[] newEvents = new Event[events.length * 2];
           System.arraycopy(events, 0, newEvents, 0, events.length);
           events = newEvents;
-          Event.MetaData[] newMetaDatas = new Event.MetaData[events.length * 2];
+          MetaData[] newMetaDatas = new MetaData[events.length * 2];
           System.arraycopy(metaDatas, 0, newMetaDatas, 0, metaDatas.length);
           metaDatas = newMetaDatas;
         }
       }
     }
     events[id] = event;
-    metaDatas[id]= event.getMetaData(userId, eventTypeId, null);
+    metaDatas[id]= new MetaData(userId, eventTypeId);
     return id;
-  }
-
-  @Override
-  public Event.MetaData getEventMetaData(long eventId) {
-    return metaDatas[(int) eventId];
   }
 
   @Override
@@ -49,11 +44,43 @@ public class MemEventStorage implements EventStorage {
   }
 
   @Override
+  public long getUserId(long eventId) {
+    return getEventMetaData(eventId).getUserId();
+  }
+
+  @Override
+  public int getEventTypeId(long eventId) {
+    return getEventMetaData(eventId).getEventTypeId();
+  }
+
+  private MetaData getEventMetaData(long eventId) {
+    return metaDatas[(int) eventId];
+  }
+
+  @Override
   public void close() {
     throw new UnsupportedOperationException();
   }
 
   public static MemEventStorage build() {
-    return new MemEventStorage(new Event[1024], new Event.MetaData[1024], new AtomicLong(-1));
+    return new MemEventStorage(new Event[1024], new MetaData[1024], new AtomicLong(-1));
+  }
+
+  public static class MetaData {
+    private final long userId;
+    private final int eventTypeId;
+
+    public MetaData(long userId, int eventTypeId) {
+      this.userId = userId;
+      this.eventTypeId = eventTypeId;
+    }
+
+    public long getUserId() {
+      return userId;
+    }
+
+    public int getEventTypeId() {
+      return eventTypeId;
+    }
   }
 }

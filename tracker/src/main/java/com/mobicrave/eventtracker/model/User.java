@@ -1,7 +1,6 @@
 package com.mobicrave.eventtracker.model;
 
 import com.google.gson.Gson;
-import com.mobicrave.eventtracker.base.Schema;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -23,10 +22,6 @@ public class User {
     return properties;
   }
 
-  public MetaData getMetaData(byte[] location) {
-    return new MetaData(location);
-  }
-
   public ByteBuffer toByteBuffer() {
     Gson gson = new Gson();
     return ByteBuffer.wrap(gson.toJson(this).getBytes());
@@ -35,44 +30,6 @@ public class User {
   public static User fromByteBuffer(ByteBuffer byteBuffer) {
     Gson gson = new Gson();
     return gson.fromJson(new String(byteBuffer.array()), User.class);
-  }
-
-  public static class MetaData {
-    private final byte[] location;
-
-    public MetaData(byte[] location) {
-      this.location = location;
-    }
-
-    public byte[] getLocation() {
-      return location;
-    }
-
-    public static Schema<MetaData> getSchema() {
-      return new MetaDataSchema();
-    }
-
-    private static class MetaDataSchema implements Schema<MetaData> {
-      @Override
-      public int getObjectSize() {
-        return 8 + 13 + 4;
-      }
-
-      @Override
-      public byte[] toBytes(MetaData metaData) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(getObjectSize());
-        byteBuffer.put(metaData.location);
-        return byteBuffer.array();
-      }
-
-      @Override
-      public MetaData fromBytes(byte[] bytes) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        byte[] location = new byte[13];
-        byteBuffer.get(location);
-        return new MetaData(location);
-      }
-    }
   }
 
   public static class Builder {

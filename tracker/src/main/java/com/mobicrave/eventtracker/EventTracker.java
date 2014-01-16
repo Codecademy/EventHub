@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-// TODO: double check whose responsibility to synchronize, not only write write sync, but also read write sync
 // TODO: properties filtering & bloomfilter
 // TODO: charting
 // TODO: property statistics for segmentation
@@ -150,9 +149,8 @@ public class EventTracker implements Closeable {
 
     @Override
     public void onEventId(long eventId) {
-      Event.MetaData eventMetaData = eventStorage.getEventMetaData(eventId);
+      long userId = eventStorage.getUserId(eventId);
       // TODO: filter user by event filter & user filter
-      long userId = eventMetaData.getUserId();
       // TODO: consider other higher performing Set implementation
       if (!seenUserIdSet.contains(userId)) {
         seenUserIdSet.add(userId);
@@ -176,7 +174,7 @@ public class EventTracker implements Closeable {
 
     @Override
     public boolean onEventId(long eventId) {
-      int eventTypeId = eventStorage.getEventMetaData(eventId).getEventTypeId();
+      int eventTypeId = eventStorage.getEventTypeId(eventId);
       if (eventTypeId == funnelStepsEventTypeIds[numMatchedSteps]) {
         numMatchedSteps++;
       }

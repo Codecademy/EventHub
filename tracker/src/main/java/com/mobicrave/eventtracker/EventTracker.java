@@ -15,9 +15,10 @@ import com.mobicrave.eventtracker.storage.UserStorage;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
-// TODO: properties filtering & bloomfilter
+// TODO: bloomfilter
 // TODO: charting
 // TODO: property statistics for segmentation
 // TODO: query language
@@ -48,24 +49,25 @@ public class EventTracker implements Closeable {
   }
 
   public int[] getCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
-      int numDaysToCompleteFunnel) {
+      int numDaysToCompleteFunnel, List<Criterion> criteria) {
     IdList userIdList = SimpleIdList.build("", 10000);
     IdList firstStepEventIdList = SimpleIdList.build("", 10000);
     int[] funnelStepsEventTypeIds = getEventTypeIds(funnelStepsEventTypes);
 
     EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-        userIdList, firstStepEventIdList, Sets.<Long>newHashSet());
+        userIdList, firstStepEventIdList, criteria, Sets.<Integer>newHashSet());
     eventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
     IdList.Iterator userIdIterator = userIdList.iterator();
     IdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
     while (userIdIterator.hasNext()) {
-      long userId = userIdIterator.next();
+      int userId = (int) userIdIterator.next();
       long firstStepEventId = firstStepEventIdIterator.next();
       long maxLastStepEventId = eventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
       CountFunnelStepsMatched countFunnelStepsMatched = new CountFunnelStepsMatched(
-          eventStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/);
+          eventStorage, userStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/,
+          criteria);
       userEventIndex.enumerateEventIds(userId, firstStepEventId, maxLastStepEventId, countFunnelStepsMatched);
       for (int i = 0; i < countFunnelStepsMatched.getNumMatchedSteps(); i++) {
         numFunnelStepsMatched[i]++;
@@ -79,7 +81,7 @@ public class EventTracker implements Closeable {
     if (id != UserStorage.USER_NOT_FOUND) {
       return id;
     }
-    long userId = userStorage.addUser(user);
+    int userId = userStorage.addUser(user);
     userEventIndex.addUser(userId);
     return userId;
   }
@@ -89,7 +91,7 @@ public class EventTracker implements Closeable {
   }
 
   public long addEvent(Event event) {
-    long userId = userStorage.getId(event.getExternalUserId());
+    int userId = userStorage.getId(event.getExternalUserId());
     long eventId = eventStorage.addEvent(event, userId,
         eventIndex.getEventTypeId(event.getEventType()));
     eventIndex.addEvent(eventId, event.getEventType(), event.getDate());
@@ -125,8 +127,6 @@ public class EventTracker implements Closeable {
     UserEventIndex userEventIndex = UserEventIndex.build(userEventIndexDirectory);
     EventStorage eventStorage = JournalEventStorage.build(eventStorageDirectory);
     UserStorage userStorage = JournalUserStorage.build(userStorageDirectory);
-//    EventStorage eventStorage = MemEventStorage.build();
-//    UserStorage userStorage = MemUserStorage.build();
 
     return new EventTracker(directory, eventIndex, userEventIndex, eventStorage, userStorage);
   }
@@ -136,21 +136,28 @@ public class EventTracker implements Closeable {
     private final UserStorage userStorage;
     private final IdList userIdList;
     private final IdList earliestEventIdList;
-    private final Set<Long> seenUserIdSet;
+    private final List<Criterion> criteria;
+    private final Set<Integer> seenUserIdSet;
 
-    public AggregateUserIds(EventStorage eventStorage, UserStorage userStorage,IdList userIdList,
-        IdList earliestEventIdList, Set<Long> seenUserIdSet) {
+    public AggregateUserIds(EventStorage eventStorage, UserStorage userStorage, IdList userIdList,
+        IdList earliestEventIdList, List<Criterion> criteria, Set<Integer> seenUserIdSet) {
       this.eventStorage = eventStorage;
       this.userStorage = userStorage;
       this.userIdList = userIdList;
       this.earliestEventIdList = earliestEventIdList;
+      this.criteria = criteria;
       this.seenUserIdSet = seenUserIdSet;
     }
 
     @Override
     public void onEventId(long eventId) {
-      long userId = eventStorage.getUserId(eventId);
-      // TODO: filter user by event filter & user filter
+      if (!eventStorage.satisfy(eventId, criteria)) {
+        return;
+      }
+      int userId = eventStorage.getUserId(eventId);
+      if (!userStorage.satisfy(userId, criteria)) {
+        return;
+      }
       // TODO: consider other higher performing Set implementation
       if (!seenUserIdSet.contains(userId)) {
         seenUserIdSet.add(userId);
@@ -162,18 +169,29 @@ public class EventTracker implements Closeable {
 
   private static class CountFunnelStepsMatched implements UserEventIndex.Callback {
     private final EventStorage eventStorage;
+    private final UserStorage userStorage;
     private final int[] funnelStepsEventTypeIds;
     private int numMatchedSteps;
+    private final List<Criterion> criteria;
 
-    public CountFunnelStepsMatched(EventStorage eventStorage,
-        int[] funnelStepsEventTypeIds, int numMatchedSteps) {
+    public CountFunnelStepsMatched(EventStorage eventStorage, UserStorage userStorage,
+        int[] funnelStepsEventTypeIds, int numMatchedSteps, List<Criterion> criteria) {
       this.eventStorage = eventStorage;
+      this.userStorage = userStorage;
       this.funnelStepsEventTypeIds = funnelStepsEventTypeIds;
       this.numMatchedSteps = numMatchedSteps;
+      this.criteria = criteria;
     }
 
     @Override
     public boolean onEventId(long eventId) {
+      if (!eventStorage.satisfy(eventId, criteria)) {
+        return true;
+      }
+      int userId = eventStorage.getUserId(eventId);
+      if (!userStorage.satisfy(userId, criteria)) {
+        return true;
+      }
       int eventTypeId = eventStorage.getEventTypeId(eventId);
       if (eventTypeId == funnelStepsEventTypeIds[numMatchedSteps]) {
         numMatchedSteps++;

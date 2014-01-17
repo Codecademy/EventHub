@@ -43,9 +43,9 @@ public class SimpleIdListTest {
     idList.add(ids[ids.length - 1]);
 
     iterator = idList.iterator();
-    for (int i = 0; i < ids.length; i++) {
+    for (long id : ids) {
       Assert.assertTrue(iterator.hasNext());
-      Assert.assertEquals(ids[i], iterator.next());
+      Assert.assertEquals(id, iterator.next());
     }
     Assert.assertFalse(iterator.hasNext());
   }

@@ -1,7 +1,9 @@
 package com.mobicrave.eventtracker.web;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class EventTrackerHandler extends AbstractHandler {
@@ -59,11 +62,20 @@ public class EventTrackerHandler extends AbstractHandler {
   }
 
   private int[] countFunnelSteps(HttpServletRequest request) {
+    String[] criteriaKeys = request.getParameterValues("criteria_keys");
+    String[] criteriaValues = request.getParameterValues("criteria_values");
+    List<Criterion> criteria = Lists.newArrayList();
+    if (criteriaKeys != null) {
+      for (int i = 0; i < criteriaKeys.length; i++) {
+        criteria.add(new Criterion(criteriaKeys[i], criteriaValues[i]));
+      }
+    }
     return eventTracker.getCounts(
         request.getParameter("start_date"),
         request.getParameter("end_date"),
         request.getParameterValues("funnel_steps"),
-        Integer.parseInt(request.getParameter("num_days_to_complete_funnel")));
+        Integer.parseInt(request.getParameter("num_days_to_complete_funnel")),
+        criteria);
   }
 
   private long addEvent(final HttpServletRequest request) {

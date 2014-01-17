@@ -15,6 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,19 +45,26 @@ public class TrackerTest {
 
     final String[] funnelSteps = { EVENT_TYPES[1], EVENT_TYPES[2], EVENT_TYPES[3] };
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 0, 0, 0 },
-        tracker.getCounts(DATES[0], DATES[1], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[0], DATES[1], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 0, 0 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 1 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 1 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 3 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 3 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 1, 0 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 2 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 2 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 0, 0 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
   }
 
   @Test
@@ -106,21 +114,27 @@ public class TrackerTest {
 
     final String[] funnelSteps = { EVENT_TYPES[0], EVENT_TYPES[1], EVENT_TYPES[3] };
     Assert.assertArrayEquals(new int[] { 8, 7, 6 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 4, 3, 2 },
-        tracker.getCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
 
     tracker.close();
     tracker = EventTracker.build(directory);
 
     Assert.assertArrayEquals(new int[] { 8, 7, 6 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 4, 3, 2 },
-        tracker.getCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */));
+        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
+            Collections.EMPTY_LIST));
   }
 
   @Test

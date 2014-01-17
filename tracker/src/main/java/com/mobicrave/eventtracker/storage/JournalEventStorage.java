@@ -1,6 +1,7 @@
 package com.mobicrave.eventtracker.storage;
 
 import com.google.common.io.ByteStreams;
+import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.base.Schema;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
@@ -9,6 +10,8 @@ import org.fusesource.hawtjournal.api.Location;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 
 public class JournalEventStorage implements EventStorage {
   private final Journal eventJournal;
@@ -23,7 +26,7 @@ public class JournalEventStorage implements EventStorage {
   }
 
   @Override
-  public synchronized long addEvent(Event event, long userId, int eventTypeId) {
+  public synchronized long addEvent(Event event, int userId, int eventTypeId) {
     try {
       long id = currentId++;
       byte[] location = JournalUtil.locationToBytes(eventJournal.write(event.toByteBuffer(), true));
@@ -52,8 +55,23 @@ public class JournalEventStorage implements EventStorage {
   }
 
   @Override
-  public long getUserId(long eventId) {
+  public int getUserId(long eventId) {
     return getEventMetaData(eventId).getUserId();
+  }
+
+  @Override
+  public boolean satisfy(long eventId, List<Criterion> criteria) {
+    if (criteria.isEmpty()) {
+      return true;
+    }
+    Event event = getEvent(eventId);
+    Map<String,String> properties = event.getProperties();
+    for (Criterion criterion : criteria) {
+      if (!criterion.getValue().equals(properties.get(criterion.getKey()))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -82,17 +100,17 @@ public class JournalEventStorage implements EventStorage {
   }
 
   private static class MetaData {
-    private final long userId;
+    private final int userId;
     private final byte[] location;
     private final int eventTypeId;
 
-    public MetaData(long userId, int eventTypeId, byte[] location) {
+    public MetaData(int userId, int eventTypeId, byte[] location) {
       this.userId = userId;
       this.eventTypeId = eventTypeId;
       this.location = location;
     }
 
-    public long getUserId() {
+    public int getUserId() {
       return userId;
     }
 
@@ -117,7 +135,7 @@ public class JournalEventStorage implements EventStorage {
       @Override
       public byte[] toBytes(MetaData metaData) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(getObjectSize());
-        byteBuffer.putLong(metaData.userId)
+        byteBuffer.putInt(metaData.userId)
             .putInt(metaData.eventTypeId)
             .put(metaData.location);
         return byteBuffer.array();
@@ -126,7 +144,7 @@ public class JournalEventStorage implements EventStorage {
       @Override
       public MetaData fromBytes(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        long userId = byteBuffer.getLong();
+        int userId = byteBuffer.getInt();
         int eventTypeId = byteBuffer.getInt();
         byte[] location = new byte[13];
         byteBuffer.get(location);

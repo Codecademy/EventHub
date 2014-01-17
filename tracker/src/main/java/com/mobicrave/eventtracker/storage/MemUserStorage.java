@@ -1,8 +1,10 @@
 package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.Maps;
+import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.model.User;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,6 +48,21 @@ public class MemUserStorage implements UserStorage {
   public int getId(String externalUserId) {
     Integer id = idMap.get(externalUserId);
     return id == null ? USER_NOT_FOUND : id;
+  }
+
+  @Override
+  public boolean satisfy(int userId, List<Criterion> criteria) {
+    if (criteria.isEmpty()) {
+      return true;
+    }
+    User user = getUser(userId);
+    Map<String,String> properties = user.getProperties();
+    for (Criterion criterion : criteria) {
+      if (!criterion.getValue().equals(properties.get(criterion.getKey()))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

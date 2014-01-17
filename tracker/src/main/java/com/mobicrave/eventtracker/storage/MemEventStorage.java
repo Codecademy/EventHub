@@ -1,7 +1,10 @@
 package com.mobicrave.eventtracker.storage;
 
+import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.model.Event;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -19,7 +22,7 @@ public class MemEventStorage implements EventStorage {
   }
 
   @Override
-  public long addEvent(Event event, long userId, int eventTypeId) {
+  public long addEvent(Event event, int userId, int eventTypeId) {
     int id = (int) numEvents.incrementAndGet();
     if (id >= events.length) {
       synchronized (this) {
@@ -44,13 +47,28 @@ public class MemEventStorage implements EventStorage {
   }
 
   @Override
-  public long getUserId(long eventId) {
+  public int getUserId(long eventId) {
     return getEventMetaData(eventId).getUserId();
   }
 
   @Override
   public int getEventTypeId(long eventId) {
     return getEventMetaData(eventId).getEventTypeId();
+  }
+
+  @Override
+  public boolean satisfy(long eventId, List<Criterion> criteria) {
+    if (criteria.isEmpty()) {
+      return true;
+    }
+    Event event = getEvent(eventId);
+    Map<String,String> properties = event.getProperties();
+    for (Criterion criterion : criteria) {
+      if (!criterion.getValue().equals(properties.get(criterion.getKey()))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private MetaData getEventMetaData(long eventId) {
@@ -67,15 +85,15 @@ public class MemEventStorage implements EventStorage {
   }
 
   public static class MetaData {
-    private final long userId;
+    private final int userId;
     private final int eventTypeId;
 
-    public MetaData(long userId, int eventTypeId) {
+    public MetaData(int userId, int eventTypeId) {
       this.userId = userId;
       this.eventTypeId = eventTypeId;
     }
 
-    public long getUserId() {
+    public int getUserId() {
       return userId;
     }
 

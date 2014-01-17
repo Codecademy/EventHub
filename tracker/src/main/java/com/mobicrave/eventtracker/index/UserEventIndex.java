@@ -22,9 +22,9 @@ public class UserEventIndex implements Closeable {
     this.numRecords = numRecords;
   }
 
-  public void enumerateEventIds(long userId, long firstStepEventId, long maxLastEventId,
+  public void enumerateEventIds(int userId, long firstStepEventId, long maxLastEventId,
       Callback callback) {
-    IdList.Iterator eventIdIterator = index[(int) userId].subList(firstStepEventId, maxLastEventId);
+    IdList.Iterator eventIdIterator = index[userId].subList(firstStepEventId, maxLastEventId);
     while (eventIdIterator.hasNext()) {
       if (!callback.onEventId(eventIdIterator.next())) {
         return;
@@ -32,11 +32,11 @@ public class UserEventIndex implements Closeable {
     }
   }
 
-  public void addEvent(long userId, long eventId) {
-    index[(int) userId].add(eventId);
+  public void addEvent(int userId, long eventId) {
+    index[userId].add(eventId);
   }
 
-  public void addUser(long userId) {
+  public void addUser(int userId) {
     if (numRecords != userId) {
       throw new IllegalStateException("numRecords and userId do not match. Likely, users addition" +
           "are not synchronized properly");
@@ -46,7 +46,7 @@ public class UserEventIndex implements Closeable {
       System.arraycopy(index, 0, newIndex, 0, index.length);
       index = newIndex;
     }
-    index[(int) userId] = DmaIdList.build(getIdListSerializationFile(directory, userId), 128);
+    index[userId] = DmaIdList.build(getIdListSerializationFile(directory, userId), 128);
     numRecords++;
   }
 

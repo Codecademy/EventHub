@@ -2,6 +2,7 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
+import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.base.Schema;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Map;
 
 public class JournalUserStorage implements UserStorage {
@@ -62,6 +64,21 @@ public class JournalUserStorage implements UserStorage {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public boolean satisfy(int userId, List<Criterion> criteria) {
+    if (criteria.isEmpty()) {
+      return true;
+    }
+    User user = getUser(userId);
+    Map<String,String> properties = user.getProperties();
+    for (Criterion criterion : criteria) {
+      if (!criterion.getValue().equals(properties.get(criterion.getKey()))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

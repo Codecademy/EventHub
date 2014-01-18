@@ -6,6 +6,7 @@ import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.base.Schema;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
+import org.apache.cassandra.utils.BloomFilter;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +27,8 @@ public class JournalUserStorage implements UserStorage {
   private DmaList<MetaData> metaDataList;
   private final Map<String, Integer> idMap;
   private int currentId;
+  private long numConditionCheck;
+  private long numBloomFilterRejection;
 
   public JournalUserStorage(String directory, Journal userJournal, DmaList<MetaData> metaDataList,
       Map<String, Integer> idMap, int currentId) {
@@ -33,6 +37,8 @@ public class JournalUserStorage implements UserStorage {
     this.metaDataList = metaDataList;
     this.idMap = idMap;
     this.currentId = currentId;
+    this.numConditionCheck = 0;
+    this.numBloomFilterRejection = 0;
   }
 
   @Override
@@ -40,7 +46,11 @@ public class JournalUserStorage implements UserStorage {
     try {
       int id = currentId++;
       byte[] location = JournalUtil.locationToBytes(userJournal.write(user.toByteBuffer(), true));
-      MetaData metaData = new MetaData(location);
+      BloomFilter bloomFilter = BloomFilter.build(MetaData.NUM_HASHES, MetaData.BLOOM_FILTER_SIZE);
+      for (Map.Entry<String, String> entry : user.getProperties().entrySet()) {
+        bloomFilter.add(getBloomFilterKey(entry.getKey(), entry.getValue()));
+      }
+      MetaData metaData = new MetaData(bloomFilter, location);
       metaDataList.add(metaData);
       idMap.put(user.getExternalId(), id);
       return id;
@@ -71,6 +81,17 @@ public class JournalUserStorage implements UserStorage {
     if (criteria.isEmpty()) {
       return true;
     }
+    numConditionCheck++;
+
+    BloomFilter bloomFilter = getUserMetaData(userId).getBloomFilter();
+    for (Criterion criterion : criteria) {
+      String bloomFilterKey = getBloomFilterKey(criterion.getKey(), criterion.getValue());
+      if (!bloomFilter.isPresent(bloomFilterKey)) {
+        numBloomFilterRejection++;
+        return false;
+      }
+    }
+
     User user = getUser(userId);
     Map<String,String> properties = user.getProperties();
     for (Criterion criterion : criteria) {
@@ -93,6 +114,18 @@ public class JournalUserStorage implements UserStorage {
     }
     userJournal.close();
     metaDataList.close();
+  }
+
+  public long getNumBloomFilterRejection() {
+    return numBloomFilterRejection;
+  }
+
+  public long getNumConditionCheck() {
+    return numConditionCheck;
+  }
+
+  private String getBloomFilterKey(String key, String value) {
+    return key + value;
   }
 
   private MetaData getUserMetaData(int userId) {
@@ -131,10 +164,19 @@ public class JournalUserStorage implements UserStorage {
   }
 
   private static class MetaData {
+    public static final int BLOOM_FILTER_SIZE = 64; // in bytes
+    public static final int NUM_HASHES = 5;
+
+    private final BloomFilter bloomFilter;
     private final byte[] location;
 
-    public MetaData(byte[] location) {
+    public MetaData(BloomFilter bloomFilter, byte[] location) {
+      this.bloomFilter = bloomFilter;
       this.location = location;
+    }
+
+    public BloomFilter getBloomFilter() {
+      return bloomFilter;
     }
 
     public byte[] getLocation() {
@@ -146,24 +188,30 @@ public class JournalUserStorage implements UserStorage {
     }
 
     private static class MetaDataSchema implements Schema<MetaData> {
+      private static final int LOCATION_SIZE = 13; // in bytes
+
       @Override
       public int getObjectSize() {
-        return 8 + 13 + 4;
+        return 8 /* userId + eventTypeId */ + LOCATION_SIZE + BLOOM_FILTER_SIZE;
       }
 
       @Override
       public byte[] toBytes(MetaData metaData) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(getObjectSize());
-        byteBuffer.put(metaData.location);
+        byteBuffer.put(metaData.getBloomFilter().getBitSet().toByteArray())
+            .put(metaData.location);
         return byteBuffer.array();
       }
 
       @Override
       public MetaData fromBytes(byte[] bytes) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        byte[] location = new byte[13];
+        byte[] bloomFilter = new byte[BLOOM_FILTER_SIZE];
+        byteBuffer.get(bloomFilter);
+        byte[] location = new byte[LOCATION_SIZE];
         byteBuffer.get(location);
-        return new MetaData(location);
+        return new MetaData(
+            new BloomFilter(MetaData.NUM_HASHES, BitSet.valueOf(bloomFilter)), location);
       }
     }
   }

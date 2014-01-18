@@ -40,11 +40,10 @@ public class EventTrackerHandler extends AbstractHandler {
         break;
       case "/track_event":
         long eventId = addEvent(request);
-//        System.out.println(request.getParameter("date"));
         response.getWriter().println(eventId);
         break;
       case "/add_event_type":
-        eventTracker.addEventType(request.getParameter("event_type"));
+        addEventType(request);
         response.getWriter().println("OK");
         break;
       case "/count_funnel_steps":
@@ -61,24 +60,11 @@ public class EventTrackerHandler extends AbstractHandler {
         toProperties(request)).build());
   }
 
-  private int[] countFunnelSteps(HttpServletRequest request) {
-    String[] criteriaKeys = request.getParameterValues("criteria_keys");
-    String[] criteriaValues = request.getParameterValues("criteria_values");
-    List<Criterion> criteria = Lists.newArrayList();
-    if (criteriaKeys != null) {
-      for (int i = 0; i < criteriaKeys.length; i++) {
-        criteria.add(new Criterion(criteriaKeys[i], criteriaValues[i]));
-      }
-    }
-    return eventTracker.getCounts(
-        request.getParameter("start_date"),
-        request.getParameter("end_date"),
-        request.getParameterValues("funnel_steps"),
-        Integer.parseInt(request.getParameter("num_days_to_complete_funnel")),
-        criteria);
+  private void addEventType(HttpServletRequest request) {
+    eventTracker.addEventType(request.getParameter("event_type"));
   }
 
-  private long addEvent(final HttpServletRequest request) {
+  private synchronized long addEvent(final HttpServletRequest request) {
     String date = request.getParameter("date");
     if (date == null) {
       date = new DateTime().toString(FORMATTER);
@@ -89,6 +75,30 @@ public class EventTrackerHandler extends AbstractHandler {
         date,
         toProperties(request)).build();
     return eventTracker.addEvent(event);
+  }
+
+  private int[] countFunnelSteps(HttpServletRequest request) {
+    List<Criterion> eventCriteria = getCriterions(request.getParameterValues("eck"),
+        request.getParameterValues("ecv"));
+    List<Criterion> userCriteria = getCriterions(request.getParameterValues("uck"),
+        request.getParameterValues("ucv"));
+    return eventTracker.getCounts(
+        request.getParameter("start_date"),
+        request.getParameter("end_date"),
+        request.getParameterValues("funnel_steps"),
+        Integer.parseInt(request.getParameter("num_days_to_complete_funnel")),
+        eventCriteria,
+        userCriteria);
+  }
+
+  private List<Criterion> getCriterions(String[] criteriaKeys, String[] criteriaValues) {
+    List<Criterion> eventCriteria = Lists.newArrayList();
+    if (criteriaKeys != null) {
+      for (int i = 0; i < criteriaKeys.length; i++) {
+        eventCriteria.add(new Criterion(criteriaKeys[i], criteriaValues[i]));
+      }
+    }
+    return eventCriteria;
   }
 
   private Map<String, String> toProperties(final HttpServletRequest request) {

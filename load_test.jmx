@@ -225,7 +225,7 @@
           <stringProp name="minimumValue">1</stringProp>
           <stringProp name="outputFormat"></stringProp>
           <boolProp name="perThread">true</boolProp>
-          <stringProp name="randomSeed">10</stringProp>
+          <stringProp name="randomSeed">100</stringProp>
           <stringProp name="variableName">EVENT_TYPE_INDEX</stringProp>
         </RandomVariableConfig>
         <hashTree/>
@@ -234,7 +234,7 @@
           <stringProp name="minimumValue">1</stringProp>
           <stringProp name="outputFormat"></stringProp>
           <boolProp name="perThread">true</boolProp>
-          <stringProp name="randomSeed">10</stringProp>
+          <stringProp name="randomSeed">101</stringProp>
           <stringProp name="variableName">EVENT_PROPERTY_1</stringProp>
         </RandomVariableConfig>
         <hashTree/>
@@ -243,7 +243,7 @@
           <stringProp name="minimumValue">1</stringProp>
           <stringProp name="outputFormat"></stringProp>
           <boolProp name="perThread">true</boolProp>
-          <stringProp name="randomSeed">10</stringProp>
+          <stringProp name="randomSeed">102</stringProp>
           <stringProp name="variableName">EVENT_PROPERTY_2</stringProp>
         </RandomVariableConfig>
         <hashTree/>
@@ -252,7 +252,7 @@
           <stringProp name="minimumValue">1</stringProp>
           <stringProp name="outputFormat"></stringProp>
           <boolProp name="perThread">true</boolProp>
-          <stringProp name="randomSeed">10</stringProp>
+          <stringProp name="randomSeed">103</stringProp>
           <stringProp name="variableName">EVENT_PROPERTY_3</stringProp>
         </RandomVariableConfig>
         <hashTree/>
@@ -261,7 +261,7 @@
           <stringProp name="outputFormat"></stringProp>
           <stringProp name="minimumValue">1</stringProp>
           <stringProp name="maximumValue">${NUM_USERS}</stringProp>
-          <stringProp name="randomSeed">20</stringProp>
+          <stringProp name="randomSeed">104</stringProp>
           <boolProp name="perThread">true</boolProp>
         </RandomVariableConfig>
         <hashTree/>

@@ -18,9 +18,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: bloomfilter test
-// TODO: too many open files for UserEventIndex
 // TODO: more compact serialization format for Event & User (parallel sorted array for properties?)
+// TODO: per event criteria
 // TODO: 4B & 4G constraints
 // TODO: DmaList still have 4G size constraint
 // TODO: property statistics for segmentation
@@ -84,9 +83,7 @@ public class EventTracker implements Closeable {
     if (id != UserStorage.USER_NOT_FOUND) {
       return id;
     }
-    int userId = userStorage.addUser(user);
-    userEventIndex.addUser(userId);
-    return userId;
+    return userStorage.addUser(user);
   }
 
   public synchronized void addEventType(String eventType) {
@@ -157,6 +154,9 @@ public class EventTracker implements Closeable {
 
     @Override
     public void onEventId(long eventId) {
+      if (seenUserIdSet.contains(eventStorage.getUserId(eventId))) {
+        return;
+      }
       if (!eventStorage.satisfy(eventId, eventCriteria)) {
         return;
       }

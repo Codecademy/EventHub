@@ -14,10 +14,6 @@ public class UserEventIndexTest {
     String dataDir = folder.newFolder("user-event-index-test").getCanonicalPath() + "/";
 
     UserEventIndex userEventIndex = UserEventIndex.build(dataDir);
-    userEventIndex.addUser(0);
-    userEventIndex.addUser(1);
-    userEventIndex.addUser(2);
-
     userEventIndex.addEvent(0, 10);
     userEventIndex.addEvent(1, 20);
     userEventIndex.addEvent(2, 30);

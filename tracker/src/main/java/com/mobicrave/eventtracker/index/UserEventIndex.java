@@ -1,5 +1,10 @@
 package com.mobicrave.eventtracker.index;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import com.mobicrave.eventtracker.list.DmaIdList;
 import com.mobicrave.eventtracker.list.IdList;
 
@@ -13,10 +18,10 @@ import java.io.ObjectOutputStream;
 
 public class UserEventIndex implements Closeable {
   private final String directory;
-  private IdList[] index;
+  private LoadingCache<Integer, IdList> index;
   private int numRecords;
 
-  private UserEventIndex(String directory, IdList[] index, int numRecords) {
+  private UserEventIndex(String directory, LoadingCache<Integer, IdList> index, int numRecords) {
     this.directory = directory;
     this.index = index;
     this.numRecords = numRecords;
@@ -24,7 +29,7 @@ public class UserEventIndex implements Closeable {
 
   public void enumerateEventIds(int userId, long firstStepEventId, long maxLastEventId,
       Callback callback) {
-    IdList.Iterator eventIdIterator = index[userId].subList(firstStepEventId, maxLastEventId);
+    IdList.Iterator eventIdIterator = index.getUnchecked(userId).subList(firstStepEventId, maxLastEventId);
     while (eventIdIterator.hasNext()) {
       if (!callback.onEventId(eventIdIterator.next())) {
         return;
@@ -33,21 +38,7 @@ public class UserEventIndex implements Closeable {
   }
 
   public void addEvent(int userId, long eventId) {
-    index[userId].add(eventId);
-  }
-
-  public void addUser(int userId) {
-    if (numRecords != userId) {
-      throw new IllegalStateException("numRecords and userId do not match. Likely, users addition" +
-          "are not synchronized properly");
-    }
-    if (userId == index.length) {
-      IdList[] newIndex = new IdList[index.length * 2];
-      System.arraycopy(index, 0, newIndex, 0, index.length);
-      index = newIndex;
-    }
-    index[userId] = DmaIdList.build(getIdListSerializationFile(directory, userId), 128);
-    numRecords++;
+    index.getUnchecked(userId).add(eventId);
   }
 
   @Override
@@ -58,9 +49,7 @@ public class UserEventIndex implements Closeable {
         getSerializationFile(directory)))) {
       oos.writeInt(numRecords);
     }
-    for (int i = 0; i < numRecords; i++) {
-      index[i].close();
-    }
+    index.invalidateAll();
   }
 
   private static String getSerializationFile(String directory) {
@@ -72,21 +61,35 @@ public class UserEventIndex implements Closeable {
         id / 10000 % 100, id);
   }
 
-  public static UserEventIndex build(String directory) {
+  public static UserEventIndex build(final String directory) {
     File file = new File(getSerializationFile(directory));
+    LoadingCache<Integer, IdList> index = CacheBuilder.newBuilder()
+        .maximumSize(5000)
+        .removalListener(new RemovalListener<Integer, IdList>() {
+          @Override
+          public void onRemoval(RemovalNotification<Integer, IdList> notification) {
+            try {
+              notification.getValue().close();
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        })
+        .build(new CacheLoader<Integer, IdList>() {
+          @Override
+          public IdList load(Integer key) throws Exception {
+            return DmaIdList.build(getIdListSerializationFile(directory, key), 100);
+          }
+        });
     if (file.exists()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
         int numRecords =  ois.readInt();
-        IdList[] index = new IdList[numRecords];
-        for (int i = 0; i < numRecords; i++) {
-          index[i] = DmaIdList.build(getIdListSerializationFile(directory, i), 100);
-        }
         return new UserEventIndex(directory, index, numRecords);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
-    return new UserEventIndex(directory, new DmaIdList[1024], 0);
+    return new UserEventIndex(directory, index, 0);
   }
 
   public static interface Callback {

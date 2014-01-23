@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Map;
 
 public class JournalEventStorage implements EventStorage {
   private final Journal eventJournal;
@@ -36,10 +35,13 @@ public class JournalEventStorage implements EventStorage {
     try {
       long id = currentId++;
       byte[] location = JournalUtil.locationToBytes(eventJournal.write(event.toByteBuffer(), true));
-      BloomFilter bloomFilter = BloomFilter.build(MetaData.NUM_HASHES, MetaData.BLOOM_FILTER_SIZE);
-      for (Map.Entry<String, String> entry : event.getProperties().entrySet()) {
-        bloomFilter.add(getBloomFilterKey(entry.getKey(), entry.getValue()));
-      }
+      final BloomFilter bloomFilter = BloomFilter.build(MetaData.NUM_HASHES, MetaData.BLOOM_FILTER_SIZE);
+      event.enumerate(new Event.Callback() {
+        @Override
+        public void callback(String key, String value) {
+          bloomFilter.add(getBloomFilterKey(key, value));
+        }
+      });
       MetaData metaData = new MetaData(userId, eventTypeId, bloomFilter,location);
       metaDataList.add(metaData);
       return id;
@@ -86,9 +88,8 @@ public class JournalEventStorage implements EventStorage {
     }
 
     Event event = getEvent(eventId);
-    Map<String,String> properties = event.getProperties();
     for (Criterion criterion : criteria) {
-      if (!criterion.getValue().equals(properties.get(criterion.getKey()))) {
+      if (!criterion.getValue().equals(event.get(criterion.getKey()))) {
         return false;
       }
     }

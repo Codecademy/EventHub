@@ -55,7 +55,9 @@ public class JournalEventStorageTest {
       Assert.assertEquals(eventTypes[i], eventStorage.getEvent(i).getEventType());
       Assert.assertEquals(externalUserIds[i], eventStorage.getEvent(i).getExternalUserId());
       Assert.assertEquals(dates[i], eventStorage.getEvent(i).getDate());
-      Assert.assertEquals(properties[i], eventStorage.getEvent(i).getProperties());
+      for (Map.Entry<String, String> entry : properties[i].entrySet()) {
+        Assert.assertEquals(entry.getValue(), eventStorage.getEvent(i).get(entry.getKey()));
+      }
       Assert.assertEquals(userIds[i], eventStorage.getUserId(i));
       Assert.assertEquals(eventTypeIds[i], eventStorage.getEventTypeId(i));
     }

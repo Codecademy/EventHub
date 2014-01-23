@@ -62,9 +62,8 @@ public class MemEventStorage implements EventStorage {
       return true;
     }
     Event event = getEvent(eventId);
-    Map<String,String> properties = event.getProperties();
     for (Criterion criterion : criteria) {
-      if (!criterion.getValue().equals(properties.get(criterion.getKey()))) {
+      if (!criterion.getValue().equals(event.get(criterion.getKey()))) {
         return false;
       }
     }

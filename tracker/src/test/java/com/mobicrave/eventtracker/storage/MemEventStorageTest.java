@@ -50,7 +50,9 @@ public class MemEventStorageTest {
       Assert.assertEquals(dates[i], eventStorage.getEvent(i).getDate());
       Assert.assertEquals(userIds[i], eventStorage.getUserId(i));
       Assert.assertEquals(eventTypeIds[i], eventStorage.getEventTypeId(i));
-      Assert.assertEquals(properties[i], eventStorage.getEvent(i).getProperties());
+      for (Map.Entry<String, String> entry : properties[i].entrySet()) {
+        Assert.assertEquals(entry.getValue(), eventStorage.getEvent(i).get(entry.getKey()));
+      }
     }
   }
 }

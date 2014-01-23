@@ -3,6 +3,7 @@ package com.mobicrave.eventtracker.storage;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.base.Schema;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
@@ -46,10 +47,13 @@ public class JournalUserStorage implements UserStorage {
     try {
       int id = currentId++;
       byte[] location = JournalUtil.locationToBytes(userJournal.write(user.toByteBuffer(), true));
-      BloomFilter bloomFilter = BloomFilter.build(MetaData.NUM_HASHES, MetaData.BLOOM_FILTER_SIZE);
-      for (Map.Entry<String, String> entry : user.getProperties().entrySet()) {
-        bloomFilter.add(getBloomFilterKey(entry.getKey(), entry.getValue()));
-      }
+      final BloomFilter bloomFilter = BloomFilter.build(MetaData.NUM_HASHES, MetaData.BLOOM_FILTER_SIZE);
+      user.enumerate(new KeyValueCallback() {
+        @Override
+        public void callback(String key, String value) {
+          bloomFilter.add(getBloomFilterKey(key, value));
+        }
+      });
       MetaData metaData = new MetaData(bloomFilter, location);
       metaDataList.add(metaData);
       idMap.put(user.getExternalId(), id);
@@ -93,9 +97,8 @@ public class JournalUserStorage implements UserStorage {
     }
 
     User user = getUser(userId);
-    Map<String,String> properties = user.getProperties();
     for (Criterion criterion : criteria) {
-      if (!criterion.getValue().equals(properties.get(criterion.getKey()))) {
+      if (!criterion.getValue().equals(user.get(criterion.getKey()))) {
         return false;
       }
     }

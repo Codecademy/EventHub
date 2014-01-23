@@ -56,9 +56,8 @@ public class MemUserStorage implements UserStorage {
       return true;
     }
     User user = getUser(userId);
-    Map<String,String> properties = user.getProperties();
     for (Criterion criterion : criteria) {
-      if (!criterion.getValue().equals(properties.get(criterion.getKey()))) {
+      if (!criterion.getValue().equals(user.get(criterion.getKey()))) {
         return false;
       }
     }

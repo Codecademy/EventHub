@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: more compact serialization format for Event & User (parallel sorted array for properties?)
 // TODO: per event criteria
 // TODO: 4B & 4G constraints
 // TODO: DmaList still have 4G size constraint

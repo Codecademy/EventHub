@@ -1,43 +1,45 @@
 package com.mobicrave.eventtracker.model;
 
-import com.google.gson.Gson;
+import com.google.common.collect.Maps;
+import com.mobicrave.eventtracker.base.ByteBufferMap;
+import com.mobicrave.eventtracker.base.KeyValueCallback;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class User {
-  private final String externalId;
-  private final Map<String, String> properties;
+  private final ByteBufferMap byteBufferMap;
 
-  public User(String externalId, Map<String, String> properties) {
-    this.externalId = externalId;
-    this.properties = properties;
+  private User(ByteBufferMap byteBufferMap) {
+    this.byteBufferMap = byteBufferMap;
   }
 
   public String getExternalId() {
-    return externalId;
+    return get("externalId");
   }
 
-  public Map<String, String> getProperties() {
-    return properties;
+  public String get(String key) {
+    return byteBufferMap.get(key);
+  }
+
+  public void enumerate(KeyValueCallback callback) {
+    byteBufferMap.enumerate(callback);
   }
 
   public ByteBuffer toByteBuffer() {
-    Gson gson = new Gson();
-    return ByteBuffer.wrap(gson.toJson(this).getBytes());
+    return byteBufferMap.toByteBuffer();
   }
 
   public static User fromByteBuffer(ByteBuffer byteBuffer) {
-    Gson gson = new Gson();
-    return gson.fromJson(new String(byteBuffer.array()), User.class);
+    return new User(new ByteBufferMap(byteBuffer.duplicate()));
   }
 
   public static class Builder {
-    private final String externalUserId;
+    private final String externalId;
     private Map<String, String> properties;
 
-    public Builder(String externalUserId, Map<String, String> properties) {
-      this.externalUserId = externalUserId;
+    public Builder(String externalId, Map<String, String> properties) {
+      this.externalId = externalId;
       this.properties = properties;
     }
 
@@ -47,7 +49,10 @@ public class User {
     }
 
     public User build() {
-      return new User(externalUserId, properties);
+      Map<String, String> allProperties = Maps.newHashMap();
+      allProperties.putAll(properties);
+      allProperties.put("externalId", externalId);
+      return new User(ByteBufferMap.build(allProperties));
     }
   }
 }

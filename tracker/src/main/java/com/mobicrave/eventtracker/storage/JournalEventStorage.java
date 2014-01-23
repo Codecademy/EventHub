@@ -2,6 +2,7 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.io.ByteStreams;
 import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.base.Schema;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
@@ -36,7 +37,7 @@ public class JournalEventStorage implements EventStorage {
       long id = currentId++;
       byte[] location = JournalUtil.locationToBytes(eventJournal.write(event.toByteBuffer(), true));
       final BloomFilter bloomFilter = BloomFilter.build(MetaData.NUM_HASHES, MetaData.BLOOM_FILTER_SIZE);
-      event.enumerate(new Event.Callback() {
+      event.enumerate(new KeyValueCallback() {
         @Override
         public void callback(String key, String value) {
           bloomFilter.add(getBloomFilterKey(key, value));

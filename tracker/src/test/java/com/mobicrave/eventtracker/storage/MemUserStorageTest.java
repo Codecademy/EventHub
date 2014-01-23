@@ -42,7 +42,9 @@ public class MemUserStorageTest {
       Assert.assertFalse(userStorage.satisfy(i, unmatchedCriteria[i]));
       Assert.assertEquals(i, userStorage.getId(externalIds[i]));
       Assert.assertEquals(externalIds[i], userStorage.getUser(i).getExternalId());
-      Assert.assertEquals(properties[i], userStorage.getUser(i).getProperties());
+      for (Map.Entry<String, String> entry : properties[i].entrySet()) {
+        Assert.assertEquals(entry.getValue(), userStorage.getUser(i).get(entry.getKey()));
+      }
     }
   }
 }

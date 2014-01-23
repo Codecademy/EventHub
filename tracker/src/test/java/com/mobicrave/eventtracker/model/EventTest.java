@@ -1,6 +1,7 @@
 package com.mobicrave.eventtracker.model;
 
 import com.google.common.collect.Maps;
+import com.mobicrave.eventtracker.base.KeyValueCallback;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class EventTest {
     callback.verify(6);
   }
 
-  private static class MyCallback implements Event.Callback {
+  private static class MyCallback implements KeyValueCallback {
     private final String[] expectedKeys;
     private final String[] expectedValues;
     private int counter;

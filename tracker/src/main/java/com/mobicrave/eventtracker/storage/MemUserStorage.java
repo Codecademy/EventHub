@@ -69,6 +69,11 @@ public class MemUserStorage implements UserStorage {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public String getVarz() {
+    return "";
+  }
+
   public static UserStorage build() {
     return new MemUserStorage(new User[1024], Maps.<String, Integer>newConcurrentMap(), new AtomicInteger(-1));
   }

@@ -12,4 +12,5 @@ public interface UserStorage extends Closeable {
   public int getId(String externalUserId);
   public User getUser(int userId);
   public boolean satisfy(int userId, List<Criterion> criteria);
+  public String getVarz();
 }

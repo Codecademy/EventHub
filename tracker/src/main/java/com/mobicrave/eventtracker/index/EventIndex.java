@@ -113,6 +113,10 @@ public class EventIndex implements Closeable {
     }
   }
 
+  public String getVarz() {
+    return String.format("current date: %s\ndirectory: %s\n", currentDate, directory);
+  }
+
   private static String getSerializationFile(String directory) {
     return directory + "/event_index.ser";
   }

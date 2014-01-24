@@ -119,12 +119,14 @@ public class JournalUserStorage implements UserStorage {
     metaDataList.close();
   }
 
-  public long getNumBloomFilterRejection() {
-    return numBloomFilterRejection;
-  }
-
-  public long getNumConditionCheck() {
-    return numConditionCheck;
+  @Override
+  public String getVarz() {
+    return String.format(
+        "current id: %d\n" +
+        "num condition check: %d\n" +
+        "num bloomfilter rejection: %d\n" +
+        "directory: %s\n",
+        currentId, numConditionCheck, numBloomFilterRejection, directory);
   }
 
   private String getBloomFilterKey(String key, String value) {

@@ -79,6 +79,11 @@ public class MemEventStorage implements EventStorage {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public String getVarz() {
+    return "";
+  }
+
   public static MemEventStorage build() {
     return new MemEventStorage(new Event[1024], new MetaData[1024], new AtomicLong(-1));
   }

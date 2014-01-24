@@ -52,6 +52,13 @@ public class UserEventIndex implements Closeable {
     index.invalidateAll();
   }
 
+  public String getVarz() {
+    return String.format(
+        "num records: %d\n" +
+        "directory: %s\n",
+        numRecords, directory);
+  }
+
   private static String getSerializationFile(String directory) {
     return directory + "/user_event_index.ser";
   }

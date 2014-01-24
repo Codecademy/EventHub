@@ -16,14 +16,16 @@ import java.util.BitSet;
 import java.util.List;
 
 public class JournalEventStorage implements EventStorage {
+  private final String directory;
   private final Journal eventJournal;
   private final DmaList<MetaData> metaDataList;
   private long currentId;
   private long numConditionCheck;
   private long numBloomFilterRejection;
 
-  private JournalEventStorage(Journal eventJournal, DmaList<MetaData> metaDataList,
+  private JournalEventStorage(String directory, Journal eventJournal, DmaList<MetaData> metaDataList,
       long currentId) {
+    this.directory = directory;
     this.eventJournal = eventJournal;
     this.metaDataList = metaDataList;
     this.currentId = currentId;
@@ -103,12 +105,14 @@ public class JournalEventStorage implements EventStorage {
     metaDataList.close();
   }
 
-  public long getNumBloomFilterRejection() {
-    return numBloomFilterRejection;
-  }
-
-  public long getNumConditionCheck() {
-    return numConditionCheck;
+  @Override
+  public String getVarz() {
+    return String.format(
+        "current id: %d\n" +
+        "num condition check: %d\n" +
+        "num bloomfilter rejection: %d\n" +
+        "directory: %s\n",
+        currentId, numConditionCheck, numBloomFilterRejection, directory);
   }
 
   private MetaData getEventMetaData(long eventId) {
@@ -131,7 +135,7 @@ public class JournalEventStorage implements EventStorage {
     Journal eventJournal = JournalUtil.createJournal(getJournalDirectory(directory));
     DmaList<MetaData> metaDataList = DmaList.build(MetaData.getSchema(),
         getMetaDataSerializationFile(directory), 1024 * 1024 /* defaultCapacity */);
-    return new JournalEventStorage(eventJournal, metaDataList, metaDataList.getNumRecords());
+    return new JournalEventStorage(directory, eventJournal, metaDataList, metaDataList.getNumRecords());
   }
 
   private static class MetaData {

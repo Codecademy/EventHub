@@ -18,18 +18,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+// TODO: DmaList 4B & 4G constraints
 // TODO: per event criteria
-// TODO: 4B & 4G constraints
-// TODO: DmaList still have 4G size constraint
 // TODO: property statistics for segmentation
+// TODO: poorly formatted user event index idlist filename
+// TODO: maintain monotonically increasing date
+// TODO: UserEventIndex assumes userId and numRecords in sync
 // --------------- End of V1 Beta
 // TODO: charting
 // TODO: query language
 // TODO: move synchronization responsibility to low level
-// TODO: maintain monotonically increasing date
+// TODO: compression of DmaIdList
 // TODO: native byte order for performance
-// TODO: poorly formatted user event index idlist filename
-// TODO: UserEventIndex assumes userId and numRecords in sync
 /**
  * The corresponding user has to be added before his/her event can be tracked
  */
@@ -128,6 +128,18 @@ public class EventTracker implements Closeable {
     UserStorage userStorage = JournalUserStorage.build(userStorageDirectory);
 
     return new EventTracker(directory, eventIndex, userEventIndex, eventStorage, userStorage);
+  }
+
+  public String getVarz() {
+    return String.format(
+        "Event Storage:\n=========\n%s\n" +
+        "User Storage:\n=========\n%s\n" +
+        "Event Index:\n=========\n%s\n" +
+        "User Event Index:\n=========\n%s\n",
+        eventStorage.getVarz(),
+        userStorage.getVarz(),
+        eventIndex.getVarz(),
+        userEventIndex.getVarz());
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

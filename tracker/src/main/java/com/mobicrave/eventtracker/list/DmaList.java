@@ -12,6 +12,7 @@ import java.nio.channels.FileChannel;
 
 public class DmaList<T> implements Closeable {
   private static final int META_DATA_SIZE = 8; // size for numRecords
+
   private final String filename;
   private final Schema<T> schema;
   private MappedByteBuffer buffer;

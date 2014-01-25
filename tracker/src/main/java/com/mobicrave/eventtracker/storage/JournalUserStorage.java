@@ -137,8 +137,8 @@ public class JournalUserStorage implements UserStorage {
     return metaDataList.get(userId);
   }
 
-  private static String getMetaDataSerializationFile(String directory) {
-    return directory + "/meta_data_list.mem";
+  private static String getMetaDataDirectory(String directory) {
+    return directory + "/meta_data/";
   }
 
   private static String getJournalDirectory(String directory) {
@@ -152,7 +152,7 @@ public class JournalUserStorage implements UserStorage {
   public static JournalUserStorage build(String directory) {
     Journal userJournal = JournalUtil.createJournal(getJournalDirectory(directory));
     DmaList<MetaData> metaDataList = DmaList.build(MetaData.getSchema(),
-        getMetaDataSerializationFile(directory), 10 * 1024 /* defaultCapacity */);
+        getMetaDataDirectory(directory), 1024 * 1024 /* numRecordsPerFile */);
     File file = new File(getIdMapSerializationFile(directory));
     Map<String,Integer> idMap = Maps.newConcurrentMap();
     int currentId = 0;

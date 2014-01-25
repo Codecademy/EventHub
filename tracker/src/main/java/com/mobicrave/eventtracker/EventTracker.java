@@ -18,13 +18,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: DmaList 4B & 4G constraints
-// TODO: per event criteria
-// TODO: property statistics for segmentation
-// TODO: poorly formatted user event index idlist filename
 // TODO: maintain monotonically increasing date
 // TODO: UserEventIndex assumes userId and numRecords in sync
+// TODO: per event criteria
+// TODO: poorly formatted user event index idlist filename
+// TODO: property statistics for segmentation
 // --------------- End of V1 Beta
+// TODO: put a cache in front of JournalStorage
 // TODO: charting
 // TODO: query language
 // TODO: move synchronization responsibility to low level
@@ -205,6 +205,11 @@ public class EventTracker implements Closeable {
 
     @Override
     public boolean onEventId(long eventId) {
+      int eventTypeId = eventStorage.getEventTypeId(eventId);
+      if (eventTypeId != funnelStepsEventTypeIds[numMatchedSteps]) {
+        return true;
+      }
+
       if (!eventStorage.satisfy(eventId, eventCriteria)) {
         return true;
       }
@@ -212,10 +217,7 @@ public class EventTracker implements Closeable {
       if (!userStorage.satisfy(userId, userCriteria)) {
         return true;
       }
-      int eventTypeId = eventStorage.getEventTypeId(eventId);
-      if (eventTypeId == funnelStepsEventTypeIds[numMatchedSteps]) {
-        numMatchedSteps++;
-      }
+      numMatchedSteps++;
       return numMatchedSteps != funnelStepsEventTypeIds.length;
     }
 

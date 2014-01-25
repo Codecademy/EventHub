@@ -123,8 +123,8 @@ public class JournalEventStorage implements EventStorage {
     return key + value;
   }
 
-  private static String getMetaDataSerializationFile(String directory) {
-    return directory + "/meta_data_list.mem";
+  private static String getMetaDataDirectory(String directory) {
+    return directory + "/meta_data/";
   }
 
   private static String getJournalDirectory(String directory) {
@@ -134,7 +134,7 @@ public class JournalEventStorage implements EventStorage {
   public static JournalEventStorage build(String directory) {
     Journal eventJournal = JournalUtil.createJournal(getJournalDirectory(directory));
     DmaList<MetaData> metaDataList = DmaList.build(MetaData.getSchema(),
-        getMetaDataSerializationFile(directory), 1024 * 1024 /* defaultCapacity */);
+        getMetaDataDirectory(directory), 10 * 1024 * 1024 /* numRecordsPerFile */);
     return new JournalEventStorage(directory, eventJournal, metaDataList, metaDataList.getNumRecords());
   }
 

@@ -28,6 +28,7 @@ import java.util.Set;
 // TODO: eventTracker.getEventsByType
 // TODO: support identify and alias
 // TODO: put a cache in front of JournalStorage or use flash drive
+// TODO: finish README.md
 // --------------- End of V1 Beta
 // TODO: charting
 // TODO: query language

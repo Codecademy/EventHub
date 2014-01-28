@@ -23,8 +23,12 @@ import java.util.Set;
 // TODO: per event criteria
 // TODO: poorly formatted user event index idlist filename
 // TODO: property statistics for segmentation
+// TODO: MetaData.getXXX doesn't de-serialize
+// TODO: eventTracker.getEventsByExternalUserId
+// TODO: eventTracker.getEventsByType
+// TODO: support identify and alias
+// TODO: put a cache in front of JournalStorage or use flash drive
 // --------------- End of V1 Beta
-// TODO: put a cache in front of JournalStorage
 // TODO: charting
 // TODO: query language
 // TODO: move synchronization responsibility to low level

@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.list.DmaIdList;
 import com.mobicrave.eventtracker.list.IdList;
 
@@ -31,7 +32,16 @@ public class UserEventIndex implements Closeable {
       Callback callback) {
     IdList.Iterator eventIdIterator = index.getUnchecked(userId).subList(firstStepEventId, maxLastEventId);
     while (eventIdIterator.hasNext()) {
-      if (!callback.onEventId(eventIdIterator.next())) {
+      if (!callback.shouldContinueOnEventId(eventIdIterator.next())) {
+        return;
+      }
+    }
+  }
+
+  public void enumerateEventIdsByOffset(int userId, int offset, int numRecords, Callback callback) {
+    IdList.Iterator eventIdIterator = index.getUnchecked(userId).subListByOffset(offset, numRecords);
+    while (eventIdIterator.hasNext()) {
+      if (!callback.shouldContinueOnEventId(eventIdIterator.next())) {
         return;
       }
     }
@@ -101,6 +111,6 @@ public class UserEventIndex implements Closeable {
 
   public static interface Callback {
     // return shouldContinue
-    public boolean onEventId(long eventId);
+    public boolean shouldContinueOnEventId(long eventId);
   }
 }

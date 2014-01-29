@@ -53,6 +53,10 @@ public class UserEventIndexTest {
     callback = new IdVerificationCallback(new int[] { 50 });
     userEventIndex.enumerateEventIds(1, 50, 80, callback);
     callback.verify();
+
+    callback = new IdVerificationCallback(new int[] { 50, 80 });
+    userEventIndex.enumerateEventIdsByOffset(1, 1, 2, callback);
+    callback.verify();
   }
 
   private static class IdVerificationCallback implements UserEventIndex.Callback {
@@ -65,7 +69,7 @@ public class UserEventIndexTest {
     }
 
     @Override
-    public boolean onEventId(long eventId) {
+    public boolean shouldContinueOnEventId(long eventId) {
       Assert.assertEquals(expectedIds[counter++], eventId);
       return true;
     }

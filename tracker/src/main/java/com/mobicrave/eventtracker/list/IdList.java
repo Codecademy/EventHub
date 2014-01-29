@@ -5,6 +5,7 @@ import java.io.Closeable;
 public interface IdList extends Closeable {
   public void add(long id);
   public IdList.Iterator subList(long firstStepEventId, long maxLastEventId);
+  public IdList.Iterator subListByOffset(int startOffset, int numIds);
   public IdList.Iterator iterator();
 
   public static interface Iterator {

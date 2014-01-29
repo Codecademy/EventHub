@@ -46,6 +46,11 @@ public class SimpleIdList implements IdList, Serializable {
   }
 
   @Override
+  public IdList.Iterator subListByOffset(int startOffset, int numIds) {
+    return new Iterator(list, startOffset, startOffset + numIds);
+  }
+
+  @Override
   public Iterator iterator() {
     return new Iterator(list, 0, numRecords);
   }

@@ -50,6 +50,11 @@ public class DmaIdList implements IdList, Closeable {
   }
 
   @Override
+  public IdList.Iterator subListByOffset(int startOffset, int numIds) {
+    return new Iterator(buffer, startOffset, startOffset + numIds);
+  }
+
+  @Override
   public Iterator iterator() {
     return new Iterator(buffer, 0, numRecords);
   }

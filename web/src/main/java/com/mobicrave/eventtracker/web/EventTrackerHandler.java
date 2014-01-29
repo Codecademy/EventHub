@@ -5,14 +5,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.EventTracker;
+import com.mobicrave.eventtracker.base.DateHelper;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -23,11 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 public class EventTrackerHandler extends AbstractHandler {
-  private static final DateTimeFormatter FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
   private final EventTracker eventTracker;
+  private final DateHelper dateHelper;
 
-  public EventTrackerHandler(EventTracker eventTracker) {
+  public EventTrackerHandler(EventTracker eventTracker, DateHelper dateHelper) {
     this.eventTracker = eventTracker;
+    this.dateHelper = dateHelper;
   }
 
   public void handle(String target, Request baseRequest, HttpServletRequest request,
@@ -68,14 +67,10 @@ public class EventTrackerHandler extends AbstractHandler {
   }
 
   private synchronized long addEvent(final HttpServletRequest request) {
-    String date = request.getParameter("date");
-    if (date == null) {
-      date = new DateTime().toString(FORMATTER);
-    }
     Event event = new Event.Builder(
         request.getParameter("event_type"),
         request.getParameter("external_user_id"),
-        date,
+        dateHelper.getDate(),
         toProperties(request)).build();
     return eventTracker.addEvent(event);
   }
@@ -117,7 +112,7 @@ public class EventTrackerHandler extends AbstractHandler {
     final String directory = "/tmp/event_tracker/";
 
     final EventTracker eventTracker = EventTracker.build(directory);
-    EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker);
+    EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker, new DateHelper());
     final Server server = new Server(8080);
     server.setHandler(eventHandler);
 

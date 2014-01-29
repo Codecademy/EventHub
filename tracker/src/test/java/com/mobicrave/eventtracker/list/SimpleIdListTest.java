@@ -48,5 +48,12 @@ public class SimpleIdListTest {
       Assert.assertEquals(id, iterator.next());
     }
     Assert.assertFalse(iterator.hasNext());
+
+    iterator = idList.subListByOffset(1, 2);
+    for (int i = 1; i < 3; i++) {
+      Assert.assertTrue(iterator.hasNext());
+      Assert.assertEquals(ids[i], iterator.next());
+    }
+    Assert.assertFalse(iterator.hasNext());
   }
 }

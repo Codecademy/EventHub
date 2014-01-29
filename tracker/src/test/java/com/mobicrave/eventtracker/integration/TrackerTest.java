@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -221,7 +222,7 @@ public class TrackerTest {
       final int USER_ID = userId;
       userEventIndex.enumerateEventIds(userId, 0, NUM_EVENTS, new UserEventIndex.Callback() {
         @Override
-        public boolean onEventId(long eventId) {
+        public boolean shouldContinueOnEventId(long eventId) {
           Assert.assertEquals(USER_ID, userStorage.getId(
               eventStorage.getEvent(eventId).getExternalUserId()));
           return true;
@@ -268,6 +269,34 @@ public class TrackerTest {
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
         tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Lists.newArrayList(new Criterion("foo3", "bar3"))));
+  }
+
+  @Test
+  public void testGetEventsByExternalUserId() throws Exception {
+    String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
+    EventTracker tracker = EventTracker.build(directory);
+
+    final String[] USER_IDS = { "10" };
+    final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
+    final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
+
+    for (String eventType : EVENT_TYPES) {
+      tracker.addEventType(eventType);
+    }
+    addUser(tracker, USER_IDS[0], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[0], DATES[1], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[2], USER_IDS[0], DATES[2], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[3], USER_IDS[0], DATES[3], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[4], USER_IDS[0], DATES[4], Maps.<String, String>newHashMap());
+
+
+    List<Event> events = tracker.getEventsByExternalUserId(USER_IDS[0], 1, 2);
+    for (int i = 0; i < events.size(); i++) {
+      Assert.assertEquals(EVENT_TYPES[i + 2], events.get(i).getEventType());
+      Assert.assertEquals(DATES[i + 2], events.get(i).getDate());
+      Assert.assertEquals(USER_IDS[0], events.get(i).getExternalUserId());
+    }
   }
 
   @Test

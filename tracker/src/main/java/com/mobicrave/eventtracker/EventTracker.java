@@ -26,6 +26,7 @@ import java.util.Set;
 // TODO: EventTrackerHandler request & response deser
 // TODO: per event criteria
 // TODO: frontend integration
+// TODO: finish README.md
 // --------------- End of V1 Beta
 // TODO: property statistics for segmentation
 // TODO: charting

@@ -118,10 +118,4 @@ public class UserEventIndex implements Closeable {
     // return shouldContinue
     public boolean shouldContinueOnEventId(long eventId);
   }
-
-  public static void main(String[] args) {
-    for (long i = 0; i <= 10000; i++) {
-      System.out.println(getIdListSerializationFile("/tmp", i));
-    }
-  }
 }

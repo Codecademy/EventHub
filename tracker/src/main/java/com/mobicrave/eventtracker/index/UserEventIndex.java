@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class UserEventIndex implements Closeable {
+  private static final int NUMBER_FILES_PER_DIR = 1000;
   private final String directory;
   private LoadingCache<Integer, IdList> index;
   private int numRecords;
@@ -74,8 +75,12 @@ public class UserEventIndex implements Closeable {
   }
 
   private static String getIdListSerializationFile(String directory, long id) {
-    return String.format("%s/%d/%d/%d/%d.ser", directory, id % 100, id / 100 % 100,
-        id / 10000 % 100, id);
+    StringBuilder filenameBuilder = new StringBuilder(directory);
+    while (id >= NUMBER_FILES_PER_DIR) {
+      filenameBuilder.append('/').append(String.format("%02d", id % NUMBER_FILES_PER_DIR));
+      id /= NUMBER_FILES_PER_DIR;
+    }
+    return filenameBuilder.append('/').append(id).append(".ser").toString();
   }
 
   public static UserEventIndex build(final String directory) {
@@ -112,5 +117,11 @@ public class UserEventIndex implements Closeable {
   public static interface Callback {
     // return shouldContinue
     public boolean shouldContinueOnEventId(long eventId);
+  }
+
+  public static void main(String[] args) {
+    for (long i = 0; i <= 10000; i++) {
+      System.out.println(getIdListSerializationFile("/tmp", i));
+    }
   }
 }

@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 // TODO: support identify and alias
-// TODO: poorly formatted user event index idlist filename
 // TODO: MetaData.getXXX doesn't de-serialize
 // TODO: put a cache in front of JournalStorage or use flash drive
 // TODO: EventTrackerHandler request & response deser
@@ -29,7 +28,7 @@ import java.util.Set;
 // TODO: finish README.md
 // --------------- End of V1 Beta
 // TODO: property statistics for segmentation
-// TODO: charting
+// TODO: separate cache for previously computed result?
 // TODO: query language
 // TODO: move synchronization responsibility to low level
 // TODO: compression of DmaIdList

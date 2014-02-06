@@ -2,11 +2,11 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.io.ByteStreams;
 import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.base.Schema;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
-import org.apache.cassandra.utils.BloomFilter;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 

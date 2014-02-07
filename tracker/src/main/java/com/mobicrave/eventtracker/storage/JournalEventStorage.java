@@ -1,5 +1,8 @@
 package com.mobicrave.eventtracker.storage;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.io.ByteStreams;
 import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.base.BloomFilter;
@@ -18,15 +21,17 @@ import java.util.List;
 public class JournalEventStorage implements EventStorage {
   private final String directory;
   private final Journal eventJournal;
+  private final LoadingCache<Long, Event> eventCache;
   private final DmaList<MetaData> metaDataList;
   private long currentId;
   private long numConditionCheck;
   private long numBloomFilterRejection;
 
-  private JournalEventStorage(String directory, Journal eventJournal, DmaList<MetaData> metaDataList,
-      long currentId) {
+  private JournalEventStorage(String directory, Journal eventJournal,
+      LoadingCache<Long, Event> eventCache, DmaList<MetaData> metaDataList, long currentId) {
     this.directory = directory;
     this.eventJournal = eventJournal;
+    this.eventCache = eventCache;
     this.metaDataList = metaDataList;
     this.currentId = currentId;
     this.numConditionCheck = 0;
@@ -55,13 +60,7 @@ public class JournalEventStorage implements EventStorage {
 
   @Override
   public Event getEvent(long eventId) {
-    try {
-      Location location = new Location();
-      location.readExternal(ByteStreams.newDataInput(getEventMetaData(eventId).getLocation()));
-      return Event.fromByteBuffer(eventJournal.read(location));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return eventCache.getUnchecked(eventId);
   }
 
   @Override
@@ -81,7 +80,7 @@ public class JournalEventStorage implements EventStorage {
     }
     numConditionCheck++;
 
-    BloomFilter bloomFilter = getEventMetaData(eventId).getBloomFilter();
+    BloomFilter bloomFilter = metaDataList.get(eventId).getBloomFilter();
     for (Criterion criterion : criteria) {
       String bloomFilterKey = getBloomFilterKey(criterion.getKey(), criterion.getValue());
       if (!bloomFilter.isPresent(bloomFilterKey)) {
@@ -109,15 +108,13 @@ public class JournalEventStorage implements EventStorage {
   public String getVarz() {
     return String.format(
         "directory: %s\n" +
-        "current id: %d\n" +
-        "num condition check: %d\n" +
-        "num bloomfilter rejection: %d\n" +
-        "%s\n",
-        directory, currentId, numConditionCheck, numBloomFilterRejection, metaDataList.getVarz());
-  }
-
-  private MetaData getEventMetaData(long eventId) {
-    return metaDataList.get(eventId);
+            "current id: %d\n" +
+            "num condition check: %d\n" +
+            "num bloomfilter rejection: %d\n" +
+            "eventCache: %s\n" +
+            "metaDataList: %s\n",
+        directory, currentId, numConditionCheck, numBloomFilterRejection,
+        eventCache.stats().toString(), metaDataList.getVarz());
   }
 
   private static String getBloomFilterKey(String key, String value) {
@@ -133,10 +130,28 @@ public class JournalEventStorage implements EventStorage {
   }
 
   public static JournalEventStorage build(String directory) {
-    Journal eventJournal = JournalUtil.createJournal(getJournalDirectory(directory));
-    DmaList<MetaData> metaDataList = DmaList.build(MetaData.getSchema(),
+    final Journal eventJournal = JournalUtil.createJournal(getJournalDirectory(directory));
+    final DmaList<MetaData> metaDataList = DmaList.build(MetaData.getSchema(),
         getMetaDataDirectory(directory), 10 * 1024 * 1024 /* numRecordsPerFile */);
-    return new JournalEventStorage(directory, eventJournal, metaDataList, metaDataList.getNumRecords());
+    LoadingCache<Long, Event> eventCache = CacheBuilder.newBuilder()
+        .maximumSize(1024 * 1024)
+        .recordStats()
+        .build(new CacheLoader<Long, Event>() {
+          @Override
+          public Event load(Long eventId) throws Exception {
+            try {
+              Location location = new Location();
+              MetaData metaData = metaDataList.get(eventId);
+              location.readExternal(ByteStreams.newDataInput(metaData.getLocation()));
+              return Event.fromByteBuffer(eventJournal.read(location));
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        });
+
+    return new JournalEventStorage(directory, eventJournal, eventCache, metaDataList,
+        metaDataList.getNumRecords());
   }
 
   private static class MetaData {
@@ -154,14 +169,6 @@ public class JournalEventStorage implements EventStorage {
       this.eventTypeId = eventTypeId;
       this.bloomFilter = bloomFilter;
       this.location = location;
-    }
-
-    public int getUserId() {
-      return userId;
-    }
-
-    public int getEventTypeId() {
-      return eventTypeId;
     }
 
     public BloomFilter getBloomFilter() {

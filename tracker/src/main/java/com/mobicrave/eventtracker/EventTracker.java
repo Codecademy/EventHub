@@ -19,10 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: put a cache in front of JournalStorage or use flash drive
 // TODO: support identify and alias
-// TODO: EventTrackerHandler request & response deser
-// TODO: per event criteria
+// TODO: extract config
 // TODO: frontend integration
 // TODO: finish README.md
 // --------------- End of V1 Beta
@@ -30,6 +28,7 @@ import java.util.Set;
 // TODO: separate cache for previously computed result?
 // TODO: query language
 // TODO: move synchronization responsibility to low level
+// TODO: refactor JournalEventStorage and JournalUesrStorage
 // TODO: compression of DmaIdList
 // TODO: native byte order for performance
 /**

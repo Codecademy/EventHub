@@ -55,9 +55,7 @@ public class UserEventIndex implements Closeable {
   public String getVarz() {
     return String.format(
         "directory: %s\n" +
-        "---------------\n" +
-        "%s\n" +
-        "---------------\n",
+        "index: %s\n",
         directory, index.stats().toString());
   }
 

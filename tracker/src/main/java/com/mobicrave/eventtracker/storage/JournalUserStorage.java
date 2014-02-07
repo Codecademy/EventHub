@@ -1,5 +1,8 @@
 package com.mobicrave.eventtracker.storage;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.mobicrave.eventtracker.Criterion;
@@ -25,16 +28,19 @@ import java.util.Map;
 public class JournalUserStorage implements UserStorage {
   private final String directory;
   private final Journal userJournal;
+  private final LoadingCache<Integer, User> userCache;
   private DmaList<MetaData> metaDataList;
   private final Map<String, Integer> idMap;
   private int currentId;
   private long numConditionCheck;
   private long numBloomFilterRejection;
 
-  public JournalUserStorage(String directory, Journal userJournal, DmaList<MetaData> metaDataList,
+  public JournalUserStorage(String directory, Journal userJournal,
+      LoadingCache<Integer, User> userCache, DmaList<MetaData> metaDataList,
       Map<String, Integer> idMap, int currentId) {
     this.directory = directory;
     this.userJournal = userJournal;
+    this.userCache = userCache;
     this.metaDataList = metaDataList;
     this.idMap = idMap;
     this.currentId = currentId;
@@ -71,13 +77,7 @@ public class JournalUserStorage implements UserStorage {
 
   @Override
   public User getUser(int userId) {
-    try {
-      Location location = new Location();
-      location.readExternal(ByteStreams.newDataInput(getUserMetaData(userId).getLocation()));
-      return User.fromByteBuffer(userJournal.read(location));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return userCache.getUnchecked(userId);
   }
 
   @Override
@@ -87,7 +87,7 @@ public class JournalUserStorage implements UserStorage {
     }
     numConditionCheck++;
 
-    BloomFilter bloomFilter = getUserMetaData(userId).getBloomFilter();
+    BloomFilter bloomFilter = metaDataList.get(userId).getBloomFilter();
     for (Criterion criterion : criteria) {
       String bloomFilterKey = getBloomFilterKey(criterion.getKey(), criterion.getValue());
       if (!bloomFilter.isPresent(bloomFilterKey)) {
@@ -123,19 +123,17 @@ public class JournalUserStorage implements UserStorage {
   public String getVarz() {
     return String.format(
         "directory: %s\n" +
-        "current id: %d\n" +
-        "num condition check: %d\n" +
-        "num bloomfilter rejection: %d\n" +
-        "%s\n",
-        directory, currentId, numConditionCheck, numBloomFilterRejection, metaDataList.getVarz());
+            "current id: %d\n" +
+            "num condition check: %d\n" +
+            "num bloomfilter rejection: %d\n" +
+            "userCache: %s\n" +
+            "metaDataList: %s\n",
+        directory, currentId, numConditionCheck, numBloomFilterRejection,
+        userCache.stats().toString(), metaDataList.getVarz());
   }
 
   private String getBloomFilterKey(String key, String value) {
     return key + value;
-  }
-
-  private MetaData getUserMetaData(int userId) {
-    return metaDataList.get(userId);
   }
 
   private static String getMetaDataDirectory(String directory) {
@@ -151,9 +149,25 @@ public class JournalUserStorage implements UserStorage {
   }
 
   public static JournalUserStorage build(String directory) {
-    Journal userJournal = JournalUtil.createJournal(getJournalDirectory(directory));
-    DmaList<MetaData> metaDataList = DmaList.build(MetaData.getSchema(),
+    final Journal userJournal = JournalUtil.createJournal(getJournalDirectory(directory));
+    final DmaList<MetaData> metaDataList = DmaList.build(MetaData.getSchema(),
         getMetaDataDirectory(directory), 1024 * 1024 /* numRecordsPerFile */);
+    LoadingCache<Integer, User> userCache = CacheBuilder.newBuilder()
+        .maximumSize(1024 * 1024)
+        .recordStats()
+        .build(new CacheLoader<Integer, User>() {
+          @Override
+          public User load(Integer userId) throws Exception {
+            try {
+              Location location = new Location();
+              MetaData metaData = metaDataList.get(userId);
+              location.readExternal(ByteStreams.newDataInput(metaData.getLocation()));
+              return User.fromByteBuffer(userJournal.read(location));
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        });
     File file = new File(getIdMapSerializationFile(directory));
     Map<String,Integer> idMap = Maps.newConcurrentMap();
     int currentId = 0;
@@ -165,7 +179,7 @@ public class JournalUserStorage implements UserStorage {
         throw new RuntimeException(e);
       }
     }
-    return new JournalUserStorage(directory, userJournal, metaDataList, idMap,
+    return new JournalUserStorage(directory, userJournal, userCache, metaDataList, idMap,
         currentId);
   }
 

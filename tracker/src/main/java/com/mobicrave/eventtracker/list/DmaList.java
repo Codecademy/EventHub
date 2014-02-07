@@ -70,9 +70,7 @@ public class DmaList<T> implements Closeable {
   public String getVarz() {
     return String.format(
         "directory: %s\n" +
-        "---------------\n" +
-        "%s\n" +
-        "---------------\n",
+        "buffer: %s\n",
         directory, buffers.stats().toString());
   }
 

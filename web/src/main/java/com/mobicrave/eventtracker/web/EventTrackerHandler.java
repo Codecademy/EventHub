@@ -67,10 +67,14 @@ public class EventTrackerHandler extends AbstractHandler {
   }
 
   private synchronized long addEvent(final HttpServletRequest request) {
+    String date = request.getParameter("date");
+    if (date == null) {
+      date = dateHelper.getDate();
+    }
     Event event = new Event.Builder(
         request.getParameter("event_type"),
         request.getParameter("external_user_id"),
-        dateHelper.getDate(),
+        date,
         toProperties(request)).build();
     return eventTracker.addEvent(event);
   }

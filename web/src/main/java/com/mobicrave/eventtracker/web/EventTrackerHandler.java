@@ -50,7 +50,7 @@ public class EventTrackerHandler extends AbstractHandler {
         response.getWriter().println(Arrays.toString(funnelSteps));
         break;
       case "/varz":
-        response.getWriter().println(String.format(eventTracker.getVarz()));
+        response.getWriter().println(eventTracker.getVarz());
         break;
     }
     baseRequest.setHandled(true);

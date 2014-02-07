@@ -122,11 +122,12 @@ public class JournalUserStorage implements UserStorage {
   @Override
   public String getVarz() {
     return String.format(
+        "directory: %s\n" +
         "current id: %d\n" +
         "num condition check: %d\n" +
         "num bloomfilter rejection: %d\n" +
-        "directory: %s\n",
-        currentId, numConditionCheck, numBloomFilterRejection, directory);
+        "%s\n",
+        directory, currentId, numConditionCheck, numBloomFilterRejection, metaDataList.getVarz());
   }
 
   private String getBloomFilterKey(String key, String value) {

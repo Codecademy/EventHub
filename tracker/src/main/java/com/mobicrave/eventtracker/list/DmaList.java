@@ -67,6 +67,15 @@ public class DmaList<T> implements Closeable {
     return numRecords;
   }
 
+  public String getVarz() {
+    return String.format(
+        "directory: %s\n" +
+        "---------------\n" +
+        "%s\n" +
+        "---------------\n",
+        directory, buffers.stats().toString());
+  }
+
   @Override
   public void close() {
     buffers.invalidateAll();
@@ -94,6 +103,7 @@ public class DmaList<T> implements Closeable {
       final int fileSize = numRecordsPerFile * schema.getObjectSize();
       LoadingCache<Integer, MappedByteBuffer> buffers = CacheBuilder.newBuilder()
           .maximumSize(2048)
+          .recordStats()
           .removalListener(new RemovalListener<Integer, MappedByteBuffer>() {
             @Override
             public void onRemoval(RemovalNotification<Integer, MappedByteBuffer> notification) {

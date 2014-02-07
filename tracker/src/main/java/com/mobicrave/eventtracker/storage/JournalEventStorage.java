@@ -66,12 +66,12 @@ public class JournalEventStorage implements EventStorage {
 
   @Override
   public int getEventTypeId(long eventId) {
-    return getEventMetaData(eventId).getEventTypeId();
+    return MetaData.SCHEMA.getEventTypeId(metaDataList.getBytes(eventId));
   }
 
   @Override
   public int getUserId(long eventId) {
-    return getEventMetaData(eventId).getUserId();
+    return MetaData.SCHEMA.getUserId(metaDataList.getBytes(eventId));
   }
 
   @Override
@@ -139,6 +139,7 @@ public class JournalEventStorage implements EventStorage {
   }
 
   private static class MetaData {
+    private static final MetaDataSchema SCHEMA = new MetaDataSchema();
     private static final int BLOOM_FILTER_SIZE = 64; // in bytes
     private static final int NUM_HASHES = 5;
 
@@ -170,8 +171,8 @@ public class JournalEventStorage implements EventStorage {
       return location;
     }
 
-    public static Schema<MetaData> getSchema() {
-      return new MetaDataSchema();
+    public static MetaDataSchema getSchema() {
+      return SCHEMA;
     }
 
     private static class MetaDataSchema implements Schema<MetaData> {
@@ -203,6 +204,16 @@ public class JournalEventStorage implements EventStorage {
         byteBuffer.get(location);
         return new MetaData(userId, eventTypeId,
             new BloomFilter(MetaData.NUM_HASHES, BitSet.valueOf(bloomFilter)), location);
+      }
+
+      public int getEventTypeId(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        return byteBuffer.getInt(4 /* the first 4 bytes are userId*/);
+      }
+
+      public int getUserId(byte[] bytes) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        return byteBuffer.getInt();
       }
     }
   }

@@ -54,6 +54,15 @@ public class DmaList<T> implements Closeable {
     return schema.fromBytes(bytes);
   }
 
+  public byte[] getBytes(long kthRecord) {
+    int objectSize = schema.getObjectSize();
+    byte[] bytes = new byte[objectSize];
+    ByteBuffer newBuffer = buffers.getUnchecked((int) (kthRecord / numRecordsPerFile)).duplicate();
+    newBuffer.position((int) (kthRecord % numRecordsPerFile) * objectSize);
+    newBuffer.get(bytes, 0, objectSize);
+    return bytes;
+  }
+
   public long getNumRecords() {
     return numRecords;
   }

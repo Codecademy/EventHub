@@ -169,6 +169,7 @@ public class JournalUserStorage implements UserStorage {
   }
 
   private static class MetaData {
+    private static final MetaDataSchema SCHEMA = new MetaDataSchema();
     public static final int BLOOM_FILTER_SIZE = 64; // in bytes
     public static final int NUM_HASHES = 5;
 
@@ -188,8 +189,8 @@ public class JournalUserStorage implements UserStorage {
       return location;
     }
 
-    public static Schema<MetaData> getSchema() {
-      return new MetaDataSchema();
+    public static MetaDataSchema getSchema() {
+      return SCHEMA;
     }
 
     private static class MetaDataSchema implements Schema<MetaData> {

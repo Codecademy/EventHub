@@ -19,9 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: support identify and alias
-// TODO: MetaData.getXXX doesn't de-serialize
 // TODO: put a cache in front of JournalStorage or use flash drive
+// TODO: support identify and alias
 // TODO: EventTrackerHandler request & response deser
 // TODO: per event criteria
 // TODO: frontend integration

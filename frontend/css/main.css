@@ -1,0 +1,93 @@
+.top {
+	margin-bottom: 30px;
+}
+
+.middle {
+	width: 600px;
+	height: 200px;
+	position: relative;
+}
+
+.y-axis {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 50px;
+}
+
+.y-value {
+	position: absolute;
+	width: 100%;
+	text-align: center;
+	height: 16px;
+	margin-top: -8px;
+}
+
+.y-value:nth-child(5) {
+	top: 17%;
+}
+
+.y-value:nth-child(4) {
+	top: 33%;
+}
+
+.y-value:nth-child(3) {
+	top: 50%;
+}
+
+.y-value:nth-child(2) {
+	top: 67%;
+}
+
+.y-value:nth-child(1) {
+	top: 83%;
+}
+
+.graph {
+	position: absolute;
+	top: 0;
+	left: 50px;
+	bottom: 0;
+	right: 0;
+	padding-left: 20px;
+}
+
+.bar, .space {
+	display: inline-block;
+	position: relative;
+}
+
+.space {
+	height: 100%;
+	width: 80px;
+}
+
+.bar {
+	background-color: blue;
+}
+
+.x-axis {
+	padding-left: 70px;
+}
+
+.eventName {
+	width: 100%;
+	text-align: center;
+	position: absolute;
+	bottom: -20px;
+}
+
+.conversion {
+	position: absolute;
+	top: 75%;
+	width: 100%;
+	text-align: center;
+}
+
+.numEvents {
+	position: absolute;
+	top: -20px;
+	width: 100%;
+	text-align: center;
+}

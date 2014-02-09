@@ -47,7 +47,7 @@ function renderFunnelGraph() {
     mockObj.events.forEach(function (e, i) {
         if (i > 0) {
             view = {
-                conversion: parseInt(e.volume / previousVolume * 100, 10)
+                conversion: (e.volume / previousVolume * 100).toFixed(2)
             };
             $('.graph').append(Mustache.render(spaceTemplate, view));
         }

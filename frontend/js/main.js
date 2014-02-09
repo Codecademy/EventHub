@@ -27,7 +27,7 @@ $(document).ready(function() {
     $( "#endDate" ).datepicker();
 
     $('.y-value').each(function (i, el) {
-        $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1)));
+        $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1), 10));
     });
 
     var eventLength = mockObj.events.length;
@@ -38,7 +38,7 @@ $(document).ready(function() {
     mockObj.events.forEach(function (e, i) {
         if (i > 0) {
             view = {
-                conversion: parseInt(e.volume / previousVolume * 100)
+                conversion: parseInt(e.volume / previousVolume * 100, 10)
             };
             $('.graph').append(Mustache.render(spaceTemplate, view));
         }

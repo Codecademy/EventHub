@@ -25,11 +25,11 @@
 }
 
 .y-value:nth-child(5) {
-	top: 17%;
+	top: 14%;
 }
 
 .y-value:nth-child(4) {
-	top: 33%;
+	top: 32%;
 }
 
 .y-value:nth-child(3) {
@@ -37,11 +37,11 @@
 }
 
 .y-value:nth-child(2) {
-	top: 67%;
+	top: 68%;
 }
 
 .y-value:nth-child(1) {
-	top: 83%;
+	top: 86%;
 }
 
 .graph {
@@ -60,22 +60,18 @@
 
 .space {
 	height: 100%;
-	width: 80px;
+	width: 70px;
 }
 
 .bar {
 	background-color: blue;
 }
 
-.x-axis {
-	padding-left: 70px;
-}
-
 .eventName {
 	width: 100%;
 	text-align: center;
 	position: absolute;
-	bottom: -20px;
+	bottom: -40px;
 }
 
 .conversion {

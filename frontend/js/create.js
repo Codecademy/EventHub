@@ -1,8 +1,16 @@
-var stepTemplate ='<div><select name="events">\n<option value="event1">event1</option>\n<option value="event2">event2</option>\n<option value="event3">event3</option>\n</select></div>';
+var mockObj = {
+    events: ['Event1', 'Event2', 'Event3']
+}
+
+var stepTemplate ='<div><select name="events">\n{{#events}}<option value="{{.}}">{{.}}</option>{{/events}}\n</select></div>';
 
 $(document).ready(function () {
+    var view = {
+        events: mockObj.events
+    };
+    $('.steps').append(Mustache.render(stepTemplate, view));
 	$('.add-step').click(function (e) {
 		e.preventDefault();
-		$('.steps').append(stepTemplate);
+		$('.steps').append(Mustache.render(stepTemplate, view));
 	})
 })

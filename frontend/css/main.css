@@ -91,3 +91,7 @@
 	width: 100%;
 	text-align: center;
 }
+
+.completion-rate {
+	display: inline-block;
+}

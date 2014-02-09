@@ -16,9 +16,9 @@ var mockObj = {
 			volume: 1000
 		}
 	]
-}
+};
 
-var maxEventVolume = Math.max.apply(Math, mockObj.events.map(function(e){return e.volume;}))
+var maxEventVolume = Math.max.apply(Math, mockObj.events.map(function(e){return e.volume;}));
 var diviser = Math.pow(10, (maxEventVolume.toString().length - 2));
 var Y_AXIS_MAX = Math.ceil(maxEventVolume / diviser) * diviser;
 
@@ -27,27 +27,27 @@ $(document).ready(function() {
     $( "#endDate" ).datepicker();
 
     $('.y-value').each(function (i, el) {
-    	$(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1)));
-    })
+        $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1)));
+    });
 
-    var eventLength = mockObj.events.length
+    var eventLength = mockObj.events.length;
     var completionRate = (mockObj.events[eventLength - 1].volume / mockObj.events[0].volume * 100).toFixed(2);
-    $('.completion-rate').text(completionRate + '% Completion Rate')
+    $('.completion-rate').text(completionRate + '% Completion Rate');
 
     var previousVolume;
     mockObj.events.forEach(function (e, i) {
-    	if (i > 0) {
-    		view = {
-    			conversion: parseInt(e.volume / previousVolume * 100)
-    		}
-    		$('.graph').append(Mustache.render(spaceTemplate, view));
-    	}
-    	var view = {
-    		height: (e.volume / Y_AXIS_MAX * 100),
-    		numEvents: e.volume,
-    		eventName: e.name
-    	}
-    	previousVolume = e.volume;
-    	$('.graph').append(Mustache.render(barTemplate, view));
+        if (i > 0) {
+            view = {
+                conversion: parseInt(e.volume / previousVolume * 100)
+            };
+            $('.graph').append(Mustache.render(spaceTemplate, view));
+        }
+        var view = {
+            height: (e.volume / Y_AXIS_MAX * 100),
+            numEvents: e.volume,
+            eventName: e.name
+        };
+        previousVolume = e.volume;
+        $('.graph').append(Mustache.render(barTemplate, view));
     });
 });

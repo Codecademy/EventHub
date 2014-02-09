@@ -5,7 +5,7 @@ var mockObj = {
 };
 
 $(document).ready(function () {
-    addStep();
+    initializeSteps();
 	$('.add-step').click(function (e) {
 		e.preventDefault();
 		addStep();
@@ -17,4 +17,10 @@ var view = {
 };
 function addStep() {
     $('.steps').append(Mustache.render(stepTemplate, view));
+}
+
+function initializeSteps() {
+    for (var i = 0; i < 3; i++) {
+        addStep();
+    }
 }

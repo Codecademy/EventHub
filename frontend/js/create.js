@@ -12,5 +12,5 @@ $(document).ready(function () {
 	$('.add-step').click(function (e) {
 		e.preventDefault();
 		$('.steps').append(Mustache.render(stepTemplate, view));
-	})
+	});
 });

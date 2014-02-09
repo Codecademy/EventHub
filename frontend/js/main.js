@@ -1,5 +1,5 @@
-var barTemplate = '<div class="bar" style="height: {{height}}%; width: 50px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 50px;">{{eventName}}</div></div>'
-var spaceTemplate = '<div class="space"><div class="conversion">{{conversion}}%</div></div>'
+var barTemplate = '<div class="bar" style="height: {{height}}%; width: 50px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 50px;">{{eventName}}</div></div>';
+var spaceTemplate = '<div class="space"><div class="conversion">{{conversion}}%</div></div>';
 
 var mockObj = {
 	events: [{

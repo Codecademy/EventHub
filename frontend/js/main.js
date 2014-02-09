@@ -23,17 +23,26 @@ var diviser = Math.pow(10, (maxEventVolume.toString().length - 2));
 var Y_AXIS_MAX = Math.ceil(maxEventVolume / diviser) * diviser;
 
 $(document).ready(function() {
+    initializeDatePickers();
+    renderCompletionRate();
+    renderFunnelGraph();
+});
+
+function initializeDatePickers() {
     $( "#startDate" ).datepicker();
     $( "#endDate" ).datepicker();
+}
 
-    $('.y-value').each(function (i, el) {
-        $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1), 10));
-    });
-
+function renderCompletionRate() {
     var eventLength = mockObj.events.length;
     var completionRate = (mockObj.events[eventLength - 1].volume / mockObj.events[0].volume * 100).toFixed(2);
     $('.completion-rate').text(completionRate + '% Completion Rate');
+}
 
+function renderFunnelGraph() {
+    $('.y-value').each(function (i, el) {
+        $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1), 10));
+    });
     var previousVolume;
     mockObj.events.forEach(function (e, i) {
         if (i > 0) {
@@ -50,4 +59,4 @@ $(document).ready(function() {
         previousVolume = e.volume;
         $('.graph').append(Mustache.render(barTemplate, view));
     });
-});
+}

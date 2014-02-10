@@ -2,6 +2,7 @@ package com.mobicrave.eventtracker.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.mobicrave.eventtracker.list.DmaIdList;
 import com.mobicrave.eventtracker.list.IdList;
 import org.joda.time.DateTime;
@@ -89,6 +90,10 @@ public class EventIndex implements Closeable {
       earliestEventIds.add(eventId);
     }
     eventIndexMap.get(eventType).addEvent(eventId, date);
+  }
+
+  public List<String> getEventTypes() {
+    return Ordering.from(String.CASE_INSENSITIVE_ORDER).sortedCopy(eventTypeIdMap.keySet());
   }
 
   public int getEventTypeId(String eventType) {

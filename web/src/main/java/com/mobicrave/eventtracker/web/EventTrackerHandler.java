@@ -3,14 +3,19 @@ package com.mobicrave.eventtracker.web;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.base.DateHelper;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +46,8 @@ public class EventTrackerHandler extends AbstractHandler {
         long eventId = addEvent(request);
         response.getWriter().println(eventId);
         break;
+      case "/get_event_types":
+        response.getWriter().println(getEventTypes());
       case "/add_event_type":
         addEventType(request);
         response.getWriter().println("OK");
@@ -54,6 +61,11 @@ public class EventTrackerHandler extends AbstractHandler {
         break;
     }
     baseRequest.setHandled(true);
+  }
+
+  private String getEventTypes() {
+    Gson gson = new Gson();
+    return gson.toJson(eventTracker.getEventTypes());
   }
 
   private long addUser(HttpServletRequest request) {
@@ -118,7 +130,15 @@ public class EventTrackerHandler extends AbstractHandler {
     final EventTracker eventTracker = EventTracker.build(directory);
     EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker, new DateHelper());
     final Server server = new Server(8080);
-    server.setHandler(eventHandler);
+    String webDir = EventTrackerHandler.class.getClassLoader().getResource("frontend").toExternalForm();
+
+    ResourceHandler resourceHandler = new ResourceHandler();
+    resourceHandler.setDirectoriesListed(false);
+    resourceHandler.setWelcomeFiles(new String[] { "main.html" });
+    resourceHandler.setResourceBase(webDir);
+    HandlerList handlers = new HandlerList();
+    handlers.setHandlers(new Handler[] { resourceHandler, eventHandler });
+    server.setHandler(handlers);
 
     server.start();
     Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

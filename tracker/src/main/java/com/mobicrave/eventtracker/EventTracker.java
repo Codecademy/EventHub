@@ -19,16 +19,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: support identify and alias
 // TODO: extract config
+// TODO: support identify and alias
 // TODO: frontend integration
 // TODO: finish README.md
 // --------------- End of V1 Beta
+// TODO: refactor SimpleIdList (persistence vs core)
 // TODO: property statistics for segmentation
 // TODO: separate cache for previously computed result?
 // TODO: query language
 // TODO: move synchronization responsibility to low level
-// TODO: refactor JournalEventStorage and JournalUesrStorage
+// TODO: refactor JournalEventStorage and JournalUesrStorage (separate bloomfilter, metadata, and core storage)
 // TODO: compression of DmaIdList
 // TODO: native byte order for performance
 /**
@@ -106,6 +107,10 @@ public class EventTracker implements Closeable {
     eventIndex.addEvent(eventId, event.getEventType(), event.getDate());
     userEventIndex.addEvent(userId, eventId);
     return eventId;
+  }
+
+  public List<String> getEventTypes() {
+    return eventIndex.getEventTypes();
   }
 
   private int[] getEventTypeIds(String[] eventTypes) {

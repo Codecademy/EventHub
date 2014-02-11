@@ -1,3 +1,11 @@
+.funnel-create, .funnel-show {
+	display: none;
+}
+
+.funnel-create.show, .funnel-show.show {
+	display: block;
+}
+
 .top {
 	margin-bottom: 30px;
 }

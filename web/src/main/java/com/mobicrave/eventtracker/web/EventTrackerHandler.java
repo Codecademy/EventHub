@@ -48,6 +48,7 @@ public class EventTrackerHandler extends AbstractHandler {
         break;
       case "/get_event_types":
         response.getWriter().println(getEventTypes());
+        break;
       case "/add_event_type":
         addEventType(request);
         response.getWriter().println("OK");
@@ -99,7 +100,7 @@ public class EventTrackerHandler extends AbstractHandler {
     return eventTracker.getCounts(
         request.getParameter("start_date"),
         request.getParameter("end_date"),
-        request.getParameterValues("funnel_steps"),
+        request.getParameterValues("funnel_steps[]"),
         Integer.parseInt(request.getParameter("num_days_to_complete_funnel")),
         eventCriteria,
         userCriteria);

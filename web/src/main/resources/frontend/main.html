@@ -5,26 +5,42 @@
 		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
 		<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+		<script src="js/jquery-deparam.js"></script>
 		<script src="js/mustache.js"></script>
 		<script src="js/main.js"></script>
 	</head>
 	<body>
-		<div class="top">
-			<div>
-				<input type="text" id="startDate" placeholder="Start Date"> to <input type="text" id="endDate" placeholder="End Date">
-				<input type="text" placeholder="Days to complete">
-				<div class="completion-rate"></div>
-			</div>
+		<div class="funnel-create">
+			<form>
+				<div>
+					<input type="text" name="name" placeholder="name">
+				</div>
+				<div class="steps">
+				</div>
+				<div>
+					<button class="add-step">Add Step</button>
+				</div>
+				<input type="submit" value="Create Funnel">
+			</form>
 		</div>
-		<div class="middle">
-			<div class="y-axis">
-				<div class="y-value"></div>
-				<div class="y-value"></div>
-				<div class="y-value"></div>
-				<div class="y-value"></div>
-				<div class="y-value"></div>
+		<div class="funnel-show">
+			<div class="top">
+				<div>
+					<input type="text" id="startDate" placeholder="Start Date"> to <input type="text" id="endDate" placeholder="End Date">
+					<input type="text" placeholder="Days to complete" name="days" value="7">
+					<div class="completion-rate"></div>
+				</div>
 			</div>
-			<div class="graph">
+			<div class="middle">
+				<div class="y-axis">
+					<div class="y-value"></div>
+					<div class="y-value"></div>
+					<div class="y-value"></div>
+					<div class="y-value"></div>
+					<div class="y-value"></div>
+				</div>
+				<div class="graph">
+				</div>
 			</div>
 		</div>
 	</body>

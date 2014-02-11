@@ -2,23 +2,6 @@ var barTemplate = '<div class="bar" style="height: {{height}}%; width: 50px;"><d
 var spaceTemplate = '<div class="space"><div class="conversion">{{conversion}}%</div></div>';
 var stepTemplate ='<div><select name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select></div>';
 
-var mockObj = {
-	events: [{
-			name: 'Event1',
-			volume: 8001
-		}, {
-			name: 'Event2',
-			volume: 5000
-		}, {
-			name: 'Event3',
-			volume: 2000
-		}, {
-			name: 'Event4',
-			volume: 1000
-		}
-	]
-};
-
 //===============================================================================
 
 $(document).ready(function() {

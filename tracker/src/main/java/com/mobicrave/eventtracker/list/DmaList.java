@@ -90,7 +90,7 @@ public class DmaList<T> implements Closeable {
   }
 
   public static <T> DmaList<T> build(final Schema<T> schema, final String directory,
-      final int numRecordsPerFile) {
+      final int numRecordsPerFile, int cacheSize) {
     try {
       //noinspection ResultOfMethodCallIgnored
       new File(directory).mkdirs();
@@ -100,14 +100,16 @@ public class DmaList<T> implements Closeable {
       long numRecords = metaDataBuffer.getLong();
       final int fileSize = numRecordsPerFile * schema.getObjectSize();
       LoadingCache<Integer, MappedByteBuffer> buffers = CacheBuilder.newBuilder()
-          .maximumSize(2048)
+          .maximumSize(cacheSize)
           .recordStats()
           .removalListener(new RemovalListener<Integer, MappedByteBuffer>() {
             @Override
             public void onRemoval(RemovalNotification<Integer, MappedByteBuffer> notification) {
-              notification.getValue().force();
-            }
-          })
+              MappedByteBuffer value = notification.getValue();
+              if (value != null) {
+                value.force();
+              }
+            }})
           .build(new CacheLoader<Integer, MappedByteBuffer>() {
             @Override
             public MappedByteBuffer load(Integer key) throws Exception {

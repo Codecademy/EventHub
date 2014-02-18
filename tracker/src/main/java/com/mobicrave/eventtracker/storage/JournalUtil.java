@@ -15,14 +15,14 @@ public class JournalUtil {
     return dos.toByteArray();
   }
 
-  public static Journal createJournal(String dirPath) {
+  public static Journal createJournal(String dirPath, int fileSize, int writeBatchSize) {
     Journal journal = new Journal();
     File directory = new File(dirPath);
     //noinspection ResultOfMethodCallIgnored
     directory.mkdirs();
     journal.setDirectory(directory);
-    journal.setMaxFileLength(1024 * 1024 * 1024);
-    journal.setMaxWriteBatchSize(1024 * 10);
+    journal.setMaxFileLength(fileSize);
+    journal.setMaxWriteBatchSize(writeBatchSize);
 
     try {
       journal.open();

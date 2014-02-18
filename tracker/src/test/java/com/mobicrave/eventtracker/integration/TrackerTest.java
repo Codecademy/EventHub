@@ -3,35 +3,41 @@ package com.mobicrave.eventtracker.integration;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.mobicrave.eventtracker.*;
 import com.mobicrave.eventtracker.index.EventIndex;
+import com.mobicrave.eventtracker.index.ShardedEventIndex;
+import com.mobicrave.eventtracker.index.ShardedEventIndexModule;
 import com.mobicrave.eventtracker.index.UserEventIndex;
+import com.mobicrave.eventtracker.index.UserEventIndexModule;
+import com.mobicrave.eventtracker.list.DmaIdListModule;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.EventStorage;
 import com.mobicrave.eventtracker.storage.JournalEventStorage;
+import com.mobicrave.eventtracker.storage.JournalEventStorageModule;
 import com.mobicrave.eventtracker.storage.JournalUserStorage;
+import com.mobicrave.eventtracker.storage.JournalUserStorageModule;
 import com.mobicrave.eventtracker.storage.UserStorage;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
+import javax.inject.Provider;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TrackerTest {
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
-
+public class TrackerTest extends GuiceTestCase {
   @Test
   public void testSingleUser() throws Exception {
-    String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
-    EventTracker tracker = EventTracker.build(directory);
+    Provider<EventTracker> eventTrackerProvider = getEventTrackerProvider();
+    EventTracker tracker = eventTrackerProvider.get();
 
     final String[] USER_IDS = { "10" };
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
@@ -73,8 +79,8 @@ public class TrackerTest {
 
   @Test
   public void testAll() throws Exception {
-    String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
-    EventTracker tracker = EventTracker.build(directory);
+    Provider<EventTracker> eventTrackerProvider = getEventTrackerProvider();
+    EventTracker tracker = eventTrackerProvider.get();
 
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4" };
     final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
@@ -128,7 +134,7 @@ public class TrackerTest {
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
 
     tracker.close();
-    tracker = EventTracker.build(directory);
+    tracker = eventTrackerProvider.get();
 
     Assert.assertArrayEquals(new int[] { 8, 7, 6 },
         tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
@@ -143,18 +149,15 @@ public class TrackerTest {
 
   @Test
   public void testConcurrentAddEvent() throws Exception {
-    final String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
-    String eventIndexDirectory = directory + "/event_index/";
-    String userEventIndexDirectory = directory + "/user_event_index/";
-    String eventStorageDirectory = directory + "/event_storage/";
-    String userStorageDirectory = directory + "/user_storage/";
+    Injector injector = getInjector();
 
-    final EventIndex eventIndex = EventIndex.build(eventIndexDirectory);
-    final UserEventIndex userEventIndex = UserEventIndex.build(userEventIndexDirectory);
-    final EventStorage eventStorage = JournalEventStorage.build(eventStorageDirectory);
-    final UserStorage userStorage = JournalUserStorage.build(userStorageDirectory);
+    final String directory = injector.getInstance(Key.get(String.class, Names.named("eventtracker.directory")));
+    final ShardedEventIndex shardedEventIndex = injector.getInstance(ShardedEventIndex.class);
+    final UserEventIndex userEventIndex = injector.getInstance(UserEventIndex.class);
+    final EventStorage eventStorage = injector.getInstance(JournalEventStorage.class);
+    final UserStorage userStorage = injector.getInstance(JournalUserStorage.class);
 
-    final EventTracker tracker = new EventTracker(directory, eventIndex, userEventIndex,
+    final EventTracker tracker = new EventTracker(directory, shardedEventIndex, userEventIndex,
         eventStorage, userStorage);
 
     final int NUM_EVENTS = 2000;
@@ -201,14 +204,14 @@ public class TrackerTest {
 
     for (int eventId = 0; eventId < NUM_EVENTS; eventId++) {
       Event event = eventStorage.getEvent(eventId);
-      Assert.assertEquals(eventIndex.getEventTypeId(event.getEventType()), eventStorage.getEventTypeId(eventId));
+      Assert.assertEquals(shardedEventIndex.getEventTypeId(event.getEventType()), eventStorage.getEventTypeId(eventId));
       Assert.assertEquals(userStorage.getId(event.getExternalUserId()), eventStorage.getUserId(eventId));
     }
 
     for (int eventTypeId = 0; eventTypeId < EVENT_TYPES.length; eventTypeId++) {
       final int EVENT_TYPE_ID = eventTypeId;
       // didn't bother check the callback is actually called
-      eventIndex.enumerateEventIds(EVENT_TYPES[eventTypeId], DATES[0], "21991231",
+      shardedEventIndex.enumerateEventIds(EVENT_TYPES[eventTypeId], DATES[0], "21991231",
           new EventIndex.Callback() {
         @Override
         public void onEventId(long eventId) {
@@ -233,8 +236,8 @@ public class TrackerTest {
 
   @Test
   public void testFilter() throws Exception {
-    String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
-    EventTracker tracker = EventTracker.build(directory);
+    Provider<EventTracker> eventTrackerProvider = getEventTrackerProvider();
+    EventTracker tracker = eventTrackerProvider.get();
 
     final String[] USER_IDS = { "10", "11" };
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
@@ -273,8 +276,8 @@ public class TrackerTest {
 
   @Test
   public void testGetEventsByExternalUserId() throws Exception {
-    String directory = folder.newFolder("tracker-test").getCanonicalPath() + "/";
-    EventTracker tracker = EventTracker.build(directory);
+    Provider<EventTracker> eventTrackerProvider = getEventTrackerProvider();
+    EventTracker tracker = eventTrackerProvider.get();
 
     final String[] USER_IDS = { "10" };
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
@@ -310,5 +313,40 @@ public class TrackerTest {
   private void addEvent(EventTracker tracker, String eventType, String externalUserId, String day,
       Map<String, String> property) {
     tracker.addEvent(new Event.Builder(eventType, externalUserId, day, property).build());
+  }
+
+  private Provider<EventTracker> getEventTrackerProvider() {
+    return getInjector().getProvider(EventTracker.class);
+  }
+
+  private Injector getInjector() {
+    Properties prop = new Properties();
+    prop.put("eventtracker.directory", getTempDirectory());
+    prop.put("eventtracker.eventindex.initialNumEventIdsPerDay", "10");
+    prop.put("eventtracker.usereventindex.numFilesPerDir", "10");
+    prop.put("eventtracker.usereventindex.metaDataCacheSize", "10");
+    prop.put("eventtracker.usereventindex.initialNumEventIdsPerUserDay", "10");
+    prop.put("eventtracker.journaleventstorage.numMetaDataPerFile", "10");
+    prop.put("eventtracker.journaleventstorage.metaDataCacheSize", "10");
+    prop.put("eventtracker.journaleventstorage.recordCacheSize", "10");
+    prop.put("eventtracker.journaleventstorage.metadata.bloomFilterSize", "64");
+    prop.put("eventtracker.journaleventstorage.metadata.numHashes", "1");
+    prop.put("eventtracker.journaleventstorage.journalFileSize", "1024");
+    prop.put("eventtracker.journaleventstorage.journalWriteBatchSize", "1024");
+    prop.put("eventtracker.journaluserstorage.numMetaDataPerFile", "10");
+    prop.put("eventtracker.journaluserstorage.metaDataCacheSize", "10");
+    prop.put("eventtracker.journaluserstorage.recordCacheSize", "10");
+    prop.put("eventtracker.journaluserstorage.metadata.bloomFilterSize", "64");
+    prop.put("eventtracker.journaluserstorage.metadata.numHashes", "1");
+    prop.put("eventtracker.journaluserstorage.journalFileSize", "1024");
+    prop.put("eventtracker.journaluserstorage.journalWriteBatchSize", "1024");
+
+    return createInjectorFor(new Properties(),
+        new EventTrackerModule(prop),
+        new DmaIdListModule(),
+        new ShardedEventIndexModule(),
+        new UserEventIndexModule(),
+        new JournalEventStorageModule(),
+        new JournalUserStorageModule());
   }
 }

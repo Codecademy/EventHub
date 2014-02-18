@@ -14,8 +14,8 @@ import java.nio.channels.FileChannel;
  * nor single user can have number of events exceeding this limit.
  */
 public class DmaIdList implements IdList, Closeable {
-  private static final int META_DATA_SIZE = 4; // offset for numRecords
-  private static final int SIZE_OF_DATA = 8; // each data is a long number
+  static final int META_DATA_SIZE = 4; // offset for numRecords
+  static final int SIZE_OF_DATA = 8; // each data is a long number
   private static final int MAX_NUM_RECORDS = (Integer.MAX_VALUE - META_DATA_SIZE) / SIZE_OF_DATA;
 
   private final String filename;
@@ -93,27 +93,9 @@ public class DmaIdList implements IdList, Closeable {
     }
   }
 
-  public static DmaIdList build(String filename, int defaultCapacity) {
-    try {
-      File file = new File(filename);
-      if (!file.exists()) {
-        //noinspection ResultOfMethodCallIgnored
-        file.getParentFile().mkdirs();
-        //noinspection ResultOfMethodCallIgnored
-        file.createNewFile();
-        RandomAccessFile raf = new RandomAccessFile(new File(filename), "rw");
-        raf.setLength(META_DATA_SIZE + defaultCapacity * SIZE_OF_DATA);
-        raf.close();
-      }
-      RandomAccessFile raf = new RandomAccessFile(new File(filename), "rw");
-      MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
-      int numRecords = buffer.getInt();
-      int capacity = (int) (raf.length() - META_DATA_SIZE) / SIZE_OF_DATA;
-      buffer.position(META_DATA_SIZE + numRecords * SIZE_OF_DATA);
-      return new DmaIdList(filename, buffer, numRecords, capacity);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  public interface Factory {
+    DmaIdList build(String filename);
+    void setDefaultCapacity(int defaultCapacity);
   }
 
   public static class Iterator implements IdList.Iterator {

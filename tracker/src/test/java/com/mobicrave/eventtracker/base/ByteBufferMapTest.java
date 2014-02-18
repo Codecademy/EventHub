@@ -1,4 +1,4 @@
-package com.mobicrave.eventtracker.model;
+package com.mobicrave.eventtracker.base;
 
 import com.google.common.collect.Maps;
 import com.mobicrave.eventtracker.base.ByteBufferMap;

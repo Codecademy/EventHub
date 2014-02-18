@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 public class ByteBufferMap {
   private static final int META_DATA_SIZE_IN_BYTES = 4; /* bytes */
+  private static final int RECORD_SIZE_IN_BYTES = Integer.SIZE / 8; /* bytes */
   private final ByteBuffer byteBuffer;
 
   public ByteBufferMap(ByteBuffer byteBuffer) {
@@ -47,7 +48,7 @@ public class ByteBufferMap {
     }
     ByteBuffer currentBuffer = byteBuffer.duplicate();
 
-    int currentRecordOffset = (start + end) / 2;
+    int currentRecordOffset = (start + end) >>> 1;
     String key = getKey(currentBuffer, currentRecordOffset, numProperties);
 
     int comparisonResult = key.compareTo(targetKey);
@@ -60,13 +61,17 @@ public class ByteBufferMap {
     }
   }
 
+  private int calculateByteOffset(int recordOffset) {
+    return META_DATA_SIZE_IN_BYTES + recordOffset * RECORD_SIZE_IN_BYTES;
+  }
+
   private String getKey(ByteBuffer buffer, int recordOffset, int numProperties) {
-    buffer.position(META_DATA_SIZE_IN_BYTES + recordOffset * 4);
+    buffer.position(calculateByteOffset(recordOffset));
     int startOffsetInBytes;
     if (recordOffset == 0) {
-      startOffsetInBytes = META_DATA_SIZE_IN_BYTES + 2 * numProperties * 4;
+      startOffsetInBytes = META_DATA_SIZE_IN_BYTES + 2 * numProperties * RECORD_SIZE_IN_BYTES;
     } else {
-      buffer.position(META_DATA_SIZE_IN_BYTES + (recordOffset - 1) * 4);
+      buffer.position(calculateByteOffset((recordOffset - 1)));
       startOffsetInBytes = buffer.getInt();
     }
     int finishOffsetInBytes = buffer.getInt();
@@ -74,9 +79,9 @@ public class ByteBufferMap {
   }
 
   private String getValue(ByteBuffer buffer, int recordOffset, int numProperties) {
-    buffer.position(META_DATA_SIZE_IN_BYTES + (numProperties + recordOffset - 1) * 4);
+    buffer.position(calculateByteOffset((numProperties + recordOffset - 1)));
     int startOffsetInBytes = buffer.getInt();
-    buffer.position(META_DATA_SIZE_IN_BYTES + (numProperties + recordOffset) * 4);
+    buffer.position(calculateByteOffset((numProperties + recordOffset)));
     int finishOffsetInBytes = buffer.getInt();
     return getString(buffer, startOffsetInBytes, finishOffsetInBytes);
   }
@@ -98,7 +103,7 @@ public class ByteBufferMap {
       propertiesSizeInBytes += entry.getValue().getBytes().length;
     }
 
-    int pointersSizeInBytes = 2 * sortedProperties.size() * 4;
+    int pointersSizeInBytes = 2 * sortedProperties.size() * RECORD_SIZE_IN_BYTES;
     byte[] bytes = new byte[META_DATA_SIZE_IN_BYTES + pointersSizeInBytes + propertiesSizeInBytes];
 
     // initialize metadata

@@ -15,8 +15,9 @@ public class DmaListTest {
   @Test
   public void testAll() throws Exception {
     int numRecordsPerFile = 2;
+    int cacheSize = 1;
     String directory = folder.newFolder().getCanonicalPath();
-    DmaList<MetaData> list = DmaList.build(MetaData.getSchema(), directory, numRecordsPerFile);
+    DmaList<MetaData> list = DmaList.build(MetaData.getSchema(), directory, numRecordsPerFile, cacheSize);
     MetaData[] metaDatas = new MetaData[] {
         new MetaData(1, new byte[] { 0b00000000, 0, 0, 0, 0b00101010, 0, 0, 0, 0b00110011, 0, 0, 0, 0b00000001 } ),
         new MetaData(3, new byte[] { 0b00000010, 0, 0, 0, 0b00101101, 0, 0, 0, 0b01001100, 0, 0, 0, 0b00100001 } ),
@@ -33,7 +34,7 @@ public class DmaListTest {
     }
 
     list.close();
-    list = DmaList.build(MetaData.getSchema(), directory, numRecordsPerFile);
+    list = DmaList.build(MetaData.getSchema(), directory, numRecordsPerFile, cacheSize);
     list.add(metaDatas[3]);
     for (int i = 0; i < metaDatas.length; i++) {
       Assert.assertEquals(metaDatas[i].getUserId(), list.get(i).getUserId());

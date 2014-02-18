@@ -3,14 +3,13 @@ package com.mobicrave.eventtracker;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mobicrave.eventtracker.index.EventIndex;
+import com.mobicrave.eventtracker.index.ShardedEventIndex;
 import com.mobicrave.eventtracker.index.UserEventIndex;
 import com.mobicrave.eventtracker.list.IdList;
-import com.mobicrave.eventtracker.list.SimpleIdList;
+import com.mobicrave.eventtracker.list.MemIdList;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.EventStorage;
-import com.mobicrave.eventtracker.storage.JournalEventStorage;
-import com.mobicrave.eventtracker.storage.JournalUserStorage;
 import com.mobicrave.eventtracker.storage.UserStorage;
 
 import java.io.Closeable;
@@ -19,17 +18,20 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: extract config
+// TODO: refactor ShardedEventIndex (EventTypeManager and DateManager)
+// TODO: refactor JournalEventStorage and JournalUserStorage (separate bloomfilter, metadata, and core storage)
+// TODO: testAddConcurrentUsers
+
 // TODO: support identify and alias
 // TODO: frontend integration
 // TODO: finish README.md
 // --------------- End of V1 Beta
-// TODO: refactor SimpleIdList (persistence vs core)
+// TODO: jersey integration
 // TODO: property statistics for segmentation
-// TODO: separate cache for previously computed result?
+// TODO: consider column oriented storage
+// TODO: separate cache for previously computed result? same binary or redis?
 // TODO: query language
 // TODO: move synchronization responsibility to low level
-// TODO: refactor JournalEventStorage and JournalUesrStorage (separate bloomfilter, metadata, and core storage)
 // TODO: compression of DmaIdList
 // TODO: native byte order for performance
 /**
@@ -38,15 +40,15 @@ import java.util.Set;
  */
 public class EventTracker implements Closeable {
   private final String directory;
-  private final EventIndex eventIndex;
+  private final ShardedEventIndex shardedEventIndex;
   private final UserEventIndex userEventIndex;
   private final EventStorage eventStorage;
   private final UserStorage userStorage;
 
-  public EventTracker(String directory, EventIndex eventIndex, UserEventIndex userEventIndex,
-      EventStorage eventStorage, UserStorage userStorage) {
+  public EventTracker(String directory, ShardedEventIndex shardedEventIndex,
+      UserEventIndex userEventIndex, EventStorage eventStorage, UserStorage userStorage) {
     this.directory = directory;
-    this.eventIndex = eventIndex;
+    this.shardedEventIndex = shardedEventIndex;
     this.userEventIndex = userEventIndex;
     this.eventStorage = eventStorage;
     this.userStorage = userStorage;
@@ -62,13 +64,13 @@ public class EventTracker implements Closeable {
 
   public int[] getCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
       int numDaysToCompleteFunnel, List<Criterion> eventCriteria, List<Criterion> userCriteria) {
-    IdList userIdList = SimpleIdList.build("", 10000);
-    IdList firstStepEventIdList = SimpleIdList.build("", 10000);
+    IdList userIdList = new MemIdList(new long[10000], 0);
+    IdList firstStepEventIdList = new MemIdList(new long[10000], 0);
     int[] funnelStepsEventTypeIds = getEventTypeIds(funnelStepsEventTypes);
 
     EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
         userIdList, firstStepEventIdList, eventCriteria, userCriteria, Sets.<Integer>newHashSet());
-    eventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
+    shardedEventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
     IdList.Iterator userIdIterator = userIdList.iterator();
@@ -76,7 +78,7 @@ public class EventTracker implements Closeable {
     while (userIdIterator.hasNext()) {
       int userId = (int) userIdIterator.next();
       long firstStepEventId = firstStepEventIdIterator.next();
-      long maxLastStepEventId = eventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
+      long maxLastStepEventId = shardedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
       CountFunnelStepsMatched countFunnelStepsMatched = new CountFunnelStepsMatched(
           eventStorage, userStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/,
           eventCriteria, userCriteria);
@@ -97,26 +99,26 @@ public class EventTracker implements Closeable {
   }
 
   public synchronized void addEventType(String eventType) {
-    eventIndex.addEventType(eventType);
+    shardedEventIndex.addEventType(eventType);
   }
 
   public synchronized long addEvent(Event event) {
     int userId = userStorage.getId(event.getExternalUserId());
     long eventId = eventStorage.addEvent(event, userId,
-        eventIndex.getEventTypeId(event.getEventType()));
-    eventIndex.addEvent(eventId, event.getEventType(), event.getDate());
+        shardedEventIndex.getEventTypeId(event.getEventType()));
+    shardedEventIndex.addEvent(eventId, event.getEventType(), event.getDate());
     userEventIndex.addEvent(userId, eventId);
     return eventId;
   }
 
   public List<String> getEventTypes() {
-    return eventIndex.getEventTypes();
+    return shardedEventIndex.getEventTypes();
   }
 
   private int[] getEventTypeIds(String[] eventTypes) {
     int[] eventTypeIds = new int[eventTypes.length];
     for (int i = 0; i < eventTypeIds.length; i++) {
-      eventTypeIds[i] = eventIndex.getEventTypeId(eventTypes[i]);
+      eventTypeIds[i] = shardedEventIndex.getEventTypeId(eventTypes[i]);
     }
     return eventTypeIds;
   }
@@ -127,22 +129,8 @@ public class EventTracker implements Closeable {
     new File(directory).mkdirs();
     eventStorage.close();
     userStorage.close();
-    eventIndex.close();
+    shardedEventIndex.close();
     userEventIndex.close();
-  }
-
-  public static EventTracker build(String directory) {
-    String eventIndexDirectory = directory + "/event_index/";
-    String userEventIndexDirectory = directory + "/user_event_index/";
-    String eventStorageDirectory = directory + "/event_storage/";
-    String userStorageDirectory = directory + "/user_storage/";
-
-    EventIndex eventIndex = EventIndex.build(eventIndexDirectory);
-    UserEventIndex userEventIndex = UserEventIndex.build(userEventIndexDirectory);
-    EventStorage eventStorage = JournalEventStorage.build(eventStorageDirectory);
-    UserStorage userStorage = JournalUserStorage.build(userStorageDirectory);
-
-    return new EventTracker(directory, eventIndex, userEventIndex, eventStorage, userStorage);
   }
 
   public String getVarz() {
@@ -153,7 +141,7 @@ public class EventTracker implements Closeable {
         "User Event Index:\n=========\n%s\n",
         eventStorage.getVarz(),
         userStorage.getVarz(),
-        eventIndex.getVarz(),
+        shardedEventIndex.getVarz(),
         userEventIndex.getVarz());
   }
 

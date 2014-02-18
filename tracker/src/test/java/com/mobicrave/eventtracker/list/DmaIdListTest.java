@@ -1,21 +1,19 @@
 package com.mobicrave.eventtracker.list;
 
+import com.google.inject.Injector;
+import com.mobicrave.eventtracker.integration.GuiceTestCase;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
+import java.util.Properties;
 
-public class DmaIdListTest {
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
-
+public class DmaIdListTest extends GuiceTestCase {
   @Test
   public void testDmaIdList() throws Exception {
-    File directory = folder.newFolder();
-    String filename = directory.getCanonicalPath() + "/simple_id_list.ser";
-    IdList idList = DmaIdList.build(filename, 2);
+    DmaIdList.Factory dmaIdListFactory = getDmaIdListFactory();
+    dmaIdListFactory.setDefaultCapacity(2);
+    String filename = getTempDirectory() + "/simple_id_list.ser";
+    IdList idList = dmaIdListFactory.build(filename);
     long[] ids = new long[] { 10, 20, 30, 40, 50 };
 
     IdList.Iterator iterator = idList.iterator();
@@ -39,7 +37,7 @@ public class DmaIdListTest {
 
     idList.close();
 
-    idList = DmaIdList.build(filename, 2);
+    idList = dmaIdListFactory.build(filename);
     idList.add(ids[ids.length - 1]);
 
     iterator = idList.iterator();
@@ -55,5 +53,11 @@ public class DmaIdListTest {
       Assert.assertEquals(ids[i], iterator.next());
     }
     Assert.assertFalse(iterator.hasNext());
+  }
+
+  private DmaIdList.Factory getDmaIdListFactory() {
+    Injector injector = createInjectorFor(
+        new Properties(), new DmaIdListModule());
+    return injector.getInstance(DmaIdList.Factory.class);
   }
 }

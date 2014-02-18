@@ -4,16 +4,25 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.EventTracker;
+import com.mobicrave.eventtracker.EventTrackerModule;
 import com.mobicrave.eventtracker.base.DateHelper;
+import com.mobicrave.eventtracker.index.ShardedEventIndexModule;
+import com.mobicrave.eventtracker.index.UserEventIndexModule;
+import com.mobicrave.eventtracker.list.DmaIdListModule;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
+import com.mobicrave.eventtracker.storage.JournalEventStorageModule;
+import com.mobicrave.eventtracker.storage.JournalUserStorageModule;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
@@ -24,6 +33,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class EventTrackerHandler extends AbstractHandler {
   private final EventTracker eventTracker;
@@ -93,9 +103,9 @@ public class EventTrackerHandler extends AbstractHandler {
   }
 
   private int[] countFunnelSteps(HttpServletRequest request) {
-    List<Criterion> eventCriteria = getCriterions(request.getParameterValues("eck"),
+    List<Criterion> eventCriteria = getCriteria(request.getParameterValues("eck"),
         request.getParameterValues("ecv"));
-    List<Criterion> userCriteria = getCriterions(request.getParameterValues("uck"),
+    List<Criterion> userCriteria = getCriteria(request.getParameterValues("uck"),
         request.getParameterValues("ucv"));
     return eventTracker.getCounts(
         request.getParameter("start_date"),
@@ -106,11 +116,11 @@ public class EventTrackerHandler extends AbstractHandler {
         userCriteria);
   }
 
-  private List<Criterion> getCriterions(String[] criteriaKeys, String[] criteriaValues) {
+  private List<Criterion> getCriteria(String[] criterionKeys, String[] criterionValues) {
     List<Criterion> eventCriteria = Lists.newArrayList();
-    if (criteriaKeys != null) {
-      for (int i = 0; i < criteriaKeys.length; i++) {
-        eventCriteria.add(new Criterion(criteriaKeys[i], criteriaValues[i]));
+    if (criterionKeys != null) {
+      for (int i = 0; i < criterionKeys.length; i++) {
+        eventCriteria.add(new Criterion(criterionKeys[i], criterionValues[i]));
       }
     }
     return eventCriteria;
@@ -126,11 +136,24 @@ public class EventTrackerHandler extends AbstractHandler {
   }
 
   public static void main(String[] args) throws Exception {
-    final String directory = "/tmp/event_tracker/";
+    Properties properties = new Properties();
+    properties.load(
+        EventTracker.class.getClassLoader().getResourceAsStream("tracker.properties"));
+    properties.load(
+        EventTrackerHandler.class.getClassLoader().getResourceAsStream("web.properties"));
 
-    final EventTracker eventTracker = EventTracker.build(directory);
+    Injector injector = Guice.createInjector(
+        new DmaIdListModule(),
+        new ShardedEventIndexModule(),
+        new UserEventIndexModule(),
+        new JournalEventStorageModule(),
+        new JournalUserStorageModule(),
+        new EventTrackerModule(properties));
+    final EventTracker eventTracker = injector.getInstance(EventTracker.class);
+    int port = injector.getInstance(Key.get(Integer.class, Names.named("eventtrackerhandler.port")));
+
     EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker, new DateHelper());
-    final Server server = new Server(8080);
+    final Server server = new Server(port);
     String webDir = EventTrackerHandler.class.getClassLoader().getResource("frontend").toExternalForm();
 
     ResourceHandler resourceHandler = new ResourceHandler();

@@ -1,19 +1,19 @@
 package com.mobicrave.eventtracker.index;
 
+import com.google.inject.Injector;
+import com.mobicrave.eventtracker.integration.GuiceTestCase;
+import com.mobicrave.eventtracker.list.DmaIdListModule;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-public class UserEventIndexTest {
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
+import javax.inject.Provider;
+import java.util.Properties;
 
+public class UserEventIndexTest extends GuiceTestCase {
   @Test
   public void testAll() throws Exception {
-    String dataDir = folder.newFolder("user-event-index-test").getCanonicalPath() + "/";
-
-    UserEventIndex userEventIndex = UserEventIndex.build(dataDir);
+    Provider<UserEventIndex> userEventIndexProvider = getUserEventIndexProvider();
+    UserEventIndex userEventIndex = userEventIndexProvider.get();
     userEventIndex.addEvent(0, 10);
     userEventIndex.addEvent(1, 20);
     userEventIndex.addEvent(2, 30);
@@ -40,7 +40,7 @@ public class UserEventIndexTest {
     callback.verify();
 
     userEventIndex.close();
-    userEventIndex = UserEventIndex.build(dataDir);
+    userEventIndex = userEventIndexProvider.get();
 
     callback = new IdVerificationCallback(new int[] { 20, 50, 80, 110 });
     userEventIndex.enumerateEventIds(1, 1, 1000, callback);
@@ -77,5 +77,17 @@ public class UserEventIndexTest {
     public void verify() {
       Assert.assertEquals(expectedIds.length, counter);
     }
+  }
+
+  private Provider<UserEventIndex> getUserEventIndexProvider() {
+    Properties prop = new Properties();
+    prop.put("eventtracker.directory", getTempDirectory());
+    prop.put("eventtracker.usereventindex.numFilesPerDir", "10");
+    prop.put("eventtracker.usereventindex.metaDataCacheSize", "1");
+    prop.put("eventtracker.usereventindex.initialNumEventIdsPerUserDay", "1");
+
+    Injector injector = createInjectorFor(
+        prop, new DmaIdListModule(), new UserEventIndexModule());
+    return injector.getProvider(UserEventIndex.class);
   }
 }

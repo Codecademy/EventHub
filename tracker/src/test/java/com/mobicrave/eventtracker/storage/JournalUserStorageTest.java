@@ -2,24 +2,23 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.inject.Injector;
 import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.integration.GuiceTestCase;
 import com.mobicrave.eventtracker.model.User;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
+import javax.inject.Provider;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
-public class JournalUserStorageTest {
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
-
+public class JournalUserStorageTest extends GuiceTestCase {
   @Test
   public void testAll() throws Exception {
-    String directory = folder.newFolder("journal-user-storage-test").getCanonicalPath() + "/";
-    JournalUserStorage userStorage = JournalUserStorage.build(directory);
+    Provider<JournalUserStorage> journalUserStorageProvider = getJournalUserStorageProvider();
+    JournalUserStorage userStorage = journalUserStorageProvider.get();
     String[] externalIds = new String[] { "x", "y", "z" };
     Map<String, String>[] properties = (Map<String, String>[]) new Map[] {
         ImmutableMap.<String, String>builder().put("foo1", "bar1").put("foo2", "bar2").build(),
@@ -54,7 +53,7 @@ public class JournalUserStorageTest {
     }
     userStorage.close();
 
-    userStorage = JournalUserStorage.build(directory);
+    userStorage = journalUserStorageProvider.get();
     userStorage.addUser(
         new User.Builder(externalIds[externalIds.length - 1], properties[externalIds.length - 1])
             .build());
@@ -67,4 +66,21 @@ public class JournalUserStorageTest {
         Assert.assertEquals(entry.getValue(), userStorage.getUser(i).get(entry.getKey()));
       }
     }
-  }}
+  }
+
+  private Provider<JournalUserStorage> getJournalUserStorageProvider() {
+    Properties prop = new Properties();
+    prop.put("eventtracker.directory", getTempDirectory());
+    prop.put("eventtracker.journaluserstorage.numMetaDataPerFile", "1");
+    prop.put("eventtracker.journaluserstorage.metaDataCacheSize", "1");
+    prop.put("eventtracker.journaluserstorage.recordCacheSize", "1");
+    prop.put("eventtracker.journaluserstorage.metadata.bloomFilterSize", "64");
+    prop.put("eventtracker.journaluserstorage.metadata.numHashes", "1");
+    prop.put("eventtracker.journaluserstorage.journalFileSize", "1024");
+    prop.put("eventtracker.journaluserstorage.journalWriteBatchSize", "1024");
+
+    Injector injector = createInjectorFor(
+        prop, new JournalUserStorageModule());
+    return injector.getProvider(JournalUserStorage.class);
+  }
+}

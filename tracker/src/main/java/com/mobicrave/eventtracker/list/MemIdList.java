@@ -1,23 +1,12 @@
 package com.mobicrave.eventtracker.list;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Arrays;
 
-public class SimpleIdList implements IdList, Serializable {
-  private static final long serialVersionUID = 8806039426767633834L;
-
-  private final String filename;
+public class MemIdList implements IdList {
   private long[] list;
   private int numRecords;
 
-  public SimpleIdList(String filename, long[] list, int numRecords) {
-    this.filename = filename;
+  public MemIdList(long[] list, int numRecords) {
     this.list = list;
     this.numRecords = numRecords;
   }
@@ -56,28 +45,7 @@ public class SimpleIdList implements IdList, Serializable {
   }
 
   @Override
-  public void close() throws IOException {
-    File file = new File(filename);
-    if (!file.exists()) {
-      //noinspection ResultOfMethodCallIgnored
-      file.getParentFile().mkdirs();
-    }
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-      oos.writeObject(this);
-    }
-  }
-
-  public static SimpleIdList build(String filename, int defaultCapacity) {
-    File file = new File(filename);
-    if (file.exists()) {
-      try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-        return (SimpleIdList) ois.readObject();
-      } catch (ClassNotFoundException | IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return new SimpleIdList(filename, new long[defaultCapacity], 0);
-  }
+  public void close() {}
 
   public static class Iterator implements IdList.Iterator {
     private final long[] list;

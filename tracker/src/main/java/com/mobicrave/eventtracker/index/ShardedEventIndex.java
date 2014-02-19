@@ -40,6 +40,9 @@ public class ShardedEventIndex implements Closeable {
   }
 
   public void addEventType(String eventType) {
+    if (eventTypeIdMap.containsKey(eventType)) {
+      return;
+    }
     EventIndex individualEventIndex = eventIndexMap.get(eventType);
     if (individualEventIndex != null) {
       return ;

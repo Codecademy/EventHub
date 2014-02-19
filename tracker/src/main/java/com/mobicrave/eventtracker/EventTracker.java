@@ -18,12 +18,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: testAddConcurrentUsers
+// TODO: add event type if not exist
 // TODO: support identify and alias
+// TODO: testAddConcurrentUsers
+// TODO: retention
 // TODO: frontend integration
 // TODO: finish README.md
 // --------------- End of V1 Beta
-// TODO: jersey integration
 // TODO: property statistics for segmentation
 // TODO: consider column oriented storage
 // TODO: separate cache for previously computed result? same binary or redis?
@@ -95,11 +96,10 @@ public class EventTracker implements Closeable {
     return userStorage.addUser(user);
   }
 
-  public synchronized void addEventType(String eventType) {
-    shardedEventIndex.addEventType(eventType);
-  }
-
   public synchronized long addEvent(Event event) {
+    // make sure the given event type has an id associated
+    shardedEventIndex.addEventType(event.getEventType());
+
     int userId = userStorage.getId(event.getExternalUserId());
     long eventId = eventStorage.addEvent(event, userId,
         shardedEventIndex.getEventTypeId(event.getEventType()));

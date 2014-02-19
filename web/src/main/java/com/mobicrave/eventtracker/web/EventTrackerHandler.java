@@ -59,10 +59,6 @@ public class EventTrackerHandler extends AbstractHandler {
       case "/get_event_types":
         response.getWriter().println(getEventTypes());
         break;
-      case "/add_event_type":
-        addEventType(request);
-        response.getWriter().println("OK");
-        break;
       case "/count_funnel_steps":
         int[] funnelSteps = countFunnelSteps(request);
         response.getWriter().println(Arrays.toString(funnelSteps));
@@ -83,10 +79,6 @@ public class EventTrackerHandler extends AbstractHandler {
     return eventTracker.addUser(new User.Builder(
         request.getParameter("external_user_id"),
         toProperties(request)).build());
-  }
-
-  private void addEventType(HttpServletRequest request) {
-    eventTracker.addEventType(request.getParameter("event_type"));
   }
 
   private synchronized long addEvent(final HttpServletRequest request) {

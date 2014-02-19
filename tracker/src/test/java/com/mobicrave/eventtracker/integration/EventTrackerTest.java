@@ -43,9 +43,6 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
-    for (String eventType : EVENT_TYPES) {
-      tracker.addEventType(eventType);
-    }
     addUser(tracker, USER_IDS[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[1], USER_IDS[0], DATES[1], Maps.<String, String>newHashMap());
@@ -86,9 +83,6 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
-    for (String eventType : EVENT_TYPES) {
-      tracker.addEventType(eventType);
-    }
     for (String userId : USER_IDS) {
       addUser(tracker, userId, Maps.<String, String>newHashMap());
     }
@@ -166,9 +160,6 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
-    for (String eventType : EVENT_TYPES) {
-      tracker.addEventType(eventType);
-    }
     for (String userId : USER_IDS) {
       addUser(tracker, userId, Maps.<String, String>newHashMap());
     }
@@ -191,7 +182,8 @@ public class EventTrackerTest extends GuiceTestCase {
             int eventTypeIndex = random.nextInt(EVENT_TYPES.length);
             int userIdIndex = random.nextInt(USER_IDS.length);
             int dateIndex = counter.getAndIncrement() * DATES.length / NUM_EVENTS;
-            addEvent(tracker, EVENT_TYPES[eventTypeIndex], USER_IDS[userIdIndex], DATES[dateIndex], Maps.<String, String>newHashMap());
+            addEvent(tracker, EVENT_TYPES[eventTypeIndex], USER_IDS[userIdIndex], DATES[dateIndex],
+                Maps.<String, String>newHashMap());
           }
         }
       });
@@ -248,9 +240,6 @@ public class EventTrackerTest extends GuiceTestCase {
         ImmutableMap.<String, String>builder().put("foo3", "bar3").build()
     };
 
-    for (String eventType : EVENT_TYPES) {
-      tracker.addEventType(eventType);
-    }
     for (int i = 0; i < USER_IDS.length; i++) {
       addUser(tracker, USER_IDS[i], properties[i]);
       addEvent(tracker, EVENT_TYPES[0], USER_IDS[i], DATES[0], properties[0]);
@@ -283,9 +272,6 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
-    for (String eventType : EVENT_TYPES) {
-      tracker.addEventType(eventType);
-    }
     addUser(tracker, USER_IDS[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[1], USER_IDS[0], DATES[1], Maps.<String, String>newHashMap());

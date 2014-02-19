@@ -1,9 +1,5 @@
 #!/bin/bash
 
-curl -X POST http://localhost:8080/add_event_type --data "event_type=signup"
-curl -X POST http://localhost:8080/add_event_type --data "event_type=view_shopping_cart"
-curl -X POST http://localhost:8080/add_event_type --data "event_type=checkout"
-
 curl -X POST http://localhost:8080/register_user --data "external_user_id=chengtao"
 
 curl -X POST http://localhost:8080/track_event --data "event_type=signup&external_user_id=chengtao&date=20130101&event_property_1=1"

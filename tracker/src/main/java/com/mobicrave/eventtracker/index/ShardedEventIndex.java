@@ -2,71 +2,41 @@ package com.mobicrave.eventtracker.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class ShardedEventIndex implements Closeable {
-  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
-
   private final String filename;
   private final EventIndex.Factory eventIndexFactory;
   // O(numEventTypes), from eventType to its index
   private final Map<String, EventIndex> eventIndexMap;
   // O(numEventTypes)
   private final Map<String, Integer> eventTypeIdMap;
-  // O(numDays)
-  private final List<String> dates;
-  // O(numDays)
-  private final List<Long> earliestEventIds;
-  private String currentDate;
+  private final DatedEventIndex datedEventIndex;
 
   public ShardedEventIndex(String filename, EventIndex.Factory eventIndexFactory,
       Map<String, EventIndex> eventIndexMap, Map<String, Integer> eventTypeIdMap,
-      List<String> dates, List<Long> earliestEventIds, String currentDate) {
+      DatedEventIndex datedEventIndex) {
+    this.filename = filename;
     this.eventIndexFactory = eventIndexFactory;
     this.eventIndexMap = eventIndexMap;
     this.eventTypeIdMap = eventTypeIdMap;
-    this.dates = dates;
-    this.earliestEventIds = earliestEventIds;
-    this.currentDate = currentDate;
-    this.filename = filename;
+    this.datedEventIndex = datedEventIndex;
+  }
+
+  public long findFirstEventIdOnDate(long eventIdForStartDate, int numDaysAfter) {
+    return datedEventIndex.findFirstEventIdOnDate(eventIdForStartDate, numDaysAfter);
   }
 
   public void enumerateEventIds(String eventType, String startDate, String endDate,
       EventIndex.Callback aggregateUserIdsCallback) {
     eventIndexMap.get(eventType).enumerateEventIds(startDate, endDate, aggregateUserIdsCallback);
-  }
-
-  public long findFirstEventIdOnDate(long eventIdForStartDate, int numDaysAfter) {
-    int startDateOffset = Collections.binarySearch(earliestEventIds, eventIdForStartDate);
-    if (startDateOffset < 0) {
-      if (startDateOffset == -1) {
-        startDateOffset = 0;
-      } else {
-        startDateOffset = -startDateOffset - 2;
-      }
-    }
-    String dateOfEvent = dates.get(startDateOffset);
-    String endDate = DATE_TIME_FORMATTER.print(
-        DateTime.parse(dateOfEvent, DATE_TIME_FORMATTER).plusDays(numDaysAfter));
-    int endDateOffset = Collections.binarySearch(dates, endDate);
-    if (endDateOffset < 0) {
-      endDateOffset = -endDateOffset - 1;
-      if (endDateOffset >= earliestEventIds.size()) {
-        return Long.MAX_VALUE;
-      }
-    }
-    return earliestEventIds.get(endDateOffset);
   }
 
   public void addEventType(String eventType) {
@@ -81,10 +51,8 @@ public class ShardedEventIndex implements Closeable {
   }
 
   public void addEvent(long eventId, String eventType, String date) {
-    if (!date.equals(currentDate)) {
-      currentDate = date;
-      dates.add(date);
-      earliestEventIds.add(eventId);
+    if (!date.equals(datedEventIndex.getCurrentDate())) {
+      datedEventIndex.addEvent(eventId, date);
     }
     eventIndexMap.get(eventType).addEvent(eventId, date);
   }
@@ -109,13 +77,12 @@ public class ShardedEventIndex implements Closeable {
       }
       oos.writeObject(eventTypes);
       oos.writeObject(eventTypeIdMap);
-      oos.writeObject(dates);
-      oos.writeObject(earliestEventIds);
-      oos.writeObject(currentDate);
     }
+    datedEventIndex.close();
   }
 
   public String getVarz() {
-    return String.format("current date: %s\nfilename: %s\n", currentDate, filename);
+    return String.format("current date: %s\nfilename: %s\n",
+        datedEventIndex.getCurrentDate(), filename);
   }
 }

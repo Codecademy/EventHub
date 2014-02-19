@@ -35,31 +35,52 @@ public class ShardedEventIndexModule extends AbstractModule {
   }
 
   @Provides
-  public ShardedEventIndex getEventIndex(
-      @Named("eventtracker.shardedeventindex.filename") String eventIndexFilename,
-      EventIndex.Factory individualEventIndexFactory) {
-    File file = new File(eventIndexFilename);
+  @Named("eventtracker.shardedeventindex.datedeventindex.filename")
+  public String getDatedEventIndexFile(
+      @Named("eventtracker.shardedeventindex.directory") String eventIndexDirectory) {
+    return eventIndexDirectory + "/dated_event_index.ser";
+  }
+
+  @Provides
+  public DatedEventIndex getDatedEventIndex(
+      @Named("eventtracker.shardedeventindex.datedeventindex.filename") String datedEventIndexFilename) {
+    File file = new File(datedEventIndexFilename);
     if (file.exists()) {
-      try {
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-        List<String> eventTypes = (List<String>) ois.readObject();
-        Map<String, Integer> eventTypeIdMap = (Map<String, Integer>) ois.readObject();
+      try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
         List<String> dates = (List<String>) ois.readObject();
         List<Long> earliestEventIds = (List<Long>) ois.readObject();
         String currentDate = (String) ois.readObject();
+        return new DatedEventIndex(datedEventIndexFilename, dates, earliestEventIds, currentDate);
+      } catch (IOException | ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return new DatedEventIndex(datedEventIndexFilename, Lists.<String>newArrayList(),
+        Lists.<Long>newArrayList(), null);
+  }
+
+  @Provides
+  public ShardedEventIndex getEventIndex(
+      @Named("eventtracker.shardedeventindex.filename") String eventIndexFilename,
+      EventIndex.Factory individualEventIndexFactory,
+      DatedEventIndex datedEventIndex) {
+    File file = new File(eventIndexFilename);
+    if (file.exists()) {
+      try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+        List<String> eventTypes = (List<String>) ois.readObject();
+        Map<String, Integer> eventTypeIdMap = (Map<String, Integer>) ois.readObject();
         Map<String, EventIndex> eventIndexMap = Maps.newHashMap();
         for (String eventType : eventTypes) {
           eventIndexMap.put(eventType, individualEventIndexFactory.build(eventType));
         }
         return new ShardedEventIndex(eventIndexFilename, individualEventIndexFactory, eventIndexMap,
-            eventTypeIdMap, dates, earliestEventIds, currentDate);
+            eventTypeIdMap, datedEventIndex);
       } catch (IOException | ClassNotFoundException e) {
         throw new RuntimeException(e);
       }
     }
     return new ShardedEventIndex(eventIndexFilename, individualEventIndexFactory,
-        Maps.<String,EventIndex>newHashMap(), Maps.<String, Integer>newHashMap(),
-        Lists.<String>newArrayList(), Lists.<Long>newArrayList(), null);
+        Maps.<String,EventIndex>newHashMap(), Maps.<String, Integer>newHashMap(), datedEventIndex);
   }
 
   @Provides

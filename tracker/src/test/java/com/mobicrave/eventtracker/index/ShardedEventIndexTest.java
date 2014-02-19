@@ -5,7 +5,6 @@ import com.mobicrave.eventtracker.integration.GuiceTestCase;
 import com.mobicrave.eventtracker.list.DmaIdListModule;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runners.model.InitializationError;
 
 import javax.inject.Provider;
 import java.util.Properties;

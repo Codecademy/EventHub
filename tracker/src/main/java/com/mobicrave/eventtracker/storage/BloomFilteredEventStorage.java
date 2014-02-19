@@ -10,8 +10,7 @@ import javax.inject.Provider;
 import java.io.IOException;
 import java.util.List;
 
-public class BloomFilteredEventStorage implements EventStorage {
-  private final EventStorage eventStorage;
+public class BloomFilteredEventStorage extends DelegateEventStorage {
   private final DmaList<BloomFilter> bloomFilterDmaList;
   private final Provider<BloomFilter> bloomFilterProvider;
   private long numConditionCheck;
@@ -19,7 +18,7 @@ public class BloomFilteredEventStorage implements EventStorage {
 
   public BloomFilteredEventStorage(EventStorage eventStorage,
       DmaList<BloomFilter> bloomFilterDmaList, Provider<BloomFilter> bloomFilterProvider) {
-    this.eventStorage = eventStorage;
+    super(eventStorage);
     this.bloomFilterDmaList = bloomFilterDmaList;
     this.bloomFilterProvider = bloomFilterProvider;
     this.numConditionCheck = 0;
@@ -36,22 +35,7 @@ public class BloomFilteredEventStorage implements EventStorage {
       }
     });
     bloomFilterDmaList.add(bloomFilter);
-    return eventStorage.addEvent(event, userId, eventTypeId);
-  }
-
-  @Override
-  public Event getEvent(long eventId) {
-    return eventStorage.getEvent(eventId);
-  }
-
-  @Override
-  public int getUserId(long eventId) {
-    return eventStorage.getUserId(eventId);
-  }
-
-  @Override
-  public int getEventTypeId(long eventId) {
-    return eventStorage.getEventTypeId(eventId);
+    return super.addEvent(event, userId, eventTypeId);
   }
 
   @Override
@@ -70,7 +54,7 @@ public class BloomFilteredEventStorage implements EventStorage {
       }
     }
 
-    return eventStorage.satisfy(eventId, criteria);
+    return super.satisfy(eventId, criteria);
   }
 
   @Override
@@ -79,13 +63,13 @@ public class BloomFilteredEventStorage implements EventStorage {
         "%s\n"+
         "num condition check: %d\n" +
         "num bloomfilter rejection: %d\n",
-        eventStorage.getVarz(), numConditionCheck, numBloomFilterRejection);
+        super.getVarz(), numConditionCheck, numBloomFilterRejection);
   }
 
   @Override
   public void close() throws IOException {
     bloomFilterDmaList.close();
-    eventStorage.close();
+    super.close();
   }
 
   private static String getBloomFilterKey(String key, String value) {

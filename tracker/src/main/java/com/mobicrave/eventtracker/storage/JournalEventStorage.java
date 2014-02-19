@@ -1,10 +1,11 @@
 package com.mobicrave.eventtracker.storage;
 
-import com.google.common.cache.LoadingCache;
+import com.google.common.io.ByteStreams;
 import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
 import org.fusesource.hawtjournal.api.Journal;
+import org.fusesource.hawtjournal.api.Location;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,16 +13,13 @@ import java.util.List;
 
 public class JournalEventStorage implements EventStorage {
   private final Journal eventJournal;
-  private final LoadingCache<Long, Event> eventCache;
   private final MetaData.Schema schema;
   private final DmaList<MetaData> metaDataList;
   private long currentId;
 
-  public JournalEventStorage(
-      Journal eventJournal, LoadingCache<Long, Event> eventCache,
-      MetaData.Schema schema, DmaList<MetaData> metaDataList, long currentId) {
+  public JournalEventStorage(Journal eventJournal, MetaData.Schema schema,
+      DmaList<MetaData> metaDataList, long currentId) {
     this.eventJournal = eventJournal;
-    this.eventCache = eventCache;
     this.schema = schema;
     this.metaDataList = metaDataList;
     this.currentId = currentId;
@@ -42,7 +40,14 @@ public class JournalEventStorage implements EventStorage {
 
   @Override
   public Event getEvent(long eventId) {
-    return eventCache.getUnchecked(eventId);
+    try {
+      Location location = new Location();
+      JournalEventStorage.MetaData metaData = metaDataList.get(eventId);
+      location.readExternal(ByteStreams.newDataInput(metaData.getLocation()));
+      return Event.fromByteBuffer(eventJournal.read(location));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -80,9 +85,8 @@ public class JournalEventStorage implements EventStorage {
   public String getVarz() {
     return String.format(
         "current id: %d\n" +
-        "eventCache: %s\n" +
         "metaDataList: %s\n",
-        currentId, eventCache.stats().toString(), metaDataList.getVarz());
+        currentId, metaDataList.getVarz());
   }
 
   public static class MetaData {

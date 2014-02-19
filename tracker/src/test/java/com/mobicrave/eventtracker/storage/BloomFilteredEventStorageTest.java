@@ -82,9 +82,9 @@ public class BloomFilteredEventStorageTest extends GuiceTestCase {
     prop.put("eventtracker.directory", getTempDirectory());
     prop.put("eventtracker.journaleventstorage.numMetaDataPerFile", "1");
     prop.put("eventtracker.journaleventstorage.metaDataFileCacheSize", "1");
-    prop.put("eventtracker.journaleventstorage.recordCacheSize", "1");
     prop.put("eventtracker.journaleventstorage.journalFileSize", "1024");
     prop.put("eventtracker.journaleventstorage.journalWriteBatchSize", "1024");
+    prop.put("eventtracker.cachedeventstorage.recordCacheSize", "1");
     prop.put("eventtracker.bloomfilteredeventstorage.bloomFilterSize", "64");
     prop.put("eventtracker.bloomfilteredeventstorage.numHashes", "1");
     prop.put("eventtracker.bloomfilteredeventstorage.numMetaDataPerFile", "1");

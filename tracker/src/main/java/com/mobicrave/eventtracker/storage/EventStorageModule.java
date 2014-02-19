@@ -1,5 +1,6 @@
 package com.mobicrave.eventtracker.storage;
 
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -55,29 +56,23 @@ public class EventStorageModule extends AbstractModule {
 
   @Provides
   public JournalEventStorage getJournalEventStorage(
-      @Named("eventtracker.journaleventstorage.recordCacheSize") int recordCacheSize,
-      final @Named("eventtracker.journaleventstorage") Journal eventJournal,
-      final DmaList<JournalEventStorage.MetaData> metaDataList) {
-    final JournalEventStorage.MetaData.Schema schema = new JournalEventStorage.MetaData.Schema();
-    LoadingCache<Long, Event> eventCache = CacheBuilder.newBuilder()
+      @Named("eventtracker.journaleventstorage") Journal eventJournal,
+      DmaList<JournalEventStorage.MetaData> metaDataList) {
+    JournalEventStorage.MetaData.Schema schema = new JournalEventStorage.MetaData.Schema();
+    return new JournalEventStorage(
+        eventJournal, schema, metaDataList, metaDataList.getNumRecords());
+  }
+
+  @Provides
+  public CachedEventStorage getCachedEventStorage(
+      JournalEventStorage journalEventStorage,
+      @Named("eventtracker.cachedeventstorage.recordCacheSize") int recordCacheSize) {
+    Cache<Long, Event> eventCache = CacheBuilder.newBuilder()
         .maximumSize(recordCacheSize)
         .recordStats()
-        .build(new CacheLoader<Long, Event>() {
-          @Override
-          public Event load(Long eventId) throws Exception {
-            try {
-              Location location = new Location();
-              JournalEventStorage.MetaData metaData = metaDataList.get(eventId);
-              location.readExternal(ByteStreams.newDataInput(metaData.getLocation()));
-              return Event.fromByteBuffer(eventJournal.read(location));
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          }
-        });
+        .build();
 
-    return new JournalEventStorage(
-        eventJournal, eventCache, schema, metaDataList, metaDataList.getNumRecords());
+    return new CachedEventStorage(journalEventStorage, eventCache);
   }
 
   @Provides
@@ -104,10 +99,10 @@ public class EventStorageModule extends AbstractModule {
 
   @Provides
   public BloomFilteredEventStorage getBloomFilteredEventStorage(
-      JournalEventStorage journalEventStorage,
+      CachedEventStorage cachedEventStorage,
       @Named("eventtracker.bloomfilteredeventstorage") DmaList<BloomFilter> bloomFilterDmaList,
       @Named("eventtracker.bloomfilteredeventstorage") Provider<BloomFilter> bloomFilterProvider) {
-    return new BloomFilteredEventStorage(journalEventStorage, bloomFilterDmaList,
+    return new BloomFilteredEventStorage(cachedEventStorage, bloomFilterDmaList,
         bloomFilterProvider);
   }
 }

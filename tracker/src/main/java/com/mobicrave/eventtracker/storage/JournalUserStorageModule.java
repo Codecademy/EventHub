@@ -41,9 +41,9 @@ public class JournalUserStorageModule extends AbstractModule {
       JournalUserStorage.MetaData.Schema schema,
       @Named("eventtracker.journaluserstorage.directory") String journalUserStorageDirectory,
       @Named("eventtracker.journaluserstorage.numMetaDataPerFile") int numMetaDataPerFile,
-      @Named("eventtracker.journaluserstorage.metaDataCacheSize") int metaDataCacheSize) {
+      @Named("eventtracker.journaluserstorage.metaDataFileCacheSize") int metaDataFileCacheSize) {
     return DmaList.build(schema, journalUserStorageDirectory + "/meta_data/", numMetaDataPerFile,
-        metaDataCacheSize);
+        metaDataFileCacheSize);
   }
 
   @Provides
@@ -75,7 +75,6 @@ public class JournalUserStorageModule extends AbstractModule {
 
   @Provides
   public JournalUserStorage getUserStorage(
-      @Named("eventtracker.journaluserstorage.directory") String journalUserStorageDirectory,
       @Named("eventtracker.journaluserstorage.recordCacheSize") int recordCacheSize,
       @Named("eventtracker.journaluserstorage.metadata.numHashes") int numHashes,
       @Named("eventtracker.journaluserstorage.metadata.bloomFilterSize") int bloomFilterSize,
@@ -99,7 +98,7 @@ public class JournalUserStorageModule extends AbstractModule {
           }
         });
 
-    return new JournalUserStorage(journalUserStorageDirectory, numHashes, bloomFilterSize,
+    return new JournalUserStorage(numHashes, bloomFilterSize,
         userJournal, userCache, metaDataList, idMap);
   }
 }

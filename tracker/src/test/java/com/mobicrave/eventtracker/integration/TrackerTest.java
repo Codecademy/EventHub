@@ -16,8 +16,8 @@ import com.mobicrave.eventtracker.list.DmaIdListModule;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.EventStorage;
+import com.mobicrave.eventtracker.storage.EventStorageModule;
 import com.mobicrave.eventtracker.storage.JournalEventStorage;
-import com.mobicrave.eventtracker.storage.JournalEventStorageModule;
 import com.mobicrave.eventtracker.storage.JournalUserStorage;
 import com.mobicrave.eventtracker.storage.JournalUserStorageModule;
 import com.mobicrave.eventtracker.storage.UserStorage;
@@ -327,14 +327,16 @@ public class TrackerTest extends GuiceTestCase {
     prop.put("eventtracker.usereventindex.metaDataCacheSize", "10");
     prop.put("eventtracker.usereventindex.initialNumEventIdsPerUserDay", "10");
     prop.put("eventtracker.journaleventstorage.numMetaDataPerFile", "10");
-    prop.put("eventtracker.journaleventstorage.metaDataCacheSize", "10");
+    prop.put("eventtracker.journaleventstorage.metaDataFileCacheSize", "10");
     prop.put("eventtracker.journaleventstorage.recordCacheSize", "10");
-    prop.put("eventtracker.journaleventstorage.metadata.bloomFilterSize", "64");
-    prop.put("eventtracker.journaleventstorage.metadata.numHashes", "1");
     prop.put("eventtracker.journaleventstorage.journalFileSize", "1024");
     prop.put("eventtracker.journaleventstorage.journalWriteBatchSize", "1024");
+    prop.put("eventtracker.bloomfilteredeventstorage.bloomFilterSize", "64");
+    prop.put("eventtracker.bloomfilteredeventstorage.numHashes", "1");
+    prop.put("eventtracker.bloomfilteredeventstorage.numMetaDataPerFile", "10");
+    prop.put("eventtracker.bloomfilteredeventstorage.metaDataFileCacheSize", "10");
     prop.put("eventtracker.journaluserstorage.numMetaDataPerFile", "10");
-    prop.put("eventtracker.journaluserstorage.metaDataCacheSize", "10");
+    prop.put("eventtracker.journaluserstorage.metaDataFileCacheSize", "10");
     prop.put("eventtracker.journaluserstorage.recordCacheSize", "10");
     prop.put("eventtracker.journaluserstorage.metadata.bloomFilterSize", "64");
     prop.put("eventtracker.journaluserstorage.metadata.numHashes", "1");
@@ -346,7 +348,7 @@ public class TrackerTest extends GuiceTestCase {
         new DmaIdListModule(),
         new ShardedEventIndexModule(),
         new UserEventIndexModule(),
-        new JournalEventStorageModule(),
+        new EventStorageModule(),
         new JournalUserStorageModule());
   }
 }

@@ -23,6 +23,7 @@ public class DmaList<T> implements Closeable {
   private final String directory;
   private final Schema<T> schema;
   private final MappedByteBuffer metaDataBuffer;
+  // O(numFiles)
   private LoadingCache<Integer, MappedByteBuffer> buffers;
   private long numRecords;
   private int numRecordsPerFile;

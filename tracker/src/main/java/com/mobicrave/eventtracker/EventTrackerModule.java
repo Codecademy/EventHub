@@ -5,7 +5,7 @@ import com.google.inject.Provides;
 import com.google.inject.name.Names;
 import com.mobicrave.eventtracker.index.ShardedEventIndex;
 import com.mobicrave.eventtracker.index.UserEventIndex;
-import com.mobicrave.eventtracker.storage.JournalEventStorage;
+import com.mobicrave.eventtracker.storage.BloomFilteredEventStorage;
 import com.mobicrave.eventtracker.storage.JournalUserStorage;
 
 import javax.inject.Named;
@@ -29,7 +29,7 @@ public class EventTrackerModule extends AbstractModule {
       @Named("eventtracker.directory") String directory,
       ShardedEventIndex shardedEventIndex,
       UserEventIndex userEventIndex,
-      JournalEventStorage eventStorage,
+      BloomFilteredEventStorage eventStorage,
       JournalUserStorage userStorage) {
     return new EventTracker(directory, shardedEventIndex, userEventIndex, eventStorage, userStorage);
   }

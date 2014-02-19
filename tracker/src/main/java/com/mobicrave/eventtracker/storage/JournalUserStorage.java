@@ -8,14 +8,12 @@ import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.List;
 
 public class JournalUserStorage implements UserStorage {
-  private final String directory;
   private final int numHashes;
   private final int bloomFilterSize;
   private final Journal userJournal;
@@ -25,10 +23,9 @@ public class JournalUserStorage implements UserStorage {
   private long numConditionCheck;
   private long numBloomFilterRejection;
 
-  public JournalUserStorage(String directory, int numHashes, int bloomFilterSize,
+  public JournalUserStorage(int numHashes, int bloomFilterSize,
       Journal userJournal, LoadingCache<Integer, User> userCache, DmaList<MetaData> metaDataList,
       IdMap idMap) {
-    this.directory = directory;
     this.numHashes = numHashes;
     this.bloomFilterSize = bloomFilterSize;
     this.userJournal = userJournal;
@@ -98,8 +95,6 @@ public class JournalUserStorage implements UserStorage {
 
   @Override
   public void close() throws IOException {
-    //noinspection ResultOfMethodCallIgnored
-    new File(directory).mkdirs();
     idMap.close();
     userJournal.close();
     metaDataList.close();
@@ -108,13 +103,12 @@ public class JournalUserStorage implements UserStorage {
   @Override
   public String getVarz() {
     return String.format(
-        "directory: %s\n" +
-            "current id: %d\n" +
-            "num condition check: %d\n" +
-            "num bloomfilter rejection: %d\n" +
-            "userCache: %s\n" +
-            "metaDataList: %s\n",
-        directory, idMap.getCurrentId(), numConditionCheck, numBloomFilterRejection,
+        "current id: %d\n" +
+        "num condition check: %d\n" +
+        "num bloomfilter rejection: %d\n" +
+        "userCache: %s\n" +
+        "metaDataList: %s\n",
+        idMap.getCurrentId(), numConditionCheck, numBloomFilterRejection,
         userCache.stats().toString(), metaDataList.getVarz());
   }
 

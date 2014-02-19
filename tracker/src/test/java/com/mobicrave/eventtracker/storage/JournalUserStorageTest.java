@@ -72,7 +72,7 @@ public class JournalUserStorageTest extends GuiceTestCase {
     Properties prop = new Properties();
     prop.put("eventtracker.directory", getTempDirectory());
     prop.put("eventtracker.journaluserstorage.numMetaDataPerFile", "1");
-    prop.put("eventtracker.journaluserstorage.metaDataCacheSize", "1");
+    prop.put("eventtracker.journaluserstorage.metaDataFileCacheSize", "1");
     prop.put("eventtracker.journaluserstorage.recordCacheSize", "1");
     prop.put("eventtracker.journaluserstorage.metadata.bloomFilterSize", "64");
     prop.put("eventtracker.journaluserstorage.metadata.numHashes", "1");

@@ -10,8 +10,7 @@ import javax.inject.Provider;
 import java.io.IOException;
 import java.util.List;
 
-public class BloomFilteredUserStorage implements UserStorage {
-  private final UserStorage userStorage;
+public class BloomFilteredUserStorage extends DelegateUserStorage {
   private final DmaList<BloomFilter> bloomFilterDmaList;
   private final Provider<BloomFilter> bloomFilterProvider;
   private long numConditionCheck;
@@ -19,7 +18,7 @@ public class BloomFilteredUserStorage implements UserStorage {
 
   public BloomFilteredUserStorage(UserStorage userStorage,
       DmaList<BloomFilter> bloomFilterDmaList, Provider<BloomFilter> bloomFilterProvider) {
-    this.userStorage = userStorage;
+    super(userStorage);
     this.bloomFilterDmaList = bloomFilterDmaList;
     this.bloomFilterProvider = bloomFilterProvider;
     this.numConditionCheck = 0;
@@ -36,17 +35,7 @@ public class BloomFilteredUserStorage implements UserStorage {
       }
     });
     bloomFilterDmaList.add(bloomFilter);
-    return userStorage.addUser(user);
-  }
-
-  @Override
-  public int getId(String externalUserId) {
-    return userStorage.getId(externalUserId);
-  }
-
-  @Override
-  public User getUser(int userId) {
-    return userStorage.getUser(userId);
+    return super.addUser(user);
   }
 
   @Override
@@ -65,7 +54,7 @@ public class BloomFilteredUserStorage implements UserStorage {
       }
     }
 
-    return userStorage.satisfy(userId, criteria);
+    return super.satisfy(userId, criteria);
   }
 
   @Override
@@ -74,13 +63,13 @@ public class BloomFilteredUserStorage implements UserStorage {
         "%s\n"+
         "num condition check: %d\n" +
         "num bloomfilter rejection: %d\n",
-        userStorage.getVarz(), numConditionCheck, numBloomFilterRejection);
+        super.getVarz(), numConditionCheck, numBloomFilterRejection);
   }
 
   @Override
   public void close() throws IOException {
     bloomFilterDmaList.close();
-    userStorage.close();
+    super.close();
   }
 
   private static String getBloomFilterKey(String key, String value) {

@@ -337,9 +337,9 @@ public class EventTrackerTest extends GuiceTestCase {
     prop.put("eventtracker.bloomfilteredeventstorage.metaDataFileCacheSize", "10");
     prop.put("eventtracker.journaluserstorage.numMetaDataPerFile", "10");
     prop.put("eventtracker.journaluserstorage.metaDataFileCacheSize", "10");
-    prop.put("eventtracker.journaluserstorage.recordCacheSize", "10");
     prop.put("eventtracker.journaluserstorage.journalFileSize", "1024");
     prop.put("eventtracker.journaluserstorage.journalWriteBatchSize", "1024");
+    prop.put("eventtracker.cacheduserstorage.recordCacheSize", "10");
     prop.put("eventtracker.bloomfiltereduserstorage.numMetaDataPerFile", "10");
     prop.put("eventtracker.bloomfiltereduserstorage.metaDataFileCacheSize", "10");
     prop.put("eventtracker.bloomfiltereduserstorage.bloomFilterSize", "64");

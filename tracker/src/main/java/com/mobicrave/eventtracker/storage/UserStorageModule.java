@@ -1,5 +1,6 @@
 package com.mobicrave.eventtracker.storage;
 
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -9,6 +10,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.list.DmaList;
+import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
@@ -70,28 +72,22 @@ public class UserStorageModule extends AbstractModule {
 
   @Provides
   public JournalUserStorage getJournalUserStorage(
-      @Named("eventtracker.journaluserstorage.recordCacheSize") int recordCacheSize,
       final @Named("eventtracker.journaluserstorage") Journal userJournal,
       final DmaList<JournalUserStorage.MetaData> metaDataList,
       IdMap idMap) {
-    LoadingCache<Integer, User> userCache = CacheBuilder.newBuilder()
+    return new JournalUserStorage(userJournal, metaDataList, idMap);
+  }
+
+  @Provides
+  public CachedUserStorage getCachedEventStorage(
+      JournalUserStorage journalUserStorage,
+      @Named("eventtracker.cacheduserstorage.recordCacheSize") int recordCacheSize) {
+    Cache<Integer, User> userCache = CacheBuilder.newBuilder()
         .maximumSize(recordCacheSize)
         .recordStats()
-        .build(new CacheLoader<Integer, User>() {
-          @Override
-          public User load(Integer userId) throws Exception {
-            try {
-              Location location = new Location();
-              JournalUserStorage.MetaData metaData = metaDataList.get(userId);
-              location.readExternal(ByteStreams.newDataInput(metaData.getLocation()));
-              return User.fromByteBuffer(userJournal.read(location));
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          }
-        });
+        .build();
 
-    return new JournalUserStorage(userJournal, userCache, metaDataList, idMap);
+    return new CachedUserStorage(journalUserStorage, userCache);
   }
 
   @Provides
@@ -122,7 +118,7 @@ public class UserStorageModule extends AbstractModule {
       @Named("eventtracker.bloomfiltereduserstorage.bloomFilterSize") int bloomFilterSize,
       @Named("eventtracker.bloomfiltereduserstorage") DmaList<BloomFilter> bloomFilterDmaList,
       @Named("eventtracker.bloomfiltereduserstorage") Provider<BloomFilter> bloomFilterProvider,
-      JournalUserStorage journalUserStorage) {
-    return new BloomFilteredUserStorage(journalUserStorage, bloomFilterDmaList, bloomFilterProvider);
+      CachedUserStorage cachedUserStorage) {
+    return new BloomFilteredUserStorage(cachedUserStorage, bloomFilterDmaList, bloomFilterProvider);
   }
 }

@@ -18,9 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: refactor JournalEventStorage and JournalUserStorage (separate bloomfilter, metadata, and core storage)
 // TODO: testAddConcurrentUsers
-
 // TODO: support identify and alias
 // TODO: frontend integration
 // TODO: finish README.md

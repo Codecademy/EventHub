@@ -1,10 +1,11 @@
 package com.mobicrave.eventtracker.storage;
 
-import com.google.common.cache.LoadingCache;
+import com.google.common.io.ByteStreams;
 import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
+import org.fusesource.hawtjournal.api.Location;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,14 +13,11 @@ import java.util.List;
 
 public class JournalUserStorage implements UserStorage {
   private final Journal userJournal;
-  private final LoadingCache<Integer, User> userCache;
   private DmaList<MetaData> metaDataList;
   private final IdMap idMap;
 
-  public JournalUserStorage(Journal userJournal, LoadingCache<Integer, User> userCache,
-      DmaList<MetaData> metaDataList, IdMap idMap) {
+  public JournalUserStorage(Journal userJournal, DmaList<MetaData> metaDataList, IdMap idMap) {
     this.userJournal = userJournal;
-    this.userCache = userCache;
     this.metaDataList = metaDataList;
     this.idMap = idMap;
   }
@@ -46,7 +44,14 @@ public class JournalUserStorage implements UserStorage {
 
   @Override
   public User getUser(int userId) {
-    return userCache.getUnchecked(userId);
+    try {
+      Location location = new Location();
+      JournalUserStorage.MetaData metaData = metaDataList.get(userId);
+      location.readExternal(ByteStreams.newDataInput(metaData.getLocation()));
+      return User.fromByteBuffer(userJournal.read(location));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -75,10 +80,8 @@ public class JournalUserStorage implements UserStorage {
   public String getVarz() {
     return String.format(
         "current id: %d\n" +
-        "userCache: %s\n" +
         "metaDataList: %s\n",
         idMap.getCurrentId(),
-        userCache.stats().toString(),
         metaDataList.getVarz());
   }
 

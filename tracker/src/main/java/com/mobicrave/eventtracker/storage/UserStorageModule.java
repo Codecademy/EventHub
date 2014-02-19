@@ -7,58 +7,53 @@ import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 
 import javax.inject.Named;
+import javax.inject.Provider;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Map;
 
-public class JournalUserStorageModule extends AbstractModule {
+public class UserStorageModule extends AbstractModule {
   @Override
   protected void configure() {}
 
   @Provides
-  @Named("eventtracker.journaluserstorage.directory")
+  @Named("eventtracker.userstorage.directory")
   public String getJournalUserStorageDirectory(@Named("eventtracker.directory") String directory) {
     return directory + "/user_storage/";
   }
 
   @Provides
-  public JournalUserStorage.MetaData.Schema getJournalUserStorageMetadataSchema(
-      @Named("eventtracker.journaluserstorage.metadata.numHashes") int numHashes,
-      @Named("eventtracker.journaluserstorage.metadata.bloomFilterSize") int bloomFilterSize) {
-    return new JournalUserStorage.MetaData.Schema(numHashes, bloomFilterSize);
-  }
-
-  @Provides
   public DmaList<JournalUserStorage.MetaData> getJournalUserStorageMetaDataList(
       JournalUserStorage.MetaData.Schema schema,
-      @Named("eventtracker.journaluserstorage.directory") String journalUserStorageDirectory,
+      @Named("eventtracker.userstorage.directory") String userStorageDirectory,
       @Named("eventtracker.journaluserstorage.numMetaDataPerFile") int numMetaDataPerFile,
       @Named("eventtracker.journaluserstorage.metaDataFileCacheSize") int metaDataFileCacheSize) {
-    return DmaList.build(schema, journalUserStorageDirectory + "/meta_data/", numMetaDataPerFile,
+    return DmaList.build(schema, userStorageDirectory + "/meta_data/", numMetaDataPerFile,
         metaDataFileCacheSize);
   }
 
   @Provides
   @Named("eventtracker.journaluserstorage")
   public Journal getUserJournal(
-      @Named("eventtracker.journaluserstorage.directory") String journalUserStorageDirectory,
+      @Named("eventtracker.userstorage.directory") String userStorageDirectory,
       @Named("eventtracker.journaluserstorage.journalFileSize") int journalFileSize,
       @Named("eventtracker.journaluserstorage.journalWriteBatchSize") int journalWriteBatchSize) {
-    return JournalUtil.createJournal(journalUserStorageDirectory + "/user_journal/",
+    return JournalUtil.createJournal(userStorageDirectory + "/user_journal/",
         journalFileSize, journalWriteBatchSize);
   }
 
   @Provides
-  public IdMap getIdMap(@Named("eventtracker.journaluserstorage.directory") String directory) {
-    String filename = directory + "/id_map.ser";
+  public IdMap getIdMap(@Named("eventtracker.userstorage.directory") String userStorageDirectory) {
+    String filename = userStorageDirectory + "/id_map.ser";
     File file = new File(filename);
     Map<String, Integer> idMap = Maps.newConcurrentMap();
     int currentId = 0;
@@ -74,10 +69,8 @@ public class JournalUserStorageModule extends AbstractModule {
   }
 
   @Provides
-  public JournalUserStorage getUserStorage(
+  public JournalUserStorage getJournalUserStorage(
       @Named("eventtracker.journaluserstorage.recordCacheSize") int recordCacheSize,
-      @Named("eventtracker.journaluserstorage.metadata.numHashes") int numHashes,
-      @Named("eventtracker.journaluserstorage.metadata.bloomFilterSize") int bloomFilterSize,
       final @Named("eventtracker.journaluserstorage") Journal userJournal,
       final DmaList<JournalUserStorage.MetaData> metaDataList,
       IdMap idMap) {
@@ -98,7 +91,38 @@ public class JournalUserStorageModule extends AbstractModule {
           }
         });
 
-    return new JournalUserStorage(numHashes, bloomFilterSize,
-        userJournal, userCache, metaDataList, idMap);
+    return new JournalUserStorage(userJournal, userCache, metaDataList, idMap);
+  }
+
+  @Provides
+  @Named("eventtracker.bloomfiltereduserstorage")
+  public DmaList<BloomFilter> getBloomFilterDmaList(
+      @Named("eventtracker.userstorage.directory") String userStorageDirectory,
+      @Named("eventtracker.bloomfiltereduserstorage.numHashes") int numHashes,
+      @Named("eventtracker.bloomfiltereduserstorage.bloomFilterSize") int bloomFilterSize,
+      @Named("eventtracker.bloomfiltereduserstorage.numMetaDataPerFile") int numMetaDataPerFile,
+      @Named("eventtracker.bloomfiltereduserstorage.metaDataFileCacheSize") int metaDataFileCacheSize) {
+    return DmaList.build(new BloomFilter.Schema(numHashes, bloomFilterSize),
+        userStorageDirectory + "/bloom_filtered_user_storage_meta_data/",
+        numMetaDataPerFile,
+        metaDataFileCacheSize);
+  }
+
+  @Provides
+  @Named("eventtracker.bloomfiltereduserstorage")
+  public BloomFilter getBloomFilter(
+      @Named("eventtracker.bloomfiltereduserstorage.numHashes") int numHashes,
+      @Named("eventtracker.bloomfiltereduserstorage.bloomFilterSize") int bloomFilterSize) {
+    return BloomFilter.build(numHashes, bloomFilterSize);
+  }
+
+  @Provides
+  public BloomFilteredUserStorage getBloomFilteredUserStorage(
+      @Named("eventtracker.bloomfiltereduserstorage.numHashes") int numHashes,
+      @Named("eventtracker.bloomfiltereduserstorage.bloomFilterSize") int bloomFilterSize,
+      @Named("eventtracker.bloomfiltereduserstorage") DmaList<BloomFilter> bloomFilterDmaList,
+      @Named("eventtracker.bloomfiltereduserstorage") Provider<BloomFilter> bloomFilterProvider,
+      JournalUserStorage journalUserStorage) {
+    return new BloomFilteredUserStorage(journalUserStorage, bloomFilterDmaList, bloomFilterProvider);
   }
 }

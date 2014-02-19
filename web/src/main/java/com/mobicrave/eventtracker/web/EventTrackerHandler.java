@@ -18,7 +18,7 @@ import com.mobicrave.eventtracker.list.DmaIdListModule;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.EventStorageModule;
-import com.mobicrave.eventtracker.storage.JournalUserStorageModule;
+import com.mobicrave.eventtracker.storage.UserStorageModule;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -147,7 +147,7 @@ public class EventTrackerHandler extends AbstractHandler {
         new ShardedEventIndexModule(),
         new UserEventIndexModule(),
         new EventStorageModule(),
-        new JournalUserStorageModule(),
+        new UserStorageModule(),
         new EventTrackerModule(properties));
     final EventTracker eventTracker = injector.getInstance(EventTracker.class);
     int port = injector.getInstance(Key.get(Integer.class, Names.named("eventtrackerhandler.port")));

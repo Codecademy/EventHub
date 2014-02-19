@@ -2,6 +2,7 @@ package com.mobicrave.eventtracker.base;
 
 import com.google.common.hash.Hashing;
 
+import java.nio.ByteBuffer;
 import java.util.BitSet;
 
 public class BloomFilter {
@@ -51,5 +52,35 @@ public class BloomFilter {
     // sacrifice 1 bit to ensure the size of the bitset to BLOOM_FILTER_SIZE
     bitSet.set(bloomFilterSize * 8 - 1);
     return new BloomFilter(numHashes, bitSet);
+  }
+
+  public static class Schema implements com.mobicrave.eventtracker.base.Schema<BloomFilter> {
+    private final int numHashes;
+    private final int bloomFilterSize;
+
+    public Schema(int numHashes, int bloomFilterSize) {
+      this.numHashes = numHashes;
+      this.bloomFilterSize = bloomFilterSize;
+    }
+
+    @Override
+    public int getObjectSize() {
+      return bloomFilterSize;
+    }
+
+    @Override
+    public byte[] toBytes(BloomFilter bloomFilter) {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(getObjectSize());
+      byteBuffer.put(bloomFilter.getBitSet().toByteArray());
+      return byteBuffer.array();
+    }
+
+    @Override
+    public BloomFilter fromBytes(byte[] bytes) {
+      ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+      byte[] bloomFilter = new byte[bloomFilterSize];
+      byteBuffer.get(bloomFilter);
+      return new BloomFilter(numHashes, BitSet.valueOf(bloomFilter));
+    }
   }
 }

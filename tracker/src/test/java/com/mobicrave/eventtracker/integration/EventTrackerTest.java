@@ -19,7 +19,7 @@ import com.mobicrave.eventtracker.storage.EventStorage;
 import com.mobicrave.eventtracker.storage.EventStorageModule;
 import com.mobicrave.eventtracker.storage.JournalEventStorage;
 import com.mobicrave.eventtracker.storage.JournalUserStorage;
-import com.mobicrave.eventtracker.storage.JournalUserStorageModule;
+import com.mobicrave.eventtracker.storage.UserStorageModule;
 import com.mobicrave.eventtracker.storage.UserStorage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TrackerTest extends GuiceTestCase {
+public class EventTrackerTest extends GuiceTestCase {
   @Test
   public void testSingleUser() throws Exception {
     Provider<EventTracker> eventTrackerProvider = getEventTrackerProvider();
@@ -338,10 +338,12 @@ public class TrackerTest extends GuiceTestCase {
     prop.put("eventtracker.journaluserstorage.numMetaDataPerFile", "10");
     prop.put("eventtracker.journaluserstorage.metaDataFileCacheSize", "10");
     prop.put("eventtracker.journaluserstorage.recordCacheSize", "10");
-    prop.put("eventtracker.journaluserstorage.metadata.bloomFilterSize", "64");
-    prop.put("eventtracker.journaluserstorage.metadata.numHashes", "1");
     prop.put("eventtracker.journaluserstorage.journalFileSize", "1024");
     prop.put("eventtracker.journaluserstorage.journalWriteBatchSize", "1024");
+    prop.put("eventtracker.bloomfiltereduserstorage.numMetaDataPerFile", "10");
+    prop.put("eventtracker.bloomfiltereduserstorage.metaDataFileCacheSize", "10");
+    prop.put("eventtracker.bloomfiltereduserstorage.bloomFilterSize", "64");
+    prop.put("eventtracker.bloomfiltereduserstorage.numHashes", "1");
 
     return createInjectorFor(new Properties(),
         new EventTrackerModule(prop),
@@ -349,6 +351,6 @@ public class TrackerTest extends GuiceTestCase {
         new ShardedEventIndexModule(),
         new UserEventIndexModule(),
         new EventStorageModule(),
-        new JournalUserStorageModule());
+        new UserStorageModule());
   }
 }

@@ -4,22 +4,22 @@ import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.list.DmaList;
-import com.mobicrave.eventtracker.model.Event;
+import com.mobicrave.eventtracker.model.User;
 
 import javax.inject.Provider;
 import java.io.IOException;
 import java.util.List;
 
-public class BloomFilteredEventStorage implements EventStorage {
-  private final EventStorage eventStorage;
+public class BloomFilteredUserStorage implements UserStorage {
+  private final UserStorage userStorage;
   private final DmaList<BloomFilter> bloomFilterDmaList;
   private final Provider<BloomFilter> bloomFilterProvider;
   private long numConditionCheck;
   private long numBloomFilterRejection;
 
-  public BloomFilteredEventStorage(EventStorage eventStorage,
+  public BloomFilteredUserStorage(UserStorage userStorage,
       DmaList<BloomFilter> bloomFilterDmaList, Provider<BloomFilter> bloomFilterProvider) {
-    this.eventStorage = eventStorage;
+    this.userStorage = userStorage;
     this.bloomFilterDmaList = bloomFilterDmaList;
     this.bloomFilterProvider = bloomFilterProvider;
     this.numConditionCheck = 0;
@@ -27,41 +27,36 @@ public class BloomFilteredEventStorage implements EventStorage {
   }
 
   @Override
-  public long addEvent(Event event, int userId, int eventTypeId) {
+  public int addUser(User user) {
     final BloomFilter bloomFilter = bloomFilterProvider.get();
-    event.enumerate(new KeyValueCallback() {
+    user.enumerate(new KeyValueCallback() {
       @Override
       public void callback(String key, String value) {
         bloomFilter.add(getBloomFilterKey(key, value));
       }
     });
     bloomFilterDmaList.add(bloomFilter);
-    return eventStorage.addEvent(event, userId, eventTypeId);
+    return userStorage.addUser(user);
   }
 
   @Override
-  public Event getEvent(long eventId) {
-    return eventStorage.getEvent(eventId);
+  public int getId(String externalUserId) {
+    return userStorage.getId(externalUserId);
   }
 
   @Override
-  public int getUserId(long eventId) {
-    return eventStorage.getUserId(eventId);
+  public User getUser(int userId) {
+    return userStorage.getUser(userId);
   }
 
   @Override
-  public int getEventTypeId(long eventId) {
-    return eventStorage.getEventTypeId(eventId);
-  }
-
-  @Override
-  public boolean satisfy(long eventId, List<Criterion> criteria) {
+  public boolean satisfy(int userId, List<Criterion> criteria) {
     if (criteria.isEmpty()) {
       return true;
     }
     numConditionCheck++;
 
-    BloomFilter bloomFilter = bloomFilterDmaList.get(eventId);
+    BloomFilter bloomFilter = bloomFilterDmaList.get(userId);
     for (Criterion criterion : criteria) {
       String bloomFilterKey = getBloomFilterKey(criterion.getKey(), criterion.getValue());
       if (!bloomFilter.isPresent(bloomFilterKey)) {
@@ -70,7 +65,7 @@ public class BloomFilteredEventStorage implements EventStorage {
       }
     }
 
-    return eventStorage.satisfy(eventId, criteria);
+    return userStorage.satisfy(userId, criteria);
   }
 
   @Override
@@ -79,13 +74,13 @@ public class BloomFilteredEventStorage implements EventStorage {
         "%s\n"+
         "num condition check: %d\n" +
         "num bloomfilter rejection: %d\n",
-        eventStorage.getVarz(), numConditionCheck, numBloomFilterRejection);
+        userStorage.getVarz(), numConditionCheck, numBloomFilterRejection);
   }
 
   @Override
   public void close() throws IOException {
     bloomFilterDmaList.close();
-    eventStorage.close();
+    userStorage.close();
   }
 
   private static String getBloomFilterKey(String key, String value) {

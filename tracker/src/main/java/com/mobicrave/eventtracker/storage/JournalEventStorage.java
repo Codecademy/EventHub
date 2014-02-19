@@ -57,6 +57,10 @@ public class JournalEventStorage implements EventStorage {
 
   @Override
   public boolean satisfy(long eventId, List<Criterion> criteria) {
+    if (criteria.isEmpty()) {
+      return true;
+    }
+
     Event event = getEvent(eventId);
     for (Criterion criterion : criteria) {
       if (!criterion.getValue().equals(event.get(criterion.getKey()))) {

@@ -27,10 +27,10 @@ public class EventStorageModule extends AbstractModule {
   }
 
   @Provides
-  public BloomFilteredEventStorage.Schema getBloomFilterSchema(
+  public BloomFilter.Schema getBloomFilterSchema(
       @Named("eventtracker.bloomfilteredeventstorage.numHashes") int numHashes,
       @Named("eventtracker.bloomfilteredeventstorage.bloomFilterSize") int bloomFilterSize) {
-    return new BloomFilteredEventStorage.Schema(numHashes, bloomFilterSize);
+    return new BloomFilter.Schema(numHashes, bloomFilterSize);
   }
 
   @Provides
@@ -81,19 +81,21 @@ public class EventStorageModule extends AbstractModule {
   }
 
   @Provides
+  @Named("eventtracker.bloomfilteredeventstorage")
   public DmaList<BloomFilter> getBloomFilterDmaList(
       @Named("eventtracker.eventstorage.directory") String eventStorageDirectory,
       @Named("eventtracker.bloomfilteredeventstorage.numHashes") int numHashes,
       @Named("eventtracker.bloomfilteredeventstorage.bloomFilterSize") int bloomFilterSize,
       @Named("eventtracker.bloomfilteredeventstorage.numMetaDataPerFile") int numMetaDataPerFile,
       @Named("eventtracker.bloomfilteredeventstorage.metaDataFileCacheSize") int metaDataFileCacheSize) {
-    return DmaList.build(new BloomFilteredEventStorage.Schema(numHashes, bloomFilterSize),
+    return DmaList.build(new BloomFilter.Schema(numHashes, bloomFilterSize),
         eventStorageDirectory + "/bloom_filtered_event_storage_meta_data/",
         numMetaDataPerFile,
         metaDataFileCacheSize);
   }
 
   @Provides
+  @Named("eventtracker.bloomfilteredeventstorage")
   public BloomFilter getBloomFilter(
       @Named("eventtracker.bloomfilteredeventstorage.numHashes") int numHashes,
       @Named("eventtracker.bloomfilteredeventstorage.bloomFilterSize") int bloomFilterSize) {
@@ -103,8 +105,8 @@ public class EventStorageModule extends AbstractModule {
   @Provides
   public BloomFilteredEventStorage getBloomFilteredEventStorage(
       JournalEventStorage journalEventStorage,
-      DmaList<BloomFilter> bloomFilterDmaList,
-      Provider<BloomFilter> bloomFilterProvider) {
+      @Named("eventtracker.bloomfilteredeventstorage") DmaList<BloomFilter> bloomFilterDmaList,
+      @Named("eventtracker.bloomfilteredeventstorage") Provider<BloomFilter> bloomFilterProvider) {
     return new BloomFilteredEventStorage(journalEventStorage, bloomFilterDmaList,
         bloomFilterProvider);
   }

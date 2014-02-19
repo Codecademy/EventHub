@@ -7,10 +7,10 @@ import java.io.Closeable;
 import java.util.List;
 
 public interface UserStorage extends Closeable {
-  public static final int USER_NOT_FOUND = -1;
-  public int addUser(User user);
-  public int getId(String externalUserId);
-  public User getUser(int userId);
-  public boolean satisfy(int userId, List<Criterion> criteria);
-  public String getVarz();
+  static final int USER_NOT_FOUND = -1;
+  int addUser(User user);
+  int getId(String externalUserId);
+  User getUser(int userId);
+  boolean satisfy(int userId, List<Criterion> criteria);
+  String getVarz();
 }

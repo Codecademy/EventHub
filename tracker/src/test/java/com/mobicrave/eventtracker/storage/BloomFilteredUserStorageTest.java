@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class JournalUserStorageTest extends GuiceTestCase {
+public class BloomFilteredUserStorageTest extends GuiceTestCase {
   @Test
   public void testAll() throws Exception {
-    Provider<JournalUserStorage> journalUserStorageProvider = getJournalUserStorageProvider();
-    JournalUserStorage userStorage = journalUserStorageProvider.get();
+    Provider<BloomFilteredUserStorage> bloomFilteredUserStorageProvider = getBloomFilteredUserStorageProvider();
+    BloomFilteredUserStorage userStorage = bloomFilteredUserStorageProvider.get();
     String[] externalIds = new String[] { "x", "y", "z" };
     Map<String, String>[] properties = (Map<String, String>[]) new Map[] {
         ImmutableMap.<String, String>builder().put("foo1", "bar1").put("foo2", "bar2").build(),
@@ -53,7 +53,7 @@ public class JournalUserStorageTest extends GuiceTestCase {
     }
     userStorage.close();
 
-    userStorage = journalUserStorageProvider.get();
+    userStorage = bloomFilteredUserStorageProvider.get();
     userStorage.addUser(
         new User.Builder(externalIds[externalIds.length - 1], properties[externalIds.length - 1])
             .build());
@@ -68,19 +68,21 @@ public class JournalUserStorageTest extends GuiceTestCase {
     }
   }
 
-  private Provider<JournalUserStorage> getJournalUserStorageProvider() {
+  private Provider<BloomFilteredUserStorage> getBloomFilteredUserStorageProvider() {
     Properties prop = new Properties();
     prop.put("eventtracker.directory", getTempDirectory());
     prop.put("eventtracker.journaluserstorage.numMetaDataPerFile", "1");
     prop.put("eventtracker.journaluserstorage.metaDataFileCacheSize", "1");
     prop.put("eventtracker.journaluserstorage.recordCacheSize", "1");
-    prop.put("eventtracker.journaluserstorage.metadata.bloomFilterSize", "64");
-    prop.put("eventtracker.journaluserstorage.metadata.numHashes", "1");
     prop.put("eventtracker.journaluserstorage.journalFileSize", "1024");
     prop.put("eventtracker.journaluserstorage.journalWriteBatchSize", "1024");
+    prop.put("eventtracker.bloomfiltereduserstorage.bloomFilterSize", "64");
+    prop.put("eventtracker.bloomfiltereduserstorage.numHashes", "1");
+    prop.put("eventtracker.bloomfiltereduserstorage.numMetaDataPerFile", "1");
+    prop.put("eventtracker.bloomfiltereduserstorage.metaDataFileCacheSize", "1");
 
     Injector injector = createInjectorFor(
-        prop, new JournalUserStorageModule());
-    return injector.getProvider(JournalUserStorage.class);
+        prop, new UserStorageModule());
+    return injector.getProvider(BloomFilteredUserStorage.class);
   }
 }

@@ -7,10 +7,10 @@ import java.io.Closeable;
 import java.util.List;
 
 public interface EventStorage extends Closeable {
-  public long addEvent(Event event, int userId, int eventTypeId);
-  public Event getEvent(long eventId);
-  public int getUserId(long eventId);
-  public int getEventTypeId(long eventId);
-  public boolean satisfy(long eventId, List<Criterion> criteria);
-  public String getVarz();
+  long addEvent(Event event, int userId, int eventTypeId);
+  Event getEvent(long eventId);
+  int getUserId(long eventId);
+  int getEventTypeId(long eventId);
+  boolean satisfy(long eventId, List<Criterion> criteria);
+  String getVarz();
 }

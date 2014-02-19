@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class DatedEventIndex implements Closeable {
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");

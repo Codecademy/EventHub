@@ -1,6 +1,7 @@
 package com.mobicrave.eventtracker;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mobicrave.eventtracker.index.EventIndex;
 import com.mobicrave.eventtracker.index.ShardedEventIndex;
@@ -18,8 +19,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: add event type if not exist
-// TODO: support identify and alias
+// TODO: test identify (idempotent) and alias
+// TODO: test addEvent also addOrUpdateUser
+// TODO: test ensureEventType and ensureUser
+// TODO: test DmaList.update
+// TODO: snapshot user properties to event properties
+// TODO: optimize user storage for update
 // TODO: testAddConcurrentUsers
 // TODO: retention
 // TODO: frontend integration
@@ -88,21 +93,26 @@ public class EventTracker implements Closeable {
     return numFunnelStepsMatched;
   }
 
-  public synchronized long addUser(User user) {
-    int id = userStorage.getId(user.getExternalId());
-    if (id != UserStorage.USER_NOT_FOUND) {
-      return id;
+  public synchronized void aliasUser(String fromExternalUserId, String toExternalUserId) {
+    int id = userStorage.getId(toExternalUserId);
+    if (id == UserStorage.USER_NOT_FOUND) {
+      throw new IllegalArgumentException(String .format("User: %s does not exist!!!", toExternalUserId));
     }
-    return userStorage.addUser(user);
+    userStorage.alias(fromExternalUserId, id);
+  }
+
+  public int addOrUpdateUser(User user) {
+    userStorage.ensureUser(user.getExternalId());
+    return userStorage.updateUser(user);
   }
 
   public synchronized long addEvent(Event event) {
-    // make sure the given event type has an id associated
-    shardedEventIndex.addEventType(event.getEventType());
+    // ensure the given event type has an id associated
+    int eventTypeId = shardedEventIndex.ensureEventType(event.getEventType());
+    // ensure the given user has an id associated
+    int userId = userStorage.ensureUser(event.getExternalUserId());
 
-    int userId = userStorage.getId(event.getExternalUserId());
-    long eventId = eventStorage.addEvent(event, userId,
-        shardedEventIndex.getEventTypeId(event.getEventType()));
+    long eventId = eventStorage.addEvent(event, userId, eventTypeId);
     shardedEventIndex.addEvent(eventId, event.getEventType(), event.getDate());
     userEventIndex.addEvent(userId, eventId);
     return eventId;

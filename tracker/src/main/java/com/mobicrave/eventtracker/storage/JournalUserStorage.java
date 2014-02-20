@@ -1,5 +1,6 @@
 package com.mobicrave.eventtracker.storage;
 
+import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.list.DmaList;
@@ -23,13 +24,31 @@ public class JournalUserStorage implements UserStorage {
   }
 
   @Override
-  public synchronized int addUser(User user) {
+  public synchronized int ensureUser(String externalUserId) {
+    int id = getId(externalUserId);
+    if (id != USER_NOT_FOUND) {
+      return id;
+    }
+    User user = new User.Builder(externalUserId, Maps.<String, String>newHashMap()).build();
     try {
-      int id = idMap.getAndIncrementCurrentId();
+      id = idMap.getAndIncrementCurrentId();
       byte[] location = JournalUtil.locationToBytes(userJournal.write(user.toByteBuffer(), true));
       MetaData metaData = new MetaData(location);
       metaDataList.add(metaData);
       idMap.put(user.getExternalId(), id);
+      return id;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public synchronized int updateUser(User user) {
+    int id = getId(user.getExternalId());
+    try {
+      byte[] location = JournalUtil.locationToBytes(userJournal.write(user.toByteBuffer(), true));
+      MetaData metaData = new MetaData(location);
+      metaDataList.update(id, metaData);
       return id;
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -67,6 +86,11 @@ public class JournalUserStorage implements UserStorage {
       }
     }
     return true;
+  }
+
+  @Override
+  public void alias(String fromExternalUserId, int toUserId) {
+    idMap.put(fromExternalUserId, toUserId);
   }
 
   @Override

@@ -39,17 +39,15 @@ public class ShardedEventIndex implements Closeable {
     eventIndexMap.get(eventType).enumerateEventIds(startDate, endDate, aggregateUserIdsCallback);
   }
 
-  public void addEventType(String eventType) {
+  public int ensureEventType(String eventType) {
     if (eventTypeIdMap.containsKey(eventType)) {
-      return;
-    }
-    EventIndex individualEventIndex = eventIndexMap.get(eventType);
-    if (individualEventIndex != null) {
-      return ;
+      return eventTypeIdMap.get(eventType);
     }
     synchronized (this) {
-      eventTypeIdMap.put(eventType, eventIndexMap.size());
+      int eventTypeId = eventIndexMap.size();
+      eventTypeIdMap.put(eventType, eventTypeId);
       eventIndexMap.put(eventType, eventIndexFactory.build(eventType));
+      return eventTypeId;
     }
   }
 

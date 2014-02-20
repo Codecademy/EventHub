@@ -26,7 +26,20 @@ public class BloomFilteredUserStorage extends DelegateUserStorage {
   }
 
   @Override
-  public int addUser(User user) {
+  public int ensureUser(String externalUserId) {
+    int id = getId(externalUserId);
+    if (id != UserStorage.USER_NOT_FOUND) {
+      return id;
+    }
+    id = super.ensureUser(externalUserId);
+    final BloomFilter bloomFilter = bloomFilterProvider.get();
+    bloomFilterDmaList.add(bloomFilter);
+    return id;
+  }
+
+  @Override
+  public int updateUser(User user) {
+    int id = getId(user.getExternalId());
     final BloomFilter bloomFilter = bloomFilterProvider.get();
     user.enumerate(new KeyValueCallback() {
       @Override
@@ -34,8 +47,8 @@ public class BloomFilteredUserStorage extends DelegateUserStorage {
         bloomFilter.add(getBloomFilterKey(key, value));
       }
     });
-    bloomFilterDmaList.add(bloomFilter);
-    return super.addUser(user);
+    bloomFilterDmaList.update(id, bloomFilter);
+    return super.updateUser(user);
   }
 
   @Override

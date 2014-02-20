@@ -27,7 +27,8 @@ public class BloomFilteredUserStorageTest extends GuiceTestCase {
     };
 
     for (int i = 0; i < externalIds.length - 1; i++) {
-      userStorage.addUser(new User.Builder(externalIds[i], properties[i]).build());
+      userStorage.ensureUser(externalIds[i]);
+      userStorage.updateUser(new User.Builder(externalIds[i], properties[i]).build());
     }
 
     Assert.assertEquals(-1, userStorage.getId("NOT EXIST"));
@@ -54,7 +55,8 @@ public class BloomFilteredUserStorageTest extends GuiceTestCase {
     userStorage.close();
 
     userStorage = bloomFilteredUserStorageProvider.get();
-    userStorage.addUser(
+    userStorage.ensureUser(externalIds[externalIds.length - 1]);
+    userStorage.updateUser(
         new User.Builder(externalIds[externalIds.length - 1], properties[externalIds.length - 1])
             .build());
     for (int i = 0; i < externalIds.length; i++) {

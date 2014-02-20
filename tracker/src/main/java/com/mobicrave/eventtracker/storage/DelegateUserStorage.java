@@ -14,8 +14,13 @@ public class DelegateUserStorage implements UserStorage {
   }
 
   @Override
-  public int addUser(User user) {
-    return userStorage.addUser(user);
+  public int updateUser(User user) {
+    return userStorage.updateUser(user);
+  }
+
+  @Override
+  public int ensureUser(String externalUserId) {
+    return userStorage.ensureUser(externalUserId);
   }
 
   @Override
@@ -31,6 +36,11 @@ public class DelegateUserStorage implements UserStorage {
   @Override
   public boolean satisfy(int userId, List<Criterion> criteria) {
     return userStorage.satisfy(userId, criteria);
+  }
+
+  @Override
+  public void alias(String fromExternalUserId, int toUserId) {
+    userStorage.alias(fromExternalUserId, toUserId);
   }
 
   @Override

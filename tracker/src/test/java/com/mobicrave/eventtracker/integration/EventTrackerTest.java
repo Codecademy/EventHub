@@ -43,7 +43,6 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
-    addUser(tracker, USER_IDS[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[1], USER_IDS[0], DATES[1], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[2], USER_IDS[0], DATES[2], Maps.<String, String>newHashMap());
@@ -83,9 +82,6 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
-    for (String userId : USER_IDS) {
-      addUser(tracker, userId, Maps.<String, String>newHashMap());
-    }
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[3], DATES[0], Maps.<String, String>newHashMap());
@@ -159,10 +155,6 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4" };
     final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
-
-    for (String userId : USER_IDS) {
-      addUser(tracker, userId, Maps.<String, String>newHashMap());
-    }
 
     final AtomicInteger counter = new AtomicInteger(0);
     final Random random = new Random();
@@ -241,7 +233,7 @@ public class EventTrackerTest extends GuiceTestCase {
     };
 
     for (int i = 0; i < USER_IDS.length; i++) {
-      addUser(tracker, USER_IDS[i], properties[i]);
+      tracker.addOrUpdateUser(new User.Builder(USER_IDS[i], properties[i]).build());
       addEvent(tracker, EVENT_TYPES[0], USER_IDS[i], DATES[0], properties[0]);
       addEvent(tracker, EVENT_TYPES[1], USER_IDS[i], DATES[1], properties[0]);
       addEvent(tracker, EVENT_TYPES[2], USER_IDS[i], DATES[2], properties[1]);
@@ -249,13 +241,13 @@ public class EventTrackerTest extends GuiceTestCase {
       addEvent(tracker, EVENT_TYPES[4], USER_IDS[i], DATES[4], properties[2]);
     }
     final String[] funnelSteps = { EVENT_TYPES[1], EVENT_TYPES[2], EVENT_TYPES[4] };
-    Assert.assertArrayEquals(new int[] { 2, 2, 2 },
+    Assert.assertArrayEquals(new int[]{2, 2, 2},
         tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
-    Assert.assertArrayEquals(new int[] { 2, 2, 0 },
+    Assert.assertArrayEquals(new int[]{2, 2, 0},
         tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Lists.newArrayList(new Criterion("foo2", "bar2")), Collections.EMPTY_LIST));
-    Assert.assertArrayEquals(new int[] { 2, 2, 2 },
+    Assert.assertArrayEquals(new int[]{2, 2, 2},
         tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Lists.newArrayList(new Criterion("foo2", "bar2"))));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
@@ -272,13 +264,11 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
-    addUser(tracker, USER_IDS[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[1], USER_IDS[0], DATES[1], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[2], USER_IDS[0], DATES[2], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[3], USER_IDS[0], DATES[3], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[4], USER_IDS[0], DATES[4], Maps.<String, String>newHashMap());
-
 
     List<Event> events = tracker.getEventsByExternalUserId(USER_IDS[0], 1, 2);
     for (int i = 0; i < events.size(); i++) {
@@ -290,10 +280,6 @@ public class EventTrackerTest extends GuiceTestCase {
 
   @Test
   public void testConcurrentAddUser() throws Exception {
-  }
-
-  private void addUser(EventTracker tracker, String userId, Map<String, String> properties) {
-    tracker.addUser(new User.Builder(userId, properties).build());
   }
 
   private void addEvent(EventTracker tracker, String eventType, String externalUserId, String day,

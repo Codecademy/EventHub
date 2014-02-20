@@ -48,15 +48,19 @@ public class EventTrackerHandler extends AbstractHandler {
       HttpServletResponse response) throws IOException, ServletException {
     response.setStatus(HttpServletResponse.SC_OK);
     switch (target) {
-      case "/register_user":
-        long userId = addUser(request);
+      case "/users/add_or_update":
+        long userId = addOrUpdateUser(request);
         response.getWriter().println(userId);
         break;
-      case "/track_event":
+      case "/users/alias":
+        aliasUser(request);
+        response.getWriter().println("OK");
+        break;
+      case "/events/track":
         long eventId = addEvent(request);
         response.getWriter().println(eventId);
         break;
-      case "/get_event_types":
+      case "/events/types":
         response.getWriter().println(getEventTypes());
         break;
       case "/count_funnel_steps":
@@ -75,10 +79,16 @@ public class EventTrackerHandler extends AbstractHandler {
     return gson.toJson(eventTracker.getEventTypes());
   }
 
-  private long addUser(HttpServletRequest request) {
-    return eventTracker.addUser(new User.Builder(
+  private int addOrUpdateUser(HttpServletRequest request) {
+    return eventTracker.addOrUpdateUser(new User.Builder(
         request.getParameter("external_user_id"),
         toProperties(request)).build());
+  }
+
+  private void aliasUser(HttpServletRequest request) {
+    eventTracker.aliasUser(
+        request.getParameter("from_external_user_id"),
+        request.getParameter("to_external_user_id"));
   }
 
   private synchronized long addEvent(final HttpServletRequest request) {

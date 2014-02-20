@@ -19,7 +19,7 @@ public class ShardedEventIndexTest extends GuiceTestCase {
     String[] dates = new String[] { "20130101", "20130102", "20131111", "20131201" };
 
     for (int i = 0; i < eventTypes.length; i++) {
-      shardedEventIndex.addEventType(eventTypes[i]);
+      shardedEventIndex.ensureEventType(eventTypes[i]);
     }
     shardedEventIndex.addEvent(1, eventTypes[0], dates[0]);
     shardedEventIndex.addEvent(2, eventTypes[1], dates[0]);

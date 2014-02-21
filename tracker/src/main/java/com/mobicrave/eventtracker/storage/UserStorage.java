@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface UserStorage extends Closeable {
   static final int USER_NOT_FOUND = -1;
+
   int updateUser(User user);
   int ensureUser(String externalUserId);
   int getId(String externalUserId);
@@ -15,5 +16,4 @@ public interface UserStorage extends Closeable {
   boolean satisfy(int userId, List<Criterion> criteria);
   void alias(String fromExternalUserId, int toUserId);
   String getVarz();
-
 }

@@ -15,6 +15,13 @@ public class CachedUserStorage extends DelegateUserStorage {
   }
 
   @Override
+  public int updateUser(User user) {
+    int userId = super.updateUser(user);
+    userCache.invalidate(userId);
+    return userId;
+  }
+
+  @Override
   public User getUser(final int userId) {
     try {
       return userCache.get(userId, new Callable<User>() {

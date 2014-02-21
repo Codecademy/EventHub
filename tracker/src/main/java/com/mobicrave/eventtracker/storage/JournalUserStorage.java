@@ -35,7 +35,7 @@ public class JournalUserStorage implements UserStorage {
       byte[] location = JournalUtil.locationToBytes(userJournal.write(user.toByteBuffer(), true));
       MetaData metaData = new MetaData(location);
       metaDataList.add(metaData);
-      idMap.put(user.getExternalId(), id);
+      idMap.put(externalUserId, id);
       return id;
     } catch (IOException e) {
       throw new RuntimeException(e);

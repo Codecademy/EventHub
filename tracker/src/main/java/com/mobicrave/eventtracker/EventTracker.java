@@ -1,7 +1,6 @@
 package com.mobicrave.eventtracker;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mobicrave.eventtracker.index.EventIndex;
 import com.mobicrave.eventtracker.index.ShardedEventIndex;
@@ -19,17 +18,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO: test identify (idempotent) and alias
-// TODO: test addEvent also addOrUpdateUser
-// TODO: test ensureEventType and ensureUser
-// TODO: test DmaList.update
 // TODO: snapshot user properties to event properties
-// TODO: optimize user storage for update
-// TODO: testAddConcurrentUsers
 // TODO: retention
 // TODO: frontend integration
 // TODO: finish README.md
 // --------------- End of V1 Beta
+// TODO: optimize user storage for update
 // TODO: property statistics for segmentation
 // TODO: consider column oriented storage
 // TODO: separate cache for previously computed result? same binary or redis?
@@ -101,7 +95,7 @@ public class EventTracker implements Closeable {
     userStorage.alias(fromExternalUserId, id);
   }
 
-  public int addOrUpdateUser(User user) {
+  public synchronized int addOrUpdateUser(User user) {
     userStorage.ensureUser(user.getExternalId());
     return userStorage.updateUser(user);
   }

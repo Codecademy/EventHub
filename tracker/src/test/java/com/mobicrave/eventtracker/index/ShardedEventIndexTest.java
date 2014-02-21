@@ -11,6 +11,18 @@ import java.util.Properties;
 
 public class ShardedEventIndexTest extends GuiceTestCase {
   @Test
+  public void testEnsureEventType() throws Exception {
+    Provider<ShardedEventIndex> shardedEventIndexProvider = getShardedEventIndexProvider();
+
+    ShardedEventIndex shardedEventIndex = shardedEventIndexProvider.get();
+    Assert.assertEquals(0, shardedEventIndex.ensureEventType("foo"));
+    Assert.assertEquals(1, shardedEventIndex.ensureEventType("bar"));
+    Assert.assertEquals(1, shardedEventIndex.ensureEventType("bar"));
+    Assert.assertEquals(0, shardedEventIndex.ensureEventType("foo"));
+    Assert.assertEquals(2, shardedEventIndex.ensureEventType("foo2"));
+  }
+
+  @Test
   public void testAll() throws Exception {
     Provider<ShardedEventIndex> shardedEventIndexProvider = getShardedEventIndexProvider();
 

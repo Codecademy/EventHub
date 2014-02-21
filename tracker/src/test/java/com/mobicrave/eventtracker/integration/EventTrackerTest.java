@@ -3,6 +3,7 @@ package com.mobicrave.eventtracker.integration;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -153,7 +155,7 @@ public class EventTrackerTest extends GuiceTestCase {
     final int NUM_EVENTS = 2000;
     final int NUM_THREADS = 20; // NUM_EVENTS needs to be muliple of NUM_THREADS
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4" };
-    final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
+    final String[] EXTERNAL_USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
     final AtomicInteger counter = new AtomicInteger(0);
@@ -172,9 +174,9 @@ public class EventTrackerTest extends GuiceTestCase {
           }
           for (int j = 0; j < NUM_EVENTS / NUM_THREADS; j++) {
             int eventTypeIndex = random.nextInt(EVENT_TYPES.length);
-            int userIdIndex = random.nextInt(USER_IDS.length);
+            int userIdIndex = random.nextInt(EXTERNAL_USER_IDS.length);
             int dateIndex = counter.getAndIncrement() * DATES.length / NUM_EVENTS;
-            addEvent(tracker, EVENT_TYPES[eventTypeIndex], USER_IDS[userIdIndex], DATES[dateIndex],
+            addEvent(tracker, EVENT_TYPES[eventTypeIndex], EXTERNAL_USER_IDS[userIdIndex], DATES[dateIndex],
                 Maps.<String, String>newHashMap());
           }
         }
@@ -192,6 +194,16 @@ public class EventTrackerTest extends GuiceTestCase {
       Assert.assertEquals(userStorage.getId(event.getExternalUserId()), eventStorage.getUserId(eventId));
     }
 
+    Set<String> externalUserIds = Sets.newHashSet();
+    for (int i = 0; i < EXTERNAL_USER_IDS.length; i++) {
+      externalUserIds.add(userStorage.getUser(i).getExternalId());
+    }
+    Assert.assertEquals(Sets.newHashSet(EXTERNAL_USER_IDS), externalUserIds);
+    try {
+      userStorage.getUser(EXTERNAL_USER_IDS.length);
+      Assert.fail("Should fail when fetching an user with inexistent id.");
+    } catch (RuntimeException e) {}
+
     for (int eventTypeId = 0; eventTypeId < EVENT_TYPES.length; eventTypeId++) {
       final int EVENT_TYPE_ID = eventTypeId;
       // didn't bother check the callback is actually called
@@ -205,7 +217,7 @@ public class EventTrackerTest extends GuiceTestCase {
       });
     }
 
-    for (int userId = 0; userId < USER_IDS.length; userId++) {
+    for (int userId = 0; userId < EXTERNAL_USER_IDS.length; userId++) {
       final int USER_ID = userId;
       userEventIndex.enumerateEventIds(userId, 0, NUM_EVENTS, new UserEventIndex.Callback() {
         @Override
@@ -276,10 +288,6 @@ public class EventTrackerTest extends GuiceTestCase {
       Assert.assertEquals(DATES[i + 2], events.get(i).getDate());
       Assert.assertEquals(USER_IDS[0], events.get(i).getExternalUserId());
     }
-  }
-
-  @Test
-  public void testConcurrentAddUser() throws Exception {
   }
 
   private void addEvent(EventTracker tracker, String eventType, String externalUserId, String day,

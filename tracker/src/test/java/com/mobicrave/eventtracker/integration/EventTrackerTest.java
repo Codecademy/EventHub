@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -53,25 +54,25 @@ public class EventTrackerTest extends GuiceTestCase {
 
     final String[] funnelSteps = { EVENT_TYPES[1], EVENT_TYPES[2], EVENT_TYPES[3] };
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 0, 0, 0 },
-        tracker.getCounts(DATES[0], DATES[1], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[1], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 0, 0 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 1 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 1 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 3 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 3 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 1, 0 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 2 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 2 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 1, 0, 0 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
   }
 
@@ -116,26 +117,26 @@ public class EventTrackerTest extends GuiceTestCase {
 
     final String[] funnelSteps = { EVENT_TYPES[0], EVENT_TYPES[1], EVENT_TYPES[3] };
     Assert.assertArrayEquals(new int[] { 8, 7, 6 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 4, 3, 2 },
-        tracker.getCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
 
     tracker.close();
     tracker = eventTrackerProvider.get();
 
     Assert.assertArrayEquals(new int[] { 8, 7, 6 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 4, 3, 2 },
-        tracker.getCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
-        tracker.getCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
   }
 
@@ -254,16 +255,16 @@ public class EventTrackerTest extends GuiceTestCase {
     }
     final String[] funnelSteps = { EVENT_TYPES[1], EVENT_TYPES[2], EVENT_TYPES[4] };
     Assert.assertArrayEquals(new int[]{2, 2, 2},
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[]{2, 2, 0},
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Lists.newArrayList(new Criterion("foo2", "bar2")), Collections.EMPTY_LIST));
     Assert.assertArrayEquals(new int[]{2, 2, 2},
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Lists.newArrayList(new Criterion("foo2", "bar2"))));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
-        tracker.getCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Collections.EMPTY_LIST, Lists.newArrayList(new Criterion("foo3", "bar3"))));
   }
 
@@ -287,6 +288,69 @@ public class EventTrackerTest extends GuiceTestCase {
       Assert.assertEquals(EVENT_TYPES[i + 2], events.get(i).getEventType());
       Assert.assertEquals(DATES[i + 2], events.get(i).getDate());
       Assert.assertEquals(USER_IDS[0], events.get(i).getExternalUserId());
+    }
+  }
+
+  @Test
+  public void testGetRetentionTable() throws Exception {
+    Provider<EventTracker> eventTrackerProvider = getEventTrackerProvider();
+    EventTracker tracker = eventTrackerProvider.get();
+
+    final String[] USER_IDS = { "10", "11", "12", "13", "14" };
+    final String[] EVENT_TYPES = { "receive_email", "purchase", "dummy" };
+    final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105", "20130106",
+        "20130107" };
+
+    addEvent(tracker, EVENT_TYPES[2], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
+
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[0], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[0], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[1], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[1], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[2], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[3], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[3], Maps.<String, String>newHashMap());
+
+    addEvent(tracker, EVENT_TYPES[2], USER_IDS[2], DATES[0], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[2], DATES[1], Maps.<String, String>newHashMap());
+
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[3], DATES[2], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[2], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[3], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[3], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[3], DATES[4], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[5], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[5], Maps.<String, String>newHashMap());
+
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+
+    int[][] expectedCount = {
+ /*D0,1*/ { 3 /*0,1,2*/, 1 /*1*/  , 1 /*1*/, 0 /**/ },
+ /*D2,3*/ { 2 /*1,3*/  , 2 /*1,3*/, 1 /*3*/, 0 /**/  },
+ /*D4,5*/ { 1 /*3*/    , 1 /*3*/  , 0 /**/ , 0 /**/ }
+    };
+    int[][] retentionTable = tracker.getRetentionTable(
+        "20130101", "20130106", 2, 3, EVENT_TYPES[0], EVENT_TYPES[1]);
+    for (int i = 0; i < expectedCount.length; i++) {
+      for (int j = 0; j < expectedCount[i].length; j++) {
+        Assert.assertEquals(expectedCount[i][j], retentionTable[i][j]);
+      }
     }
   }
 

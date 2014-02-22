@@ -1,28 +1,40 @@
 package com.mobicrave.eventtracker;
 
+import com.google.common.collect.ArrayTable;
+import com.google.common.collect.ContiguousSet;
+import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
 import com.mobicrave.eventtracker.index.EventIndex;
 import com.mobicrave.eventtracker.index.ShardedEventIndex;
 import com.mobicrave.eventtracker.index.UserEventIndex;
+import com.mobicrave.eventtracker.list.DummyIdList;
 import com.mobicrave.eventtracker.list.IdList;
 import com.mobicrave.eventtracker.list.MemIdList;
 import com.mobicrave.eventtracker.model.Event;
 import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.EventStorage;
 import com.mobicrave.eventtracker.storage.UserStorage;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 // TODO: snapshot user properties to event properties
-// TODO: retention
+// TODO: refactor varz
 // TODO: frontend integration
 // TODO: finish README.md
 // --------------- End of V1 Beta
+// TODO: retention table add user criteria (a/b testing)
 // TODO: optimize user storage for update
 // TODO: property statistics for segmentation
 // TODO: consider column oriented storage
@@ -36,6 +48,8 @@ import java.util.Set;
  * The date of the receiving events have to be monotonically increasing
  */
 public class EventTracker implements Closeable {
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
+
   private final String directory;
   private final ShardedEventIndex shardedEventIndex;
   private final UserEventIndex userEventIndex;
@@ -59,21 +73,84 @@ public class EventTracker implements Closeable {
     return events;
   }
 
-  public int[] getCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
+  public int[][] getRetentionTable(String startDateString,
+      String endDateString, int numDaysPerRow, int numColumns, String rowEventType,
+      String columnEventType) {
+    DateTime startDate = DATE_TIME_FORMATTER.parseDateTime(startDateString);
+    DateTime endDate = DATE_TIME_FORMATTER.parseDateTime(endDateString);
+    int numRows = (Days.daysBetween(startDate, endDate).getDays() + 1) / numDaysPerRow;
+
+    List<Set<Integer>> rows = Lists.newArrayListWithCapacity(numRows);
+    for (int i = 0; i < numRows; i++) {
+      DateTime currentStartDate = startDate.plusDays(i * numDaysPerRow);
+      DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerRow);
+      Set<Integer> userIds = Sets.newHashSet();
+      EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
+          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIds);
+      shardedEventIndex.enumerateEventIds(
+          rowEventType,
+          currentStartDate.toString(DATE_TIME_FORMATTER),
+          currentEndDate.toString(DATE_TIME_FORMATTER),
+          aggregateUserIdsCallback);
+      rows.add(userIds);
+    }
+    List<Set<Integer>> columns = Lists.newArrayListWithCapacity(numColumns + numRows);
+    for (int i = 0; i < numColumns + numRows; i++) {
+      DateTime currentStartDate = startDate.plusDays(i * numDaysPerRow);
+      DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerRow);
+      Set<Integer> userIds = Sets.newHashSet();
+      EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
+          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIds);
+      shardedEventIndex.enumerateEventIds(
+          columnEventType,
+          currentStartDate.toString(DATE_TIME_FORMATTER),
+          currentEndDate.toString(DATE_TIME_FORMATTER),
+          aggregateUserIdsCallback);
+      columns.add(userIds);
+    }
+
+    Table<Integer, Integer, Integer> retentionTable = ArrayTable.create(
+        ContiguousSet.create(Range.closedOpen(0, numRows), DiscreteDomain.integers()),
+        ContiguousSet.create(Range.closedOpen(0, numColumns + 1), DiscreteDomain.integers()));
+    retentionTable.put(0, 0, 0);
+    for (int i = 0; i < numRows; i++) {
+      retentionTable.put(i, 0, rows.get(i).size());
+    }
+    for (int i = 0; i < numRows; i++) {
+      for (int j = 0; j < numColumns; j++) {
+        Set<Integer> rowSet = rows.get(i);
+        Set<Integer> columnSet = columns.get(j + i);
+        int count = 0;
+        for (Integer columnValue : columnSet) {
+          if (rowSet.contains(columnValue)) {
+            count++;
+          }
+        }
+        retentionTable.put(i, j + 1, count);
+      }
+    }
+    int[][] result = new int[numRows][numColumns + 1];
+    for (int i = 0; i < numRows; i++) {
+      for (int j = 0; j < numColumns + 1; j++) {
+        result[i][j] = retentionTable.get(i, j);
+      }
+    }
+    return result;
+  }
+
+  public int[] getFunnelCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
       int numDaysToCompleteFunnel, List<Criterion> eventCriteria, List<Criterion> userCriteria) {
-    IdList userIdList = new MemIdList(new long[10000], 0);
     IdList firstStepEventIdList = new MemIdList(new long[10000], 0);
     int[] funnelStepsEventTypeIds = getEventTypeIds(funnelStepsEventTypes);
 
+    Set<Integer> userIds = Sets.newHashSet();
     EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-        userIdList, firstStepEventIdList, eventCriteria, userCriteria, Sets.<Integer>newHashSet());
+        firstStepEventIdList, eventCriteria, userCriteria, userIds);
     shardedEventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
-    IdList.Iterator userIdIterator = userIdList.iterator();
     IdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
-    while (userIdIterator.hasNext()) {
-      int userId = (int) userIdIterator.next();
+    for (int userId : userIds) {
       long firstStepEventId = firstStepEventIdIterator.next();
       long maxLastStepEventId = shardedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
       CountFunnelStepsMatched countFunnelStepsMatched = new CountFunnelStepsMatched(
@@ -149,18 +226,16 @@ public class EventTracker implements Closeable {
   private static class AggregateUserIds implements EventIndex.Callback {
     private final EventStorage eventStorage;
     private final UserStorage userStorage;
-    private final IdList userIdList;
     private final IdList earliestEventIdList;
     private final List<Criterion> eventCriteria;
     private final List<Criterion> userCriteria;
     private final Set<Integer> seenUserIdSet;
 
-    public AggregateUserIds(EventStorage eventStorage, UserStorage userStorage, IdList userIdList,
+    public AggregateUserIds(EventStorage eventStorage, UserStorage userStorage,
         IdList earliestEventIdList, List<Criterion> eventCriteria, List<Criterion> userCriteria,
         Set<Integer> seenUserIdSet) {
       this.eventStorage = eventStorage;
       this.userStorage = userStorage;
-      this.userIdList = userIdList;
       this.earliestEventIdList = earliestEventIdList;
       this.eventCriteria = eventCriteria;
       this.userCriteria = userCriteria;
@@ -182,7 +257,6 @@ public class EventTracker implements Closeable {
       // TODO: consider other higher performing Set implementation
       if (!seenUserIdSet.contains(userId)) {
         seenUserIdSet.add(userId);
-        userIdList.add(userId);
         earliestEventIdList.add(eventId);
       }
     }

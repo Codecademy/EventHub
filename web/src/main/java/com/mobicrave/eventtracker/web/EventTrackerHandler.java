@@ -3,6 +3,7 @@ package com.mobicrave.eventtracker.web;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 import com.google.gson.Gson;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -63,15 +64,30 @@ public class EventTrackerHandler extends AbstractHandler {
       case "/events/types":
         response.getWriter().println(getEventTypes());
         break;
-      case "/count_funnel_steps":
+      case "/events/funnel":
         int[] funnelSteps = countFunnelSteps(request);
         response.getWriter().println(Arrays.toString(funnelSteps));
+        break;
+      case "/events/retention":
+        int[][] retentionTable = getRetentionTable(request);
+        response.getWriter().println(Arrays.deepToString(retentionTable));
         break;
       case "/varz":
         response.getWriter().println(eventTracker.getVarz());
         break;
     }
     baseRequest.setHandled(true);
+  }
+
+  private int[][] getRetentionTable(HttpServletRequest request) {
+    return eventTracker.getRetentionTable(
+        request.getParameter("start_date"),
+        request.getParameter("end_date"),
+        Integer.parseInt(request.getParameter("num_days_per_row")),
+        Integer.parseInt(request.getParameter("num_columns")),
+        request.getParameter("row_event_type"),
+        request.getParameter("column_event_type")
+    );
   }
 
   private String getEventTypes() {
@@ -109,7 +125,7 @@ public class EventTrackerHandler extends AbstractHandler {
         request.getParameterValues("ecv"));
     List<Criterion> userCriteria = getCriteria(request.getParameterValues("uck"),
         request.getParameterValues("ucv"));
-    return eventTracker.getCounts(
+    return eventTracker.getFunnelCounts(
         request.getParameter("start_date"),
         request.getParameter("end_date"),
         request.getParameterValues("funnel_steps[]"),

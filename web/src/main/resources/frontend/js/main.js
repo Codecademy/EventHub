@@ -18,7 +18,7 @@ function initFunnelCreate() {
     $('.funnel-create').addClass('show');
     $.ajax({
       type: "GET",
-      url: "http://localhost:8080/get_event_types",
+      url: "http://localhost:8080/events/types",
     }).done(function(eventTypes) {
         initializeSteps(eventTypes);
         $('.add-step').click(function (e) {
@@ -65,7 +65,7 @@ function initFunnelShow() {
 function getFunnel(funnel) {
     $.ajax({
       type: "GET",
-      url: "http://localhost:8080/count_funnel_steps",
+      url: "http://localhost:8080/events/funnel",
       data: {
         start_date: formatDate($('#startDate').val()),
         end_date: formatDate($('#endDate').val()),

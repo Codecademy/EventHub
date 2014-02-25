@@ -16,7 +16,7 @@
 	<body>
 		<div class="container">
 			<div class="funnel-create">
-				<div class="funnel-create__header">
+				<div class="header">
 					<h1>Create a new funnel</h1>
 				</div>
 				<form>
@@ -34,10 +34,17 @@
 				</form>
 			</div>
 			<div class="funnel-show">
+				<div class="header">
+					<h1 class="funnel-name"></h1>
+				</div>
 				<div class="top">
 					<div>
-						<input type="text" id="startDate" placeholder="Start Date"> - <input type="text" id="endDate" placeholder="End Date">
-						Days to complete: <input id="daysToComplete" type="text" name="days" value="7">
+						<div class="date-container">
+							<input type="text" id="startDate" placeholder="Start Date"> - <input type="text" id="endDate" placeholder="End Date">
+						</div>
+						<div class="days-container">
+							Days to complete: <input id="daysToComplete" type="text" name="days" value="7">
+						</div>
 						<div class="completion-rate"></div>
 					</div>
 				</div>

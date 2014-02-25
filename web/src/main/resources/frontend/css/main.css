@@ -93,7 +93,7 @@ html {
 	margin: 0 auto;
 }
 
-.funnel-create__header {
+.header {
 	background-color: #EDEDF9;
 	padding: 20px;
 	font-weight: bold;
@@ -132,6 +132,18 @@ input[name="name"] {
 	padding: 7px;
 }
 
+.date-container, .days-container, .completion-rate {
+	display: inline-block;
+}
+
+.date-container {
+	margin-right: 10px;
+}
+
+.days-container {
+	margin-right: 20px;
+}
+
 #daysToComplete {
 	padding: 7px;
 	width: 37px;
@@ -139,6 +151,9 @@ input[name="name"] {
 
 .top {
 	margin-bottom: 30px;
+	background-color: #f0f0f6;
+	padding: 20px;
+	border-top: 1px solid #cbccdb;
 }
 
 .middle {
@@ -225,8 +240,4 @@ input[name="name"] {
 	top: -20px;
 	width: 100%;
 	text-align: center;
-}
-
-.completion-rate {
-	display: inline-block;
 }

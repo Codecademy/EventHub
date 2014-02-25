@@ -82,7 +82,12 @@ function getFunnel(funnel) {
         renderCompletionRate(eventVolumes);
         renderFunnelGraph(funnel, eventVolumes);
         bindInputListeners(funnel);
+        renderFunnelName(funnel);
     });
+}
+
+function renderFunnelName(funnel) {
+    $('.funnel-name').text(funnel.name);
 }
 
 function bindInputListeners(funnel) {

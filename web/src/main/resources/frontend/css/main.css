@@ -127,8 +127,14 @@ input[name="name"] {
 	border-radius: 0;
 }
 
-.name {
-	padding: 10px;
+#startDate, #endDate {
+	width: 98px;
+	padding: 7px;
+}
+
+#daysToComplete {
+	padding: 7px;
+	width: 37px;
 }
 
 .top {
@@ -136,7 +142,7 @@ input[name="name"] {
 }
 
 .middle {
-	width: 600px;
+	width: 100%;
 	height: 200px;
 	position: relative;
 }
@@ -193,7 +199,7 @@ input[name="name"] {
 
 .space {
 	height: 100%;
-	width: 70px;
+	width: 100px;
 }
 
 .bar {

@@ -1,4 +1,4 @@
-var barTemplate = '<div class="bar" style="height: {{height}}%; width: 50px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 50px;">{{eventName}}</div></div>';
+var barTemplate = '<div class="bar" style="height: {{height}}%; width: 80px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 80px;">{{eventName}}</div></div>';
 var spaceTemplate = '<div class="space"><div class="conversion">{{conversion}}%</div></div>';
 var stepTemplate ='<div class="step-container cf"><div class="step-index">Step {{index}}</div><select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select></div>';
 

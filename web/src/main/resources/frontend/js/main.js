@@ -1,6 +1,6 @@
 var barTemplate = '<div class="bar" style="height: {{height}}%; width: 50px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 50px;">{{eventName}}</div></div>';
 var spaceTemplate = '<div class="space"><div class="conversion">{{conversion}}%</div></div>';
-var stepTemplate ='<div><select name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select></div>';
+var stepTemplate ='<div class="step-container cf"><div class="step-index">Step {{index}}</div><select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select></div>';
 
 //===============================================================================
 
@@ -40,11 +40,14 @@ function initFunnelCreate() {
 }
 
 
+var index = 1;
 function addStep(eventTypes) {
     var view = {
-        eventTypes: JSON.parse(eventTypes)
+        eventTypes: JSON.parse(eventTypes),
+        index: index++
     };
     $('.steps').append(Mustache.render(stepTemplate, view));
+    $('.selectpicker').selectpicker('render');
 }
 
 function initializeSteps(eventTypes) {

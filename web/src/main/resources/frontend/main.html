@@ -1,5 +1,7 @@
 <html>
 	<head>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="css/bootstrap-select.min.css">
 		<link rel="stylesheet" type="text/css" href="css/common.css">
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
@@ -7,39 +9,48 @@
 		<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 		<script src="js/jquery-deparam.js"></script>
 		<script src="js/mustache.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/bootstrap-select.min.js"></script>
 		<script src="js/main.js"></script>
 	</head>
 	<body>
-		<div class="funnel-create">
-			<form>
-				<div>
-					<input type="text" name="name" placeholder="name">
+		<div class="container">
+			<div class="funnel-create">
+				<div class="funnel-create__header">
+					<h1>Create a new funnel</h1>
 				</div>
-				<div class="steps">
-				</div>
-				<div>
-					<button class="add-step">Add Step</button>
-				</div>
-				<input type="submit" value="Create Funnel">
-			</form>
-		</div>
-		<div class="funnel-show">
-			<div class="top">
-				<div>
-					<input type="text" id="startDate" placeholder="Start Date"> to <input type="text" id="endDate" placeholder="End Date">
-					<input type="text" placeholder="Days to complete" name="days" value="7">
-					<div class="completion-rate"></div>
-				</div>
+				<form>
+					<div class="name-container">
+						<input type="text" name="name" placeholder="Funnel Name">
+					</div>
+					<div class="steps">
+					</div>
+					<div>
+						<button class="btn btn-success add-step">New Funnel Step</button>
+					</div>
+					<div class="create-container cf">
+						<input class="btn btn-default create-funnel" type="submit" value="Create Funnel">
+					</div>
+				</form>
 			</div>
-			<div class="middle">
-				<div class="y-axis">
-					<div class="y-value"></div>
-					<div class="y-value"></div>
-					<div class="y-value"></div>
-					<div class="y-value"></div>
-					<div class="y-value"></div>
+			<div class="funnel-show">
+				<div class="top">
+					<div>
+						<input type="text" id="startDate" placeholder="Start Date"> to <input type="text" id="endDate" placeholder="End Date">
+						<input type="text" placeholder="Days to complete" name="days" value="7">
+						<div class="completion-rate"></div>
+					</div>
 				</div>
-				<div class="graph">
+				<div class="middle">
+					<div class="y-axis">
+						<div class="y-value"></div>
+						<div class="y-value"></div>
+						<div class="y-value"></div>
+						<div class="y-value"></div>
+						<div class="y-value"></div>
+					</div>
+					<div class="graph">
+					</div>
 				</div>
 			</div>
 		</div>

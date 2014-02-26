@@ -158,6 +158,7 @@ public class EventTrackerHandler extends AbstractHandler {
         EventTracker.class.getClassLoader().getResourceAsStream("tracker.properties"));
     properties.load(
         EventTrackerHandler.class.getClassLoader().getResourceAsStream("web.properties"));
+    properties.putAll(System.getProperties());
 
     Injector injector = Guice.createInjector(
         new DmaIdListModule(),

@@ -127,12 +127,21 @@ input[name="name"] {
 	border-radius: 0;
 }
 
+.funnel-inputs {
+	float: left;
+}
+
+.completion-rate {
+	margin-top: 10px;
+	float: right;
+}
+
 #startDate, #endDate {
 	width: 98px;
 	padding: 7px;
 }
 
-.date-container, .days-container, .completion-rate {
+.date-container, .days-container {
 	display: inline-block;
 }
 
@@ -150,7 +159,6 @@ input[name="name"] {
 }
 
 .top {
-	margin-bottom: 30px;
 	background-color: #f0f0f6;
 	padding: 20px;
 	border-top: 1px solid #cbccdb;
@@ -158,8 +166,18 @@ input[name="name"] {
 
 .middle {
 	width: 100%;
-	height: 200px;
+	height: 400px;
 	position: relative;
+	padding-top: 40px;
+	padding-bottom: 60px;
+	background-color: #f7f8fc;
+	border-top: 1px solid #cbccdb;
+}
+
+.graph-container {
+	position: relative;
+	width: 100%;
+	height: 100%;
 }
 
 .y-axis {
@@ -168,6 +186,7 @@ input[name="name"] {
 	left: 0;
 	bottom: 0;
 	width: 50px;
+	border-right: 1px solid #cbccdb;
 }
 
 .y-value {
@@ -205,6 +224,7 @@ input[name="name"] {
 	bottom: 0;
 	right: 0;
 	padding-left: 20px;
+	border-bottom: 1px solid #cbccdb;
 }
 
 .bar, .space {
@@ -218,7 +238,7 @@ input[name="name"] {
 }
 
 .bar {
-	background-color: blue;
+	background-color: #67b0e6;
 }
 
 .eventName {

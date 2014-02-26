@@ -61,6 +61,7 @@ public class DmaIdList implements IdList, Closeable {
   @Override
   public void close() {
     buffer.force();
+    buffer = null;
   }
 
   private int binarySearchOffset(int startOffset, int endOffset, long id) {
@@ -80,9 +81,8 @@ public class DmaIdList implements IdList, Closeable {
 
   private void expandBuffer(long newSize) {
     buffer.force();
-    try {
-      int oldPosition = buffer.position();
-      RandomAccessFile raf = new RandomAccessFile(filename, "rw");
+    int oldPosition = buffer.position();
+    try (RandomAccessFile raf = new RandomAccessFile(filename, "rw")) {
       raf.setLength(newSize);
       buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
       buffer.position(oldPosition);

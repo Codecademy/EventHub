@@ -91,9 +91,8 @@ public class DmaList<T> implements Closeable {
   }
 
   private static MappedByteBuffer createNewBuffer(String directory, int bufferIndex, int fileSize) {
-    try {
-      RandomAccessFile raf = new RandomAccessFile(String.format("%s/dma_list_%d.mem", directory,
-          bufferIndex), "rw");
+    try (RandomAccessFile raf = new RandomAccessFile(String.format("%s/dma_list_%d.mem", directory,
+          bufferIndex), "rw")) {
       return raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, fileSize);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -102,11 +101,10 @@ public class DmaList<T> implements Closeable {
 
   public static <T> DmaList<T> build(final Schema<T> schema, final String directory,
       final int numRecordsPerFile, int cacheSize) {
-    try {
-      //noinspection ResultOfMethodCallIgnored
-      new File(directory).mkdirs();
-      RandomAccessFile raf = new RandomAccessFile(new File(
-          String.format("%s/meta_data.mem", directory)), "rw");
+    //noinspection ResultOfMethodCallIgnored
+    new File(directory).mkdirs();
+    try (RandomAccessFile raf = new RandomAccessFile(new File(
+          String.format("%s/meta_data.mem", directory)), "rw")) {
       MappedByteBuffer metaDataBuffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, 8);
       long numRecords = metaDataBuffer.getLong();
       final int fileSize = numRecordsPerFile * schema.getObjectSize();

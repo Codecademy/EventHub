@@ -3,7 +3,6 @@ package com.mobicrave.eventtracker.web;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
 import com.google.gson.Gson;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

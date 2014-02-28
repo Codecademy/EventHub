@@ -45,22 +45,56 @@ function initRetentionShow() {
     $('.container').removeClass('small');
 
     initializeRetentionDatePickers();
-    initializeRetentionEventType();
+    initializeRetentionEventTypes(function () {
+      bindRetentionInputListeners();
+      getRetention();
+    });
+}
 
-    var a = [
-      [1,2,3],
-      [4,5,6],
-      [7,8,9]
-    ];
-
-    var count = 0;
-    for (var i = 0; i < a.length; i++) {
-       $('.retention').append('<div class="row' + i + '"></div>');
-       $('.axis').append('<div>' + i + '</div>');
-       for (var j = 0; j < a[i].length; j++) {
-         $('.row' + i).append('<div class="box">' + a[i][j] + '</div>');
-       }
+function getRetention() {
+  $.ajax({
+    type: "GET",
+    url: "http://localhost:8080/events/retention",
+    data: {
+      start_date: formatDate($('#retentionStartDate').val()),
+      end_date: formatDate($('#retentionEndDate').val()),
+      row_event_type: $('.show-me select[name="events"]').eq(0).val(),
+      column_event_type: $('.show-me select[name="events"]').eq(1).val(),
+      num_days_per_row: $('#daysLater').val(),
+      num_columns: $('#numColumns').val()
     }
+  }).done(function(retention) {
+      retention = JSON.parse(retention);
+      renderRetentionGraph(retention);
+  });
+}
+
+function renderRetentionGraph(retention) {
+  resetRetentionGraph();
+
+  var count = 0;
+  var currentDate = new Date($('#retentionStartDate').val());
+  for (var i = 0; i < retention.length; i++) {
+     if (retention[i][0] === 0) break;
+     $('.events').append('<div>' + retention[i][0] + '</div>')
+
+     var date = (currentDate.getMonth() + 1) + '/' + currentDate.getDate() + '/' + currentDate.getFullYear();
+     $('.dates').append('<div>' + date + '</div>');
+     currentDate.setDate(currentDate.getDate() + 7); // change
+
+     $('.retention').append('<div class="row' + i + '"></div>');
+     for (var j = 1; j < retention[i].length; j++) {
+        if (i === 0) $('.axis').append('<div>' + j + '</div>');
+        $('.row' + i).append('<div class="box">' + (retention[i][j] / retention[i][0] * 100).toFixed(2) + '%</div>');
+     }
+  }
+}
+
+function resetRetentionGraph() {
+  $('.events').empty();
+  $('.dates').empty();
+  $('.retention').empty();
+  $('.axis').empty();
 }
 
 function initializeRetentionDatePickers() {
@@ -68,12 +102,19 @@ function initializeRetentionDatePickers() {
     $( "#retentionEndDate" ).datepicker().val('01/30/2013');
 }
 
-function initializeRetentionEventType() {
+function initializeRetentionEventTypes(cb) {
     getEventTypes(function(eventTypes) {
         var view = { eventTypes: JSON.parse(eventTypes) };
         var partials = { "eventType": eventTypeTemplate };
         $('.eventType-container').html(Mustache.render(showMeTemplate, view, partials));
         $('.selectpicker').selectpicker('render');
+        cb();
+    });
+}
+
+function bindRetentionInputListeners() {
+    $('.retention-show input, .retention-show select').change(function () {
+        getRetention();
     });
 }
 
@@ -153,7 +194,7 @@ function getFunnel(funnel) {
         eventVolumes = JSON.parse(eventVolumes);
         renderCompletionRate(eventVolumes);
         renderFunnelGraph(funnel, eventVolumes);
-        bindInputListeners(funnel);
+        bindFunnelInputListeners(funnel);
         renderFunnelName(funnel);
     });
 }
@@ -162,8 +203,8 @@ function renderFunnelName(funnel) {
     $('.funnel-name').text(funnel.name || 'Unnamed funnel');
 }
 
-function bindInputListeners(funnel) {
-    $('input').change(function () {
+function bindFunnelInputListeners(funnel) {
+    $('.funnel-show input').change(function () {
         getFunnel(funnel);
     });
 }

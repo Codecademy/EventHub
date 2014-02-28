@@ -286,6 +286,7 @@ input[name="name"] {
 
 .retention-show {
 	padding: 20px;
+	text-align: center;
 }
 
 .eventType-container, .range-container {
@@ -293,21 +294,14 @@ input[name="name"] {
 	margin-bottom: 20px;
 }
 
-.box {
-  display: inline-block;
-  width: 37px;
-  height: 37px;
-  border: 1px solid black;
-}
-
 .dates-column-container, .events-column-container, .retention-container {
-	float: left;
+  float: left;
   text-align: center;
 }
 
 .dates-column-container .date-title, .events-column-container .event-title,
 .retention-container .retention-title {
-  padding: 10px;
+  padding: 10px 0;
 }
 
 .dates div, .events div {
@@ -317,11 +311,22 @@ input[name="name"] {
 
 .axis div {
   display: inline-block;
-  width: 37px;
+  width: 76px;
+}
+
+.retention .box {
+  display: inline-block;
+  width: 76px;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid black;
 }
 
 .retention {
-  border: 1px solid black;
   display: inline-block;
   text-align: left;
+}
+
+.table-container {
+	display: inline-block;
 }

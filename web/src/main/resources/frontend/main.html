@@ -15,7 +15,11 @@
 	</head>
 	<body>
 		<div class="container">
-			<div class="funnel-create">
+			<ul class="nav nav-tabs nav-justified">
+			  <li class="active nav-funnel"><a href="#">Funnel</a></li>
+			  <li class="nav-retention"><a href="#">Retention</a></li>
+			</ul>
+			<div class="frame funnel-create">
 				<div class="header">
 					<h1>Create a new funnel</h1>
 				</div>
@@ -33,7 +37,7 @@
 					</div>
 				</form>
 			</div>
-			<div class="funnel-show">
+			<div class="frame funnel-show">
 				<div class="header">
 					<h1 class="funnel-name"></h1>
 				</div>
@@ -41,10 +45,10 @@
 					<div class="cf">
 						<div class="funnel-inputs">
 							<div class="date-container">
-								<input type="text" id="startDate" placeholder="Start Date"> - <input type="text" id="endDate" placeholder="End Date">
+								Date range: <input type="text" id="funnelStartDate" placeholder="Start Date"> - <input type="text" id="funnelEndDate" placeholder="End Date">
 							</div>
-							<div class="days-container">
-								Days to complete funnel: <input id="daysToComplete" type="text" name="days" value="7">
+							<div class="two-digits-container">
+								Days to complete funnel: <input class="two-digits" id="daysToComplete" type="text" name="days" value="7">
 							</div>
 						</div>
 						<div class="completion-rate"></div>
@@ -62,6 +66,44 @@
 						<div class="graph">
 					</div>
 					</div>
+				</div>
+			</div>
+			<div class="frame retention-show">
+				<div class="eventType-container"></div>
+				<div class="range-container">
+					<div class="date-container">
+						Date range: <input type="text" id="retentionStartDate" placeholder="Start Date"> - <input type="text" id="retentionEndDate" placeholder="End Date">
+					</div>
+					<div class="two-digits-container">
+						Number of columns: <input class="two-digits" id="numColumns" type="text" name="columns" value="12">
+					</div>
+					<div class="two-digits-container">
+						Days Later: <input class="two-digits" id="daysLater" type="text" name="daysLater" value="7">
+					</div>
+				</div>
+				<div class="dates-column-container">
+				  <div class="date-title">Date</div>
+				  <div class="dates">
+				    <div>Date 1</div>
+				    <div>Date 2</div>
+				    <div>Date 3</div>
+				  </div>
+				</div>
+				<div class="events-column-container">
+				  <div class="event-title">People</div>
+				  <div class="events">
+				    <div>100</div>
+				    <div>200</div>
+				    <div>300</div>
+				  </div>
+				</div>
+				<div class="retention-container">
+				  <div class="retention-title">
+				    <div class="axis"></div>
+				  </div>
+				  <div class="retention">
+
+				  </div>
 				</div>
 			</div>
 		</div>

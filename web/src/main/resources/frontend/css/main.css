@@ -50,6 +50,9 @@ select {
 	border: 1px solid #cccccc;
 	background-color: #ffffff;
 }
+.bootstrap-select {
+	width: 150px !important;
+}
 .btn-group {
 	margin-bottom: 0 !important;
 }
@@ -75,22 +78,19 @@ html {
 	font-family: sans-serif;
 }
 
+/* Overall styles*/
+
 .container {
 	width: 1000px;
 	margin: 0 auto;
 }
 
-.funnel-create, .funnel-show {
-	display: none;
-}
-
-.funnel-create.show, .funnel-show.show {
-	display: block;
-}
-
-.funnel-create {
+.container.small {
 	width: 600px;
-	margin: 0 auto;
+}
+
+.nav {
+	margin: 20px 0;
 }
 
 .header {
@@ -99,6 +99,41 @@ html {
 	font-weight: bold;
 	color: #525363;
 }
+
+.funnel-create, .funnel-show, .retention-show {
+	display: none;
+}
+
+.funnel-create.show, .funnel-show.show, .retention-show.show {
+	display: block;
+}
+
+/* Global styles */
+
+.date-container input {
+	width: 98px;
+	padding: 7px;
+}
+
+.date-container, .days-container {
+	display: inline-block;
+}
+
+.two-digit-container {
+	margin-right: 10px;
+}
+
+.two-digits-container {
+	margin-left: 10px;
+	display: inline-block;
+}
+
+.two-digits {
+	padding: 7px;
+	width: 37px;
+}
+
+/* Funnel create */
 
 .name-container, .create-container, .step-container {
 	background-color: #f0f0f6;
@@ -127,6 +162,8 @@ input[name="name"] {
 	border-radius: 0;
 }
 
+/* Funnel show */
+
 .funnel-inputs {
 	float: left;
 }
@@ -136,35 +173,13 @@ input[name="name"] {
 	float: right;
 }
 
-#startDate, #endDate {
-	width: 98px;
-	padding: 7px;
-}
-
-.date-container, .days-container {
-	display: inline-block;
-}
-
-.date-container {
-	margin-right: 10px;
-}
-
-.days-container {
-	margin-right: 20px;
-}
-
-#daysToComplete {
-	padding: 7px;
-	width: 37px;
-}
-
-.top {
+.funnel-show .top {
 	background-color: #f0f0f6;
 	padding: 20px;
 	border-top: 1px solid #cbccdb;
 }
 
-.middle {
+.funnel-show .middle {
 	width: 100%;
 	height: 400px;
 	position: relative;
@@ -174,13 +189,13 @@ input[name="name"] {
 	border-top: 1px solid #cbccdb;
 }
 
-.graph-container {
+.funnel-show .graph-container {
 	position: relative;
 	width: 100%;
 	height: 100%;
 }
 
-.y-axis {
+.funnel-show .y-axis {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -189,7 +204,7 @@ input[name="name"] {
 	border-right: 1px solid #cbccdb;
 }
 
-.y-value {
+.funnel-show .y-axis .y-value {
 	position: absolute;
 	width: 100%;
 	text-align: center;
@@ -197,27 +212,27 @@ input[name="name"] {
 	margin-top: -8px;
 }
 
-.y-value:nth-child(5) {
+.funnel-show .y-axis .y-value:nth-child(5) {
 	top: 14%;
 }
 
-.y-value:nth-child(4) {
+.funnel-show .y-axis .y-value:nth-child(4) {
 	top: 32%;
 }
 
-.y-value:nth-child(3) {
+.funnel-show .y-axis .y-value:nth-child(3) {
 	top: 50%;
 }
 
-.y-value:nth-child(2) {
+.funnel-show .y-axis .y-value:nth-child(2) {
 	top: 68%;
 }
 
-.y-value:nth-child(1) {
+.funnel-show .y-axis .y-value:nth-child(1) {
 	top: 86%;
 }
 
-.graph {
+.funnel-show .graph {
 	position: absolute;
 	top: 0;
 	left: 50px;
@@ -227,37 +242,78 @@ input[name="name"] {
 	border-bottom: 1px solid #cbccdb;
 }
 
-.bar, .space {
+.graph .bar, .graph .space {
 	display: inline-block;
 	position: relative;
 }
 
-.space {
+.graph .space {
 	height: 100%;
 	width: 100px;
 }
 
-.bar {
-	background-color: #67b0e6;
-}
-
-.eventName {
-	width: 100%;
-	text-align: center;
-	position: absolute;
-	bottom: -40px;
-}
-
-.conversion {
+.space .conversion {
 	position: absolute;
 	top: 75%;
 	width: 100%;
 	text-align: center;
 }
 
-.numEvents {
+
+.graph .bar {
+	background-color: #67b0e6;
+}
+
+.bar .eventName {
+	width: 100%;
+	text-align: center;
+	position: absolute;
+	bottom: -40px;
+}
+
+.bar .numEvents {
 	position: absolute;
 	top: -20px;
 	width: 100%;
 	text-align: center;
+}
+
+/*Retention stuff starts here*/
+
+.eventType-container, .range-container {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.box {
+  display: inline-block;
+  width: 37px;
+  height: 37px;
+  border: 1px solid black;
+}
+
+.dates-column-container, .events-column-container, .retention-container {
+	float: left;
+  text-align: center;
+}
+
+.dates-column-container .date-title, .events-column-container .event-title,
+.retention-container .retention-title {
+  padding: 10px;
+}
+
+.dates div, .events div {
+  padding: 10px;
+  border: 1px solid black;
+}
+
+.axis div {
+  display: inline-block;
+  width: 37px;
+}
+
+.retention {
+  border: 1px solid black;
+  display: inline-block;
+  text-align: left;
 }

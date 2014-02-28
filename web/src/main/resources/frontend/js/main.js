@@ -1,31 +1,97 @@
 var barTemplate = '<div class="bar" style="height: {{height}}%; width: 80px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 80px;">{{eventName}}</div></div>';
 var spaceTemplate = '<div class="space"><div class="conversion">{{conversion}}%</div></div>';
-var stepTemplate ='<div class="step-container cf"><div class="step-index">Step {{index}}</div><select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select></div>';
+var stepTemplate ='<div class="step-container cf"><div class="step-index">Step {{index}}</div>{{> eventType}}</div>';
+var showMeTemplate = '<div class="show-me">Show me people who did &nbsp {{> eventType}} &nbsp then came back and did &nbsp {{> eventType}}';
+var eventTypeTemplate = '<select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select>'
 
 //===============================================================================
 
 $(document).ready(function() {
-    if (document.location.search.length) {
-        initFunnelShow();
+    bindNavBar();
+
+    var params = document.location.search;
+
+    if (params.indexOf('type=retention') > -1) {
+        $('.nav-retention').click();
+        initRetentionShow();
     } else {
-        initFunnelCreate();
+        $('.nav-funnel').click();
+        if (params.indexOf('type=funnel') > -1) {
+            initFunnelShow();
+        } else {
+            initFunnelCreate();
+        }
     }
 });
+
+function bindNavBar() {
+   $('.nav li').click(function () {
+       $('.nav li').removeClass('active');
+       $(this).addClass('active');
+   })
+   $('.nav-funnel').click(function () {
+       initFunnelCreate();
+   });
+   $('.nav-retention').click(function () {
+       initRetentionShow();
+   });
+}
+
+//===============================================================================
+
+function initRetentionShow() {
+    $('.frame').removeClass('show');
+    $('.retention-show').addClass('show');
+    $('.container').removeClass('small');
+
+    initializeRetentionDatePickers();
+    initializeRetentionEventType();
+
+    var a = [
+      [1,2,3],
+      [4,5,6],
+      [7,8,9]
+    ];
+
+    var count = 0;
+    for (var i = 0; i < a.length; i++) {
+       $('.retention').append('<div class="row' + i + '"></div>');
+       $('.axis').append('<div>' + i + '</div>');
+       for (var j = 0; j < a[i].length; j++) {
+         $('.row' + i).append('<div class="box">' + a[i][j] + '</div>');
+       }
+    }
+}
+
+function initializeRetentionDatePickers() {
+    $( "#retentionStartDate" ).datepicker().val('01/01/2013');
+    $( "#retentionEndDate" ).datepicker().val('01/30/2013');
+}
+
+function initializeRetentionEventType() {
+    getEventTypes(function(eventTypes) {
+        var view = { eventTypes: JSON.parse(eventTypes) };
+        var partials = { "eventType": eventTypeTemplate };
+        $('.eventType-container').html(Mustache.render(showMeTemplate, view, partials));
+        $('.selectpicker').selectpicker('render');
+    });
+}
 
 //===============================================================================
 
 function initFunnelCreate() {
+    $('.frame').removeClass('show');
     $('.funnel-create').addClass('show');
-    $.ajax({
-      type: "GET",
-      url: "http://localhost:8080/events/types",
-    }).done(function(eventTypes) {
+    $('.container').addClass('small');
+
+    getEventTypes(function(eventTypes) {
         initializeSteps(eventTypes);
         $('.add-step').click(function (e) {
             e.preventDefault();
             addStep(eventTypes);
         });
     });
+
     $('input[type="submit"]').click(function(e){
         e.preventDefault();
         var steps =  $('select[name="events"]').map(function(i, el) {
@@ -33,7 +99,8 @@ function initFunnelCreate() {
         });
         var funnel = {
             name: $('input[name="name"]').val(),
-            steps: steps.toArray()
+            steps: steps.toArray(),
+            type: 'funnel'
         }
         window.location.href = '?' + $.param(funnel);
     });
@@ -46,11 +113,14 @@ function addStep(eventTypes) {
         eventTypes: JSON.parse(eventTypes),
         index: index++
     };
-    $('.steps').append(Mustache.render(stepTemplate, view));
+    var partials = { "eventType": eventTypeTemplate };
+    $('.steps').append(Mustache.render(stepTemplate, view, partials));
     $('.selectpicker').selectpicker('render');
 }
 
 function initializeSteps(eventTypes) {
+    index = 1;
+    $('.steps').empty();
     for (var i = 0; i < 3; i++) {
         addStep(eventTypes);
     }
@@ -59,9 +129,11 @@ function initializeSteps(eventTypes) {
 //===============================================================================
 
 function initFunnelShow() {
+    $('.frame').removeClass('show');
     $('.funnel-show').addClass('show');
+    $('.container').removeClass('small');
     var funnel = $.deparam(window.location.search.substring(1));
-    initializeDatePickers();
+    initializeFunnelDatePickers();
     getFunnel(funnel);
 }
 
@@ -70,8 +142,8 @@ function getFunnel(funnel) {
       type: "GET",
       url: "http://localhost:8080/events/funnel",
       data: {
-        start_date: formatDate($('#startDate').val()),
-        end_date: formatDate($('#endDate').val()),
+        start_date: formatDate($('#funnelStartDate').val()),
+        end_date: formatDate($('#funnelEndDate').val()),
         funnel_steps: funnel.steps,
         num_days_to_complete_funnel: $('input[name="days"]').val(),
         eck: "event_property_1",
@@ -87,7 +159,7 @@ function getFunnel(funnel) {
 }
 
 function renderFunnelName(funnel) {
-    $('.funnel-name').text(funnel.name);
+    $('.funnel-name').text(funnel.name || 'Unnamed funnel');
 }
 
 function bindInputListeners(funnel) {
@@ -96,9 +168,9 @@ function bindInputListeners(funnel) {
     });
 }
 
-function initializeDatePickers() {
-    $( "#startDate" ).datepicker().val('01/01/2013');
-    $( "#endDate" ).datepicker().val('01/30/2013');
+function initializeFunnelDatePickers() {
+    $( "#funnelStartDate" ).datepicker().val('01/01/2013');
+    $( "#funnelEndDate" ).datepicker().val('01/30/2013');
 }
 
 function renderCompletionRate(eventVolumes) {
@@ -116,6 +188,7 @@ function renderFunnelGraph(funnel, eventVolumes) {
     $('.y-value').each(function (i, el) {
         $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1), 10));
     });
+
     var previousVolume;
     eventVolumes.forEach(function (v, i) {
         if (i > 0) {
@@ -135,6 +208,13 @@ function renderFunnelGraph(funnel, eventVolumes) {
 }
 
 //===============================================================================
+
+function getEventTypes(cb) {
+    $.ajax({
+      type: "GET",
+      url: "http://localhost:8080/events/types",
+    }).done(cb);
+}
 
 function formatDate(date) {
     date = date.split('/');

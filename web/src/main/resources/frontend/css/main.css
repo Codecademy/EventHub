@@ -94,9 +94,13 @@ html {
 }
 
 .header {
-	padding: 20px;
+	padding: 18px;
 	font-weight: bold;
 	border-bottom: 1px solid #ddd;
+}
+
+.header h1 {
+	font-size: 20px;
 }
 
 .funnel-create, .funnel-show, .retention-show {
@@ -149,8 +153,8 @@ html {
 }
 
 .step-container .step-index {
-	font-size: 20px;
-	margin-top: 8px;
+	font-size: 15px;
+	margin-top: 10px;
 	float: left;
 }
 

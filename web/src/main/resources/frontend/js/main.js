@@ -12,34 +12,33 @@ $(document).ready(function() {
     var params = document.location.search;
 
     if (params.indexOf('type=retention') > -1) {
-        $('.nav-retention').click();
-        initRetentionShow();
+      $('.nav-retention').click();
     } else {
-        $('.nav-funnel').click();
         if (params.indexOf('type=funnel') > -1) {
             initFunnelShow();
         } else {
-            initFunnelCreate();
+            $('.nav-funnel').click();
         }
     }
 });
 
 function bindNavBar() {
    $('.nav li').click(function () {
-       $('.nav li').removeClass('active');
-       $(this).addClass('active');
+      $('.nav li').removeClass('active');
+      $(this).addClass('active');
    })
    $('.nav-funnel').click(function () {
-       initFunnelCreate();
+      initFunnelCreate();
    });
    $('.nav-retention').click(function () {
-       initRetentionShow();
+      initRetentionShow();
    });
 }
 
 //===============================================================================
 
 function initRetentionShow() {
+
     $('.frame').removeClass('show');
     $('.retention-show').addClass('show');
     $('.container').removeClass('small');
@@ -80,12 +79,16 @@ function renderRetentionGraph(retention) {
 
      var date = (currentDate.getMonth() + 1) + '/' + currentDate.getDate() + '/' + currentDate.getFullYear();
      $('.dates').append('<div>' + date + '</div>');
-     currentDate.setDate(currentDate.getDate() + 7); // change
+     var daysLater = parseInt($('#daysLater').val(), 10);
+     currentDate.setDate(currentDate.getDate() + daysLater); // change
 
      $('.retention').append('<div class="row' + i + '"></div>');
      for (var j = 1; j < retention[i].length; j++) {
+        if (retention[i][j] === 0) break;
         if (i === 0) $('.axis').append('<div>' + j + '</div>');
-        $('.row' + i).append('<div class="box">' + (retention[i][j] / retention[i][0] * 100).toFixed(2) + '%</div>');
+        var percentage = retention[i][j] / retention[i][0] * 100;
+        percentage = percentage === 100 ? percentage : percentage.toFixed(2);
+        $('.row' + i).append('<div class="box">' + percentage + '%</div>');
      }
   }
 }

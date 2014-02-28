@@ -86,7 +86,7 @@ function initFunnelCreate() {
 
     getEventTypes(function(eventTypes) {
         initializeSteps(eventTypes);
-        $('.add-step').click(function (e) {
+        $('.add-step').off().click(function (e) {
             e.preventDefault();
             addStep(eventTypes);
         });
@@ -109,6 +109,7 @@ function initFunnelCreate() {
 
 var index = 1;
 function addStep(eventTypes) {
+    debugger;
     var view = {
         eventTypes: JSON.parse(eventTypes),
         index: index++

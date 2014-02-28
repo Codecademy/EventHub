@@ -94,10 +94,9 @@ html {
 }
 
 .header {
-	background-color: #EDEDF9;
 	padding: 20px;
 	font-weight: bold;
-	color: #525363;
+	border-bottom: 1px solid #ddd;
 }
 
 .funnel-create, .funnel-show, .retention-show {
@@ -106,6 +105,7 @@ html {
 
 .funnel-create.show, .funnel-show.show, .retention-show.show {
 	display: block;
+	border: 1px solid #ddd;
 }
 
 /* Global styles */
@@ -135,11 +135,13 @@ html {
 
 /* Funnel create */
 
-.name-container, .create-container, .step-container {
-	background-color: #f0f0f6;
+.name-container, .step-container, .create-container {
 	padding: 20px;
 	text-align: center;
-	border-top: 1px solid #cbccdb;
+}
+
+.name-container, .step-container {
+	border-bottom: 1px solid #ddd;
 }
 
 .step-container .btn-group {
@@ -159,6 +161,7 @@ input[name="name"] {
 
 .add-step {
 	width: 100%;
+	height: 50px;
 	border-radius: 0;
 }
 
@@ -174,9 +177,7 @@ input[name="name"] {
 }
 
 .funnel-show .top {
-	background-color: #f0f0f6;
 	padding: 20px;
-	border-top: 1px solid #cbccdb;
 }
 
 .funnel-show .middle {
@@ -185,8 +186,7 @@ input[name="name"] {
 	position: relative;
 	padding-top: 40px;
 	padding-bottom: 60px;
-	background-color: #f7f8fc;
-	border-top: 1px solid #cbccdb;
+	border-top: 1px solid #ddd;
 }
 
 .funnel-show .graph-container {
@@ -279,6 +279,10 @@ input[name="name"] {
 }
 
 /*Retention stuff starts here*/
+
+.retention-show {
+	padding: 20px;
+}
 
 .eventType-container, .range-container {
 	text-align: center;

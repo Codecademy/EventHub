@@ -26,6 +26,9 @@ java -jar web/target/web-1.0-SNAPSHOT.jar
 ### Funnel query
 `curl -X POST http://localhost:8080/count_funnel_steps --data "start_date=20130101&end_date=20130103&funnel_steps=signup&funnel_steps=view_shopping_cart&funnel_steps=checkout&num_days_to_complete_funnel=7&eck=event_property_1&ecv=2"`
 
+### Retention query
+`curl -X POST "http://localhost:8080/events/retention" --data "start_date=20130101&end_date=20130103&row_event_type=signup&column_event_type=view_shopping_cart&num_days_per_row=1&num_columns=2"`
+
 ### Run them all
 Just execute `./script.sh` shell script file.
 

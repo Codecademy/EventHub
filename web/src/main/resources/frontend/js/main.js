@@ -1,8 +1,12 @@
-var barTemplate = '<div class="bar" style="height: {{height}}%; width: 80px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 80px;">{{eventName}}</div></div>';
+var barTemplate = '<div class="bar" style="height: {{height}}%; width: 85px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 80px;">{{eventName}}</div></div>';
 var spaceTemplate = '<div class="space"><div class="conversion-container"><div class="conversion">{{conversion}}%</div></div></div>';
-var stepTemplate ='<div class="step-container cf"><div class="step-index">Step {{index}}</div>{{> eventType}}</div>';
+var stepTemplate ='<div class="step-container">{{> eventType}}<div class="remove-step"><span class="glyphicon glyphicon-remove"></span></div><div class="next-step"><span class="glyphicon glyphicon-arrow-right"></div></div>';
 var showMeTemplate = '<div class="show-me">Show me people who did &nbsp {{> eventType}} &nbsp then came back and did &nbsp {{> eventType}} &nbsp within &nbsp <div class="two-digits-container"><input class="two-digits" id="daysLater" type="text" name="daysLater" value="7"></div> &nbsp days.';
-var eventTypeTemplate = '<select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select>'
+var eventTypeTemplate = '<select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select>';
+
+//===============================================================================
+
+var EVENT_TYPES;
 
 //===============================================================================
 
@@ -14,11 +18,7 @@ $(document).ready(function() {
     if (params.indexOf('type=retention') > -1) {
       $('.nav-retention').click();
     } else {
-        if (params.indexOf('type=funnel') > -1) {
-            initFunnelShow();
-        } else {
-            $('.nav-funnel').click();
-        }
+        $('.nav-funnel').click();
     }
 });
 
@@ -26,9 +26,9 @@ function bindNavBar() {
    $('.nav li').click(function () {
       $('.nav li').removeClass('active');
       $(this).addClass('active');
-   })
+   });
    $('.nav-funnel').click(function () {
-      initFunnelCreate();
+      initFunnelShow();
    });
    $('.nav-retention').click(function () {
       initRetentionShow();
@@ -58,7 +58,7 @@ function getRetention() {
       row_event_type: $('.show-me select[name="events"]').eq(0).val(),
       column_event_type: $('.show-me select[name="events"]').eq(1).val(),
       num_days_per_row: $('#daysLater').val(),
-      num_columns: $('#numColumns').val()
+      num_columns: 9//$('#numColumns').val()... Why make things more complicated...
     }
   }).done(function(retention) {
       retention = JSON.parse(retention);
@@ -109,12 +109,21 @@ function initializeRetentionDatePickers() {
 }
 
 function initializeRetentionEventTypes() {
-    getEventTypes(function(eventTypes) {
-        var view = { eventTypes: JSON.parse(eventTypes) };
-        var partials = { "eventType": eventTypeTemplate };
-        $('.eventType-container').html(Mustache.render(showMeTemplate, view, partials));
-        $('.selectpicker').selectpicker('render');
-    });
+    if (!EVENT_TYPES) {
+      getEventTypes(function(eventTypes) {
+          EVENT_TYPES = JSON.parse(eventTypes);
+          renderEventTypes();
+      });
+    } else {
+      renderEventTypes();
+    }
+}
+
+function renderEventTypes() {
+  var view = { eventTypes: EVENT_TYPES };
+  var partials = { "eventType": eventTypeTemplate };
+  $('.eventType-container').html(Mustache.render(showMeTemplate, view, partials));
+  $('.selectpicker').selectpicker('render');
 }
 
 function bindRetentionInputListeners() {
@@ -125,52 +134,12 @@ function bindRetentionInputListeners() {
 
 //===============================================================================
 
-function initFunnelCreate() {
-    $('.frame').removeClass('show');
-    $('.funnel-create').addClass('show');
-    $('.container').addClass('small');
-
-    getEventTypes(function(eventTypes) {
-        initializeSteps(eventTypes);
-        $('.add-step').off().click(function (e) {
-            e.preventDefault();
-            addStep(eventTypes);
-        });
-    });
-
-    $('input[type="submit"]').click(function(e){
-        e.preventDefault();
-        var steps =  $('select[name="events"]').map(function(i, el) {
-            return $(el).val();
-        });
-        var funnel = {
-            name: $('input[name="name"]').val(),
-            steps: steps.toArray(),
-            type: 'funnel'
-        }
-        window.location.href = '?' + $.param(funnel);
-    });
-}
-
-
-var index = 1;
-function addStep(eventTypes) {
-    var view = {
-        eventTypes: JSON.parse(eventTypes),
-        index: index++
-    };
-    var partials = { "eventType": eventTypeTemplate };
-    $('.steps').append(Mustache.render(stepTemplate, view, partials));
-    $('.selectpicker').selectpicker('render');
-}
-
-function initializeSteps(eventTypes) {
-    index = 1;
-    $('.steps').empty();
-    for (var i = 0; i < 2; i++) {
-        addStep(eventTypes);
-    }
-}
+// var funnel = {
+//     name: $('input[name="name"]').val(),
+//     steps: steps.toArray(),
+//     type: 'funnel'
+// };
+// window.location.href = '?' + $.param(funnel);
 
 //===============================================================================
 
@@ -179,37 +148,79 @@ function initFunnelShow() {
     $('.funnel-show').addClass('show');
     $('.container').removeClass('small');
     var funnel = $.deparam(window.location.search.substring(1));
+    initializeFunnelSteps(funnel);
     initializeFunnelDatePickers();
-    getFunnel(funnel);
+    bindFunnelInputListeners();
+    bindAddStepListener();
+    bindRemoveStepListener();
 }
 
-function getFunnel(funnel) {
+function getFunnel() {
     $.ajax({
       type: "GET",
       url: "http://localhost:8080/events/funnel",
       data: {
         start_date: formatDate($('#funnelStartDate').val()),
         end_date: formatDate($('#funnelEndDate').val()),
-        funnel_steps: funnel.steps,
+        funnel_steps: getFunnelSteps(),
         num_days_to_complete_funnel: $('input[name="days"]').val()
       }
     }).done(function(eventVolumes) {
         eventVolumes = JSON.parse(eventVolumes);
         renderCompletionRate(eventVolumes);
-        renderFunnelGraph(funnel, eventVolumes);
-        bindFunnelInputListeners(funnel);
-        renderFunnelName(funnel);
+        renderFunnelGraph(eventVolumes);
     });
+}
+
+function getFunnelSteps() {
+  var funnelSteps = $('.funnel-steps select').map(function(i, el) {
+    return $(el).val();
+  }).toArray();
+  return funnelSteps;
 }
 
 function renderFunnelName(funnel) {
     $('.funnel-name').text(funnel.name || 'Unnamed funnel');
 }
 
-function bindFunnelInputListeners(funnel) {
+function bindAddStepListener() {
+  $('.add-step').click(function () {
+    addStep();
+  });
+}
+
+function bindRemoveStepListener() {
+  $(document.body).on('click', '.remove-step', function () {
+    $(this).parent().remove();
+  });
+}
+
+function bindFunnelInputListeners() {
     $('.calculate-funnel').click(function () {
-        getFunnel(funnel);
+        getFunnel();
     });
+}
+
+function addStep() {
+  view = {
+    eventTypes: EVENT_TYPES
+  };
+  var partials = { "eventType": eventTypeTemplate };
+  $('.funnel-show .funnel-steps').append(Mustache.render(stepTemplate, view, partials));
+  $('.selectpicker').selectpicker('render');
+}
+
+function initializeFunnelSteps(funnel) {
+  $('.funnel-show .funnel-steps').empty();
+  getEventTypes(function (eventTypes) {
+    EVENT_TYPES = JSON.parse(eventTypes);
+    funnel.steps = funnel.steps || [EVENT_TYPES[0], EVENT_TYPES[1]];
+    funnel.steps.forEach(function (v, i) {
+      addStep();
+      $('.funnel-show select').last().val(v);
+      $('.funnel-show select').selectpicker('refresh');
+    });
+  });
 }
 
 function initializeFunnelDatePickers() {
@@ -223,7 +234,8 @@ function renderCompletionRate(eventVolumes) {
     $('.completion-rate').html('<span style="font-weight: bold">' + completionRate + '%</span> Completion Rate');
 }
 
-function renderFunnelGraph(funnel, eventVolumes) {
+function renderFunnelGraph(eventVolumes) {
+    $('.middle').addClass('rendered');
     $('.graph').empty();
     var maxEventVolume = Math.max.apply(Math, eventVolumes);
     var diviser = Math.pow(10, (maxEventVolume.toString().length - 2));
@@ -233,6 +245,7 @@ function renderFunnelGraph(funnel, eventVolumes) {
         $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1), 10));
     });
 
+    var funnelSteps = getFunnelSteps();
     var previousVolume;
     eventVolumes.forEach(function (v, i) {
         if (i > 0) {
@@ -244,11 +257,12 @@ function renderFunnelGraph(funnel, eventVolumes) {
         var view = {
             height: (v / Y_AXIS_MAX * 100),
             numEvents: v,
-            eventName: funnel.steps[i]
+            eventName: funnelSteps[i]
         };
         previousVolume = v;
         $('.graph').append(Mustache.render(barTemplate, view));
     });
+
 }
 
 //===============================================================================

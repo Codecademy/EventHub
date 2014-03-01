@@ -88,29 +88,19 @@ html {
 	margin: 0 auto;
 }
 
-.container.small {
-	width: 600px;
-}
-
 header {
 	border-bottom: 1px solid #ddd !important;
 }
 
 .header {
-	padding: 18px;
-	font-weight: bold;
-	border-bottom: 1px solid #ddd;
+	padding: 18px 18px 0 18px;
 }
 
-.header h1 {
-	font-size: 20px;
-}
-
-.funnel-create, .funnel-show, .retention-show {
+.funnel-show, .retention-show {
 	display: none;
 }
 
-.funnel-create.show, .funnel-show.show, .retention-show.show {
+.funnel-show.show, .retention-show.show {
 	display: block;
 	border: 1px solid #ddd;
 }
@@ -136,42 +126,55 @@ header {
 	width: 37px;
 }
 
-/* Funnel create */
-
-.name-container, .step-container, .create-container {
-	padding: 20px;
-	text-align: center;
-}
-
-.name-container, .step-container {
-	border-bottom: 1px solid #ddd;
-}
-
-.step-container .btn-group {
-	float: right;
-}
-
-.step-container .step-index {
-	font-size: 15px;
-	margin-top: 10px;
-	float: left;
-}
-
-input[name="name"] {
-	width: 100%;
-	padding: 7px;
-}
-
-.add-step {
-	width: 100%;
-	height: 50px;
-	border-radius: 0;
-}
-
 /* Funnel show */
 
 .funnel-inputs {
 	float: left;
+}
+
+
+.step-container {
+	display: inline-block;
+}
+
+.remove-step {
+	display: inline-block;
+	position: relative;
+	top: 3px;
+	margin-left: 5px;
+	margin-right: 15px;
+	color: red;
+	opacity: 0.65;
+}
+
+.remove-step:hover {
+	opacity: 1;
+	cursor: pointer;
+}
+
+.next-step {
+	display: inline-block;
+	position: relative;
+	top: 3px;
+	margin-right: 15px;
+	color: #bbb;
+}
+
+.add-step {
+	display: inline-block;
+	position: relative;
+	top: 3px;
+	color: green;
+	opacity: 0.65;
+}
+
+.add-step:hover {
+	opacity: 1;
+	cursor: pointer;
+}
+
+.funnel-steps {
+	display: inline-block;
 }
 
 .completion-rate {
@@ -180,15 +183,20 @@ input[name="name"] {
 }
 
 .funnel-show .top {
-	padding: 20px 20px 0 20px;
+	padding: 20px;
 }
 
 .funnel-show .middle {
 	width: 100%;
 	height: 400px;
 	position: relative;
-	padding-top: 40px;
+	padding-top: 25px;
 	padding-bottom: 60px;
+	display: none;
+}
+
+.funnel-show .middle.rendered {
+	display: block;
 }
 
 .funnel-show .graph-container {
@@ -251,7 +259,7 @@ input[name="name"] {
 
 .graph .space {
 	height: 100%;
-	width: 100px;
+	width: 110px;
 }
 
 .space .conversion-container {

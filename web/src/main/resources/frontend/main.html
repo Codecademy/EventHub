@@ -2,11 +2,11 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="css/bootstrap-select.min.css">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="css/datepicker.css">
 		<link rel="stylesheet" type="text/css" href="css/common.css">
 		<link rel="stylesheet" type="text/css" href="css/main.css">
-		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script src="js/jquery.js"></script>
 		<script src="js/bootstrap-datepicker.js"></script>
 		<script src="js/jquery-deparam.js"></script>
 		<script src="js/mustache.js"></script>
@@ -32,26 +32,11 @@
 		  </div>
 		</header>
 		<div class="container">
-			<div class="frame funnel-create">
-				<div class="header">
-					<h1>Create a new funnel</h1>
-				</div>
-				<form>
-					<div class="name-container">
-						<input type="text" name="name" placeholder="Funnel Name">
-					</div>
-					<div class="steps">
-					</div>
-					<div>
-						<button class="btn btn-success add-step">New Funnel Step</button>
-					</div>
-					<div class="create-container cf">
-						<input class="btn btn-default create-funnel" type="submit" value="Create Funnel">
-					</div>
-				</form>
-			</div>
 			<div class="frame funnel-show">
 				<div class="header">
+					<div class="funnel-steps">
+					</div>
+					<div class="add-step"><span class="glyphicon glyphicon-plus"></div>
 					<h1 class="funnel-name"></h1>
 				</div>
 				<div class="top">
@@ -88,9 +73,9 @@
 					<div class="date-container">
 						<input type="text" id="retentionStartDate" placeholder="Start Date"> - <input type="text" id="retentionEndDate" placeholder="End Date">
 					</div>
-					<div class="two-digits-container">
+					<!-- <div class="two-digits-container">
 						Columns: <input class="two-digits" id="numColumns" type="text" name="columns" value="9">
-					</div>
+					</div> -->
 					<input class="btn btn-default calculate-retention" type="submit" value="Calculate Retention">
 				</div>
 				<div class="cf table-container">

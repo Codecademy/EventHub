@@ -116,7 +116,7 @@ function initializeRetentionDaysLater(retention) {
 
 function initializeRetentionDatePickers(retention) {
     var start_date = retention.start_date ? unFormatDate(retention.start_date) : '01/01/2013';
-    var end_date = retention.end_date ? unFormatDate(retention.end_date) : '01/01/2013';
+    var end_date = retention.end_date ? unFormatDate(retention.end_date) : '01/30/2013';
     $( "#retentionStartDate" ).datepicker().val(start_date);
     $( "#retentionEndDate" ).datepicker().val(end_date);
 }
@@ -257,7 +257,7 @@ function initializeDaysToComplete(funnel) {
 
 function initializeFunnelDatePickers(funnel) {
     var start_date = funnel.start_date ? unFormatDate(funnel.start_date) : '01/01/2013';
-    var end_date = funnel.end_date ? unFormatDate(funnel.end_date) : '01/01/2013';
+    var end_date = funnel.end_date ? unFormatDate(funnel.end_date) : '01/30/2013';
     $( "#funnelStartDate" ).datepicker().val(start_date);
     $( "#funnelEndDate" ).datepicker().val(end_date);
 }

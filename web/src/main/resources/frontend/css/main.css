@@ -254,13 +254,35 @@ input[name="name"] {
 	width: 100px;
 }
 
-.space .conversion {
+.space .conversion-container {
 	position: absolute;
 	top: 75%;
 	width: 100%;
 	text-align: center;
 }
 
+.space .conversion-container .conversion {
+	display: inline-block;
+	color: white;
+	background: #b1bad0;
+	padding: 8px 4px 8px 10px;
+	font-size: 14px;
+	position: relative;
+	opacity: 0.8;
+	margin-right: 10px;
+}
+
+.space .conversion-container .conversion:after {
+	content: "";
+	position: absolute;
+	width: 0;
+	height: 0;
+	top: 0;
+	left: 100%;
+	border-top: 15px solid transparent;
+	border-left: 10px solid #b1bad0;
+	border-bottom: 15px solid transparent;
+}
 
 .graph .bar {
 	background-color: #67b0e6;

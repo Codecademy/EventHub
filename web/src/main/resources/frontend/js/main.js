@@ -1,5 +1,5 @@
 var barTemplate = '<div class="bar" style="height: {{height}}%; width: 80px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 80px;">{{eventName}}</div></div>';
-var spaceTemplate = '<div class="space"><div class="conversion">{{conversion}}%</div></div>';
+var spaceTemplate = '<div class="space"><div class="conversion-container"><div class="conversion">{{conversion}}%</div></div></div>';
 var stepTemplate ='<div class="step-container cf"><div class="step-index">Step {{index}}</div>{{> eventType}}</div>';
 var showMeTemplate = '<div class="show-me">Show me people who did &nbsp {{> eventType}} &nbsp then came back and did &nbsp {{> eventType}} &nbsp within &nbsp <div class="two-digits-container"><input class="two-digits" id="daysLater" type="text" name="daysLater" value="7"></div> &nbsp days.';
 var eventTypeTemplate = '<select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select>'

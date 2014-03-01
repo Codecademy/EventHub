@@ -357,7 +357,7 @@ input[name="name"] {
 }
 
 .table-container.rendered {
-	display: inline-block;
+	display: block;
 }
 
 .calculate-funnel, .calculate-retention {

@@ -54,7 +54,7 @@ input {
 	color: rgba(0,0,0,0.6);
 }
 .bootstrap-select {
-	width: 150px !important;
+	width: 135px !important;
 }
 .btn-group {
 	margin-bottom: 0 !important;
@@ -84,7 +84,7 @@ html {
 /* Overall styles*/
 
 .container {
-	width: 1000px;
+	width: 1100px;
 	margin: 0 auto;
 }
 

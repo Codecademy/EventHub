@@ -38,7 +38,6 @@ function bindNavBar() {
 //===============================================================================
 
 function initRetentionShow() {
-
     $('.frame').removeClass('show');
     $('.retention-show').addClass('show');
     $('.container').removeClass('small');
@@ -49,17 +48,20 @@ function initRetentionShow() {
 }
 
 function getRetention() {
+  var retention = {
+    start_date: formatDate($('#retentionStartDate').val()),
+    end_date: formatDate($('#retentionEndDate').val()),
+    row_event_type: $('.show-me select[name="events"]').eq(0).val(),
+    column_event_type: $('.show-me select[name="events"]').eq(1).val(),
+    num_days_per_row: $('#daysLater').val(),
+    num_columns: 9, //$('#numColumns').val()... Why make things more complicated...
+    type: 'retention'
+  }
+  window.history.replaceState({}, '', '/?' + $.param(retention));
   $.ajax({
     type: "GET",
     url: "http://localhost:8080/events/retention",
-    data: {
-      start_date: formatDate($('#retentionStartDate').val()),
-      end_date: formatDate($('#retentionEndDate').val()),
-      row_event_type: $('.show-me select[name="events"]').eq(0).val(),
-      column_event_type: $('.show-me select[name="events"]').eq(1).val(),
-      num_days_per_row: $('#daysLater').val(),
-      num_columns: 9//$('#numColumns').val()... Why make things more complicated...
-    }
+    data: retention
   }).done(function(retention) {
       retention = JSON.parse(retention);
       renderRetentionGraph(retention);
@@ -150,24 +152,29 @@ function initFunnelShow() {
     $('.frame').removeClass('show');
     $('.funnel-show').addClass('show');
     $('.container').removeClass('small');
-    var funnel = $.deparam(window.location.search.substring(1));
+    var params = $.deparam(window.location.search.substring(1));
+    var funnel = params.type === 'funnel' ? params : {};
     initializeFunnelSteps(funnel);
-    initializeFunnelDatePickers();
+    initializeFunnelDatePickers(funnel);
+    initializeDaysToComplete(funnel)
     bindFunnelInputListeners();
     bindAddStepListener();
     bindRemoveStepListener();
 }
 
 function getFunnel() {
+    var funnel = {
+      start_date: formatDate($('#funnelStartDate').val()),
+      end_date: formatDate($('#funnelEndDate').val()),
+      funnel_steps: getFunnelSteps(),
+      num_days_to_complete_funnel: $('input[name="days"]').val(),
+      type: 'funnel'
+    }
+    window.history.replaceState({}, '', '/?' + $.param(funnel));
     $.ajax({
       type: "GET",
       url: "http://localhost:8080/events/funnel",
-      data: {
-        start_date: formatDate($('#funnelStartDate').val()),
-        end_date: formatDate($('#funnelEndDate').val()),
-        funnel_steps: getFunnelSteps(),
-        num_days_to_complete_funnel: $('input[name="days"]').val()
-      }
+      data: funnel
     }).done(function(eventVolumes) {
         eventVolumes = JSON.parse(eventVolumes);
         renderCompletionRate(eventVolumes);
@@ -218,7 +225,7 @@ function initializeFunnelSteps(funnel) {
   $('.funnel-show .funnel-steps').empty();
   getEventTypes(function (eventTypes) {
     EVENT_TYPES = JSON.parse(eventTypes);
-    funnel.steps = funnel.steps || [EVENT_TYPES[0], EVENT_TYPES[1]];
+    funnel.steps = funnel.funnel_steps || [EVENT_TYPES[0], EVENT_TYPES[1]];
     funnel.steps.forEach(function (v, i) {
       addStep();
       $('.funnel-show select').last().val(v);
@@ -227,9 +234,15 @@ function initializeFunnelSteps(funnel) {
   });
 }
 
-function initializeFunnelDatePickers() {
-    $( "#funnelStartDate" ).datepicker().val('01/01/2013');
-    $( "#funnelEndDate" ).datepicker().val('01/30/2013');
+function initializeDaysToComplete(funnel) {
+  $('#daysToComplete').val(funnel.num_days_to_complete_funnel || 7);
+}
+
+function initializeFunnelDatePickers(funnel) {
+    var start_date = funnel.start_date ? unFormatDate(funnel.start_date) : '01/01/2013'
+    var end_date = funnel.end_date ? unFormatDate(funnel.end_date) : '01/01/2013'
+    $( "#funnelStartDate" ).datepicker().val(start_date);
+    $( "#funnelEndDate" ).datepicker().val(end_date);
 }
 
 function renderCompletionRate(eventVolumes) {
@@ -282,4 +295,8 @@ function getEventTypes(cb) {
 function formatDate(date) {
     date = date.split('/');
     return date[2] + date[0] + date[1];
+}
+
+function unFormatDate(date) {
+  return date.substring(4,6) + '/' + date.substring(6,8) + '/' + date.substring(0,4)
 }

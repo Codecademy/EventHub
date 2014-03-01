@@ -343,6 +343,7 @@ input[name="name"] {
   width: 76px;
   padding: 10px;
   text-align: center;
+  color: white;
 }
 
 .retention {

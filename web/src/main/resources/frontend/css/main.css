@@ -126,6 +126,23 @@ header {
 	width: 37px;
 }
 
+.calculate-funnel, .calculate-retention {
+	margin-left: 10px;
+}
+
+.spinner {
+	height: 20px;
+	position: relative;
+	top: 5px;
+	left: 5px;
+	display: none;
+}
+
+.spinner.rendered {
+	display: inline-block;
+}
+
+
 /* Funnel show */
 
 .funnel-inputs {
@@ -367,10 +384,6 @@ header {
 
 .table-container.rendered {
 	display: inline-block;
-}
-
-.calculate-funnel, .calculate-retention {
-	margin-left: 10px;
 }
 
 .gradient-1 {

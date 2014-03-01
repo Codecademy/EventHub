@@ -94,6 +94,8 @@ function renderRetentionGraph(retention) {
         $('.row' + i).append('<div class="box ' + boxClass + '">' + percentage + '%</div>');
      }
   }
+
+  $('.range-container .spinner').removeClass('rendered');
 }
 
 function resetRetentionGraph() {
@@ -128,6 +130,7 @@ function renderEventTypes() {
 
 function bindRetentionInputListeners() {
     $('.calculate-retention').click(function () {
+        $('.range-container .spinner').addClass('rendered');
         getRetention();
     });
 }
@@ -197,6 +200,7 @@ function bindRemoveStepListener() {
 
 function bindFunnelInputListeners() {
     $('.calculate-funnel').off().click(function () {
+        $('.funnel-inputs .spinner').addClass('rendered');
         getFunnel();
     });
 }
@@ -263,6 +267,7 @@ function renderFunnelGraph(eventVolumes) {
         $('.graph').append(Mustache.render(barTemplate, view));
     });
 
+    $('.funnel-inputs .spinner').removeClass('rendered');
 }
 
 //===============================================================================

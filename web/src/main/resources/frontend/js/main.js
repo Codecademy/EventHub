@@ -184,19 +184,19 @@ function renderFunnelName(funnel) {
 }
 
 function bindAddStepListener() {
-  $('.add-step').click(function () {
+  $('.add-step').off().click(function () {
     addStep();
   });
 }
 
 function bindRemoveStepListener() {
-  $(document.body).on('click', '.remove-step', function () {
+  $(document.body).off().on('click', '.remove-step', function () {
     $(this).parent().remove();
   });
 }
 
 function bindFunnelInputListeners() {
-    $('.calculate-funnel').click(function () {
+    $('.calculate-funnel').off().click(function () {
         getFunnel();
     });
 }

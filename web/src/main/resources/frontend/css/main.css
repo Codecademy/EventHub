@@ -50,6 +50,9 @@ select {
 	border: 1px solid #cccccc;
 	background-color: #ffffff;
 }
+input {
+	color: rgba(0,0,0,0.6);
+}
 .bootstrap-select {
 	width: 150px !important;
 }
@@ -89,8 +92,8 @@ html {
 	width: 600px;
 }
 
-.nav {
-	margin: 20px 0;
+header {
+	border-bottom: 1px solid #ddd !important;
 }
 
 .header {
@@ -121,14 +124,10 @@ html {
 
 .date-container, .days-container {
 	display: inline-block;
-}
-
-.two-digit-container {
 	margin-right: 10px;
 }
 
 .two-digits-container {
-	margin-left: 10px;
 	display: inline-block;
 }
 
@@ -181,7 +180,7 @@ input[name="name"] {
 }
 
 .funnel-show .top {
-	padding: 20px;
+	padding: 20px 20px 0 20px;
 }
 
 .funnel-show .middle {
@@ -190,7 +189,6 @@ input[name="name"] {
 	position: relative;
 	padding-top: 40px;
 	padding-bottom: 60px;
-	border-top: 1px solid #ddd;
 }
 
 .funnel-show .graph-container {
@@ -286,32 +284,36 @@ input[name="name"] {
 
 .retention-show {
 	padding: 20px;
-	text-align: center;
 }
 
-.eventType-container, .range-container {
-	text-align: center;
-	margin-bottom: 20px;
+.range-container {
+	margin-top: 20px;
+}
+
+.dates-column-container, .events-column-container {
+	border-right: 1px solid #ddd;
 }
 
 .dates-column-container, .events-column-container, .retention-container {
   float: left;
-  text-align: center;
 }
 
 .dates-column-container .date-title, .events-column-container .event-title,
 .retention-container .retention-title {
   padding: 10px 0;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
 }
 
 .dates div, .events div {
-  padding: 10px;
-  border: 1px solid black;
+  padding: 10px 20px;
+  border: 1px solid transparent;
 }
 
 .axis div {
   display: inline-block;
   width: 76px;
+  text-align: center;
 }
 
 .retention .box {
@@ -319,7 +321,6 @@ input[name="name"] {
   width: 76px;
   padding: 10px;
   text-align: center;
-  border: 1px solid black;
 }
 
 .retention {
@@ -328,5 +329,65 @@ input[name="name"] {
 }
 
 .table-container {
+	border: 1px solid #ddd;
+	margin: 20px auto 0;
+	display: none;
+}
+
+.table-container.rendered {
 	display: inline-block;
+}
+
+.calculate-funnel, .calculate-retention {
+	margin-left: 10px;
+}
+
+.gradient-1 {
+	background-color: #9CC5FF;
+	border: 1px solid #9CC5FF;
+}
+
+.gradient-2 {
+	background-color: #8ABAFF;
+	border: 1px solid #8ABAFF;
+}
+
+.gradient-3 {
+	background-color: #75AFFF;
+	border: 1px solid #75AFFF;
+}
+
+.gradient-4 {
+	background-color: #61A3FF;
+	border: 1px solid #61A3FF;
+}
+
+.gradient-5 {
+	background-color: #579DFF;
+	border: 1px solid #579DFF;
+}
+
+.gradient-6 {
+	background-color: #4A95FF;
+	border: 1px solid #4A95FF;
+}
+
+.gradient-7 {
+	background-color: #388BFF;
+	border: 1px solid #388BFF;
+}
+
+.gradient-8 {
+	background-color: #247FFF;
+	border: 1px solid #247FFF;
+}
+
+.gradient-9 {
+	background-color: #1777FF;
+	border: 1px solid #1777FF;
+}
+
+.gradient-10 {
+	background-color: #0D71FF;
+	border: 1px solid #0D71FF;
 }

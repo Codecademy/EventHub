@@ -1,7 +1,7 @@
 var barTemplate = '<div class="bar" style="height: {{height}}%; width: 80px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 80px;">{{eventName}}</div></div>';
 var spaceTemplate = '<div class="space"><div class="conversion">{{conversion}}%</div></div>';
 var stepTemplate ='<div class="step-container cf"><div class="step-index">Step {{index}}</div>{{> eventType}}</div>';
-var showMeTemplate = '<div class="show-me">Show me people who did &nbsp {{> eventType}} &nbsp then came back and did &nbsp {{> eventType}}';
+var showMeTemplate = '<div class="show-me">Show me people who did &nbsp {{> eventType}} &nbsp then came back and did &nbsp {{> eventType}} &nbsp within &nbsp <div class="two-digits-container"><input class="two-digits" id="daysLater" type="text" name="daysLater" value="7"></div> &nbsp days.';
 var eventTypeTemplate = '<select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select>'
 
 //===============================================================================
@@ -44,10 +44,8 @@ function initRetentionShow() {
     $('.container').removeClass('small');
 
     initializeRetentionDatePickers();
-    initializeRetentionEventTypes(function () {
-      bindRetentionInputListeners();
-      getRetention();
-    });
+    initializeRetentionEventTypes();
+    bindRetentionInputListeners();
 }
 
 function getRetention() {
@@ -70,6 +68,10 @@ function getRetention() {
 
 function renderRetentionGraph(retention) {
   resetRetentionGraph();
+  $('.table-container').addClass('rendered');
+
+  $('.date-title').text('Date');
+  $('.event-title').text('People');
 
   var count = 0;
   var currentDate = new Date($('#retentionStartDate').val());
@@ -88,7 +90,8 @@ function renderRetentionGraph(retention) {
         if (i === 0) $('.axis').append('<div>' + j + '</div>');
         var percentage = retention[i][j] / retention[i][0] * 100;
         percentage = percentage === 100 ? percentage : percentage.toFixed(2);
-        $('.row' + i).append('<div class="box">' + percentage + '%</div>');
+        var boxClass = 'gradient-' + parseInt(percentage / 10, 10);
+        $('.row' + i).append('<div class="box ' + boxClass + '">' + percentage + '%</div>');
      }
   }
 }
@@ -105,18 +108,17 @@ function initializeRetentionDatePickers() {
     $( "#retentionEndDate" ).datepicker().val('01/30/2013');
 }
 
-function initializeRetentionEventTypes(cb) {
+function initializeRetentionEventTypes() {
     getEventTypes(function(eventTypes) {
         var view = { eventTypes: JSON.parse(eventTypes) };
         var partials = { "eventType": eventTypeTemplate };
         $('.eventType-container').html(Mustache.render(showMeTemplate, view, partials));
         $('.selectpicker').selectpicker('render');
-        cb();
     });
 }
 
 function bindRetentionInputListeners() {
-    $('.retention-show input, .retention-show select').change(function () {
+    $('.calculate-retention').click(function () {
         getRetention();
     });
 }
@@ -165,7 +167,7 @@ function addStep(eventTypes) {
 function initializeSteps(eventTypes) {
     index = 1;
     $('.steps').empty();
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 2; i++) {
         addStep(eventTypes);
     }
 }
@@ -207,7 +209,7 @@ function renderFunnelName(funnel) {
 }
 
 function bindFunnelInputListeners(funnel) {
-    $('.funnel-show input').change(function () {
+    $('.calculate-funnel').click(function () {
         getFunnel(funnel);
     });
 }
@@ -220,7 +222,7 @@ function initializeFunnelDatePickers() {
 function renderCompletionRate(eventVolumes) {
     var eventLength = eventVolumes.length;
     var completionRate = (eventVolumes[eventLength - 1] / eventVolumes[0] * 100).toFixed(2);
-    $('.completion-rate').text(completionRate + '% Completion Rate');
+    $('.completion-rate').html('<span style="font-weight: bold">' + completionRate + '%</span> Completion Rate');
 }
 
 function renderFunnelGraph(funnel, eventVolumes) {

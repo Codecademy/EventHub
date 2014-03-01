@@ -14,11 +14,23 @@
 		<script src="js/main.js"></script>
 	</head>
 	<body>
+		<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
+		  <div class="container">
+		    <div class="navbar-header">
+		      <a href="../" class="navbar-brand">EventTracker</a>
+		    </div>
+		    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+		      <ul class="nav navbar-nav">
+		        <li class="active nav-funnel">
+		          <a href="#">Funnel</a>
+		        </li>
+		        <li class="nav-retention">
+		          <a href="#">Retention</a>
+		        </li>
+		    </nav>
+		  </div>
+		</header>
 		<div class="container">
-			<ul class="nav nav-tabs nav-justified">
-			  <li class="active nav-funnel"><a href="#">Funnel</a></li>
-			  <li class="nav-retention"><a href="#">Retention</a></li>
-			</ul>
 			<div class="frame funnel-create">
 				<div class="header">
 					<h1>Create a new funnel</h1>
@@ -45,11 +57,12 @@
 					<div class="cf">
 						<div class="funnel-inputs">
 							<div class="date-container">
-								Date range: <input type="text" id="funnelStartDate" placeholder="Start Date"> - <input type="text" id="funnelEndDate" placeholder="End Date">
+								<input type="text" id="funnelStartDate" placeholder="Start Date"> - <input type="text" id="funnelEndDate" placeholder="End Date">
 							</div>
 							<div class="two-digits-container">
-								Days to complete funnel: <input class="two-digits" id="daysToComplete" type="text" name="days" value="7">
+								Days to complete: <input class="two-digits" id="daysToComplete" type="text" name="days" value="7">
 							</div>
+							<input class="btn btn-default calculate-funnel" type="submit" value="Calculate Funnel">
 						</div>
 						<div class="completion-rate"></div>
 					</div>
@@ -72,23 +85,21 @@
 				<div class="eventType-container"></div>
 				<div class="range-container">
 					<div class="date-container">
-						Date range: <input type="text" id="retentionStartDate" placeholder="Start Date"> - <input type="text" id="retentionEndDate" placeholder="End Date">
+						<input type="text" id="retentionStartDate" placeholder="Start Date"> - <input type="text" id="retentionEndDate" placeholder="End Date">
 					</div>
 					<div class="two-digits-container">
-						Number of columns: <input class="two-digits" id="numColumns" type="text" name="columns" value="10">
+						Columns: <input class="two-digits" id="numColumns" type="text" name="columns" value="10">
 					</div>
-					<div class="two-digits-container">
-						Days Later: <input class="two-digits" id="daysLater" type="text" name="daysLater" value="7">
-					</div>
+					<input class="btn btn-default calculate-retention" type="submit" value="Calculate Retention">
 				</div>
 				<div class="cf table-container">
 					<div class="dates-column-container">
-					  <div class="date-title">Date</div>
+					  <div class="date-title"></div>
 					  <div class="dates">
 					  </div>
 					</div>
 					<div class="events-column-container">
-					  <div class="event-title">People</div>
+					  <div class="event-title"></div>
 					  <div class="events">
 					  </div>
 					</div>

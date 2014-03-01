@@ -191,9 +191,7 @@ function getFunnel(funnel) {
         start_date: formatDate($('#funnelStartDate').val()),
         end_date: formatDate($('#funnelEndDate').val()),
         funnel_steps: funnel.steps,
-        num_days_to_complete_funnel: $('input[name="days"]').val(),
-        eck: "event_property_1",
-        ecv: 1
+        num_days_to_complete_funnel: $('input[name="days"]').val()
       }
     }).done(function(eventVolumes) {
         eventVolumes = JSON.parse(eventVolumes);

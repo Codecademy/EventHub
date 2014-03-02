@@ -160,7 +160,7 @@ header {
 	top: 3px;
 	margin-left: 5px;
 	margin-right: 15px;
-	color: red;
+	color: #e51937;
 	opacity: 0.65;
 }
 
@@ -227,7 +227,7 @@ header {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 50px;
+	width: 80px;
 	border-right: 1px solid #cbccdb;
 }
 
@@ -237,6 +237,7 @@ header {
 	text-align: center;
 	height: 16px;
 	margin-top: -8px;
+	color: #aaa;
 }
 
 .funnel-show .y-axis .y-value:nth-child(5) {
@@ -262,9 +263,9 @@ header {
 .funnel-show .graph {
 	position: absolute;
 	top: 0;
-	left: 50px;
+	left: 80px;
 	bottom: 0;
-	right: 0;
+	right: 20px;
 	padding-left: 20px;
 	border-bottom: 1px solid #cbccdb;
 }
@@ -317,7 +318,8 @@ header {
 	width: 100%;
 	text-align: center;
 	position: absolute;
-	bottom: -40px;
+	bottom: -35px;
+	color: #aaa;
 }
 
 .bar .numEvents {
@@ -325,6 +327,8 @@ header {
 	top: -20px;
 	width: 100%;
 	text-align: center;
+	color: #999;
+	font-weight: bold;
 }
 
 /*Retention stuff starts here*/

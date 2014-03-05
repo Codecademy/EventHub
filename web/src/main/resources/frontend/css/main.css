@@ -395,6 +395,11 @@ header {
 	display: inline-block;
 }
 
+.gradient-0 {
+	background-color: #CAE4FF;
+	border: 1px solid #CAE4FF;
+}
+
 .gradient-1 {
 	background-color: #9CC5FF;
 	border: 1px solid #9CC5FF;

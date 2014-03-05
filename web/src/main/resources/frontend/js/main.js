@@ -63,7 +63,7 @@ function getRetention() {
   window.history.replaceState({}, '', '/?' + $.param(retention));
   $.ajax({
     type: "GET",
-    url: "http://localhost:8080/events/retention",
+    url: "/events/retention",
     data: retention
   }).done(function(retention) {
       retention = JSON.parse(retention);
@@ -192,7 +192,7 @@ function getFunnel() {
     window.history.replaceState({}, '', '/?' + $.param(funnel));
     $.ajax({
       type: "GET",
-      url: "http://localhost:8080/events/funnel",
+      url: "/events/funnel",
       data: funnel
     }).done(function(eventVolumes) {
         eventVolumes = JSON.parse(eventVolumes);
@@ -311,7 +311,7 @@ function renderFunnelGraph(eventVolumes) {
 function getEventTypes(cb) {
     $.ajax({
       type: "GET",
-      url: "http://localhost:8080/events/types",
+      url: "/events/types",
     }).done(cb);
 }
 

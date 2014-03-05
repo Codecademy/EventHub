@@ -1,7 +1,7 @@
 var barTemplate = '<div class="bar" style="height: {{height}}%; width: 85px;"><div class="numEvents">{{numEvents}}</div><div class="eventName" style="width: 80px;">{{eventName}}</div></div>';
 var spaceTemplate = '<div class="space"><div class="conversion-container"><div class="conversion">{{conversion}}%</div></div></div>';
 var stepTemplate ='<div class="step-container">{{> eventType}}<div class="remove-step"><span class="glyphicon glyphicon-remove"></span></div><div class="next-step"><span class="glyphicon glyphicon-arrow-right"></div></div>';
-var showMeTemplate = '<div class="show-me">Show me people who did &nbsp {{> eventType}} &nbsp then came back and did &nbsp {{> eventType}} &nbsp within &nbsp <div class="two-digits-container"><input class="two-digits" id="daysLater" type="text" name="daysLater" value="{{daysLater}}"></div> &nbsp days.';
+var showMeTemplate = '<div class="show-me">Show me people who did &nbsp {{> eventType}} &nbsp then came back and did &nbsp {{> eventType}} &nbsp using &nbsp <div class="two-digits-container"><input class="two-digits" id="daysLater" type="text" name="daysLater" value="{{daysLater}}"></div> &nbsp day cohorts.';
 var eventTypeTemplate = '<select class="selectpicker" name="events">\n{{#eventTypes}}<option value="{{.}}">{{.}}</option>{{/eventTypes}}\n</select>';
 
 //===============================================================================
@@ -117,8 +117,10 @@ function initializeRetentionDaysLater(retention) {
 function initializeRetentionDatePickers(retention) {
     var start_date = retention.start_date ? unFormatDate(retention.start_date) : '01/01/2013';
     var end_date = retention.end_date ? unFormatDate(retention.end_date) : '01/30/2013';
-    $( "#retentionStartDate" ).datepicker().val(start_date);
-    $( "#retentionEndDate" ).datepicker().val(end_date);
+    $( "#retentionStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+                                           .datepicker('setValue', start_date);
+    $( "#retentionEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+                                         .datepicker('setValue', end_date);
 }
 
 function initializeRetentionShowMe(retention) {
@@ -218,6 +220,7 @@ function bindAddStepListener() {
 
 function bindRemoveStepListener() {
   $(document.body).off().on('click', '.remove-step', function () {
+    $('.add-step').css('display', 'inline-block');
     $(this).parent().remove();
   });
 }
@@ -236,6 +239,7 @@ function addStep() {
   var partials = { "eventType": eventTypeTemplate };
   $('.funnel-show .funnel-steps').append(Mustache.render(stepTemplate, view, partials));
   $('.selectpicker').selectpicker('render');
+  if ($('.step-container').length === 5) $('.add-step').css('display', 'none');
 }
 
 function initializeFunnelSteps(funnel) {
@@ -258,8 +262,10 @@ function initializeDaysToComplete(funnel) {
 function initializeFunnelDatePickers(funnel) {
     var start_date = funnel.start_date ? unFormatDate(funnel.start_date) : '01/01/2013';
     var end_date = funnel.end_date ? unFormatDate(funnel.end_date) : '01/30/2013';
-    $( "#funnelStartDate" ).datepicker().val(start_date);
-    $( "#funnelEndDate" ).datepicker().val(end_date);
+    $( "#funnelStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+                                        .datepicker('setValue', start_date);
+    $( "#funnelEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+                                      .datepicker('setValue', end_date);
 }
 
 function renderCompletionRate(eventVolumes) {

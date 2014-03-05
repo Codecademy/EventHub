@@ -84,7 +84,7 @@ html {
 /* Overall styles*/
 
 .container {
-	width: 1100px;
+	width: 1032px;
 	margin: 0 auto;
 }
 
@@ -154,13 +154,16 @@ header {
 	display: inline-block;
 }
 
+.step-container:nth-child(5) .next-step {
+	display: none;
+}
+
 .remove-step {
 	display: inline-block;
 	position: relative;
 	top: 3px;
 	margin-left: 5px;
-	margin-right: 15px;
-	color: #e51937;
+	color: #EF9DA9;
 	opacity: 0.65;
 }
 
@@ -173,7 +176,7 @@ header {
 	display: inline-block;
 	position: relative;
 	top: 3px;
-	margin-right: 15px;
+	margin: 0 15px;
 	color: #bbb;
 }
 
@@ -195,7 +198,9 @@ header {
 }
 
 .completion-rate {
-	margin-top: 10px;
+	position: relative;
+	top: 62px;
+	font-size: 18px;
 	float: right;
 }
 
@@ -227,7 +232,7 @@ header {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 80px;
+	width: 70px;
 	border-right: 1px solid #cbccdb;
 }
 
@@ -263,7 +268,7 @@ header {
 .funnel-show .graph {
 	position: absolute;
 	top: 0;
-	left: 80px;
+	left: 70px;
 	bottom: 0;
 	right: 20px;
 	padding-left: 20px;

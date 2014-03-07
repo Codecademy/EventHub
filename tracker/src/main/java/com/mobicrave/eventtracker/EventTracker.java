@@ -81,54 +81,27 @@ public class EventTracker implements Closeable {
   }
 
   public int[][] getRetentionTable(String startDateString,
-      String endDateString, int numDaysPerRow, int numColumns, String rowEventType,
+      String endDateString, int numDaysPerCohort, int numColumns, String rowEventType,
       String columnEventType) {
     DateTime startDate = DATE_TIME_FORMATTER.parseDateTime(startDateString);
     DateTime endDate = DATE_TIME_FORMATTER.parseDateTime(endDateString);
-    int numRows = (Days.daysBetween(startDate, endDate).getDays() + 1) / numDaysPerRow;
+    int numRows = (Days.daysBetween(startDate, endDate).getDays() + 1) / numDaysPerCohort;
 
-    List<Set<Integer>> rows = Lists.newArrayListWithCapacity(numRows);
-    for (int i = 0; i < numRows; i++) {
-      DateTime currentStartDate = startDate.plusDays(i * numDaysPerRow);
-      DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerRow);
-      List<Integer> userIdsList = Lists.newArrayList();
-      Set<Integer> userIdsSet = Sets.newHashSet();
-      EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIdsList, userIdsSet);
-      shardedEventIndex.enumerateEventIds(
-          rowEventType,
-          currentStartDate.toString(DATE_TIME_FORMATTER),
-          currentEndDate.toString(DATE_TIME_FORMATTER),
-          aggregateUserIdsCallback);
-      rows.add(userIdsSet);
-    }
-    List<Set<Integer>> columns = Lists.newArrayListWithCapacity(numColumns + numRows);
-    for (int i = 0; i < numColumns + numRows; i++) {
-      DateTime currentStartDate = startDate.plusDays(i * numDaysPerRow);
-      DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerRow);
-      List<Integer> userIdsList = Lists.newArrayList();
-      Set<Integer> userIdsSet = Sets.newHashSet();
-      EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIdsList, userIdsSet);
-      shardedEventIndex.enumerateEventIds(
-          columnEventType,
-          currentStartDate.toString(DATE_TIME_FORMATTER),
-          currentEndDate.toString(DATE_TIME_FORMATTER),
-          aggregateUserIdsCallback);
-      columns.add(userIdsSet);
-    }
+    List<Set<Integer>> rowIdSets = getUserIdsSets(rowEventType, startDate, numDaysPerCohort, numRows);
+    List<Set<Integer>> columnIdSets = getUserIdsSets(columnEventType, startDate, numDaysPerCohort,
+        numColumns + numRows);
 
     Table<Integer, Integer, Integer> retentionTable = ArrayTable.create(
         ContiguousSet.create(Range.closedOpen(0, numRows), DiscreteDomain.integers()),
         ContiguousSet.create(Range.closedOpen(0, numColumns + 1), DiscreteDomain.integers()));
     retentionTable.put(0, 0, 0);
     for (int i = 0; i < numRows; i++) {
-      retentionTable.put(i, 0, rows.get(i).size());
+      retentionTable.put(i, 0, rowIdSets.get(i).size());
     }
     for (int i = 0; i < numRows; i++) {
       for (int j = 0; j < numColumns; j++) {
-        Set<Integer> rowSet = rows.get(i);
-        Set<Integer> columnSet = columns.get(j + i);
+        Set<Integer> rowSet = rowIdSets.get(i);
+        Set<Integer> columnSet = columnIdSets.get(j + i);
         int count = 0;
         for (Integer columnValue : columnSet) {
           if (rowSet.contains(columnValue)) {
@@ -250,6 +223,25 @@ public class EventTracker implements Closeable {
     userEventIndex.enumerateEventIdsByOffset(userId, offset, numRecords,
         new CollectEventCallback(events, eventStorage));
     return events;
+  }
+
+  private List<Set<Integer>> getUserIdsSets(String groupByEventType, DateTime startDate, int numDaysPerCohort, int numCohorts) {
+    List<Set<Integer>> rows = Lists.newArrayListWithCapacity(numCohorts);
+    for (int i = 0; i < numCohorts; i++) {
+      DateTime currentStartDate = startDate.plusDays(i * numDaysPerCohort);
+      DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerCohort);
+      List<Integer> userIdsList = Lists.newArrayList();
+      Set<Integer> userIdsSet = Sets.newHashSet();
+      EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
+          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIdsList, userIdsSet);
+      shardedEventIndex.enumerateEventIds(
+          groupByEventType,
+          currentStartDate.toString(DATE_TIME_FORMATTER),
+          currentEndDate.toString(DATE_TIME_FORMATTER),
+          aggregateUserIdsCallback);
+      rows.add(userIdsSet);
+    }
+    return rows;
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

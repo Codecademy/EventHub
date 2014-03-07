@@ -29,10 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-// TODO: the concurrency bug
+// TODO: refactor varz (add indentation, print headings based on name of the instance variable, not class)
 // TODO: User.toString and Event.toString
 // TODO: have more debugging endpoint (print paginated events by event type, print paginated users)
-// TODO: refactor varz
 // TODO: snapshot user properties to event properties
 // TODO: finish README.md
 // --------------- End of V1 Beta
@@ -226,14 +225,14 @@ public class EventTracker implements Closeable {
 
   public String getVarz() {
     return String.format(
-        "Event Storage:\n=========\n%s\n" +
-        "User Storage:\n=========\n%s\n" +
-        "Event Index:\n=========\n%s\n" +
-        "User Event Index:\n=========\n%s\n",
-        eventStorage.getVarz(),
-        userStorage.getVarz(),
-        shardedEventIndex.getVarz(),
-        userEventIndex.getVarz());
+        "Event Storage:\n==============\n%s\n\n" +
+        "User Storage:\n==============\n%s\n\n" +
+        "Event Index:\n==============\n%s\n\n" +
+        "User Event Index:\n==============\n%s",
+        eventStorage.getVarz(1),
+        userStorage.getVarz(1),
+        shardedEventIndex.getVarz(1),
+        userEventIndex.getVarz(1));
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

@@ -15,5 +15,5 @@ public interface UserStorage extends Closeable {
   User getUser(int userId);
   boolean satisfy(int userId, List<Criterion> criteria);
   void alias(String fromExternalUserId, int toUserId);
-  String getVarz();
+  String getVarz(int indentation);
 }

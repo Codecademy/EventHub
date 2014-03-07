@@ -39,8 +39,8 @@ public class DelegateEventStorage implements EventStorage {
   }
 
   @Override
-  public String getVarz() {
-    return eventStorage.getVarz();
+  public String getVarz(int indentation) {
+    return eventStorage.getVarz(indentation);
   }
 
   @Override

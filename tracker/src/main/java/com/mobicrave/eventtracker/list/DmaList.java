@@ -78,10 +78,11 @@ public class DmaList<T> implements Closeable {
     return numRecords;
   }
 
-  public String getVarz() {
+  public String getVarz(int indentation) {
+    String indent  = new String(new char[indentation]).replace('\0', ' ');
     return String.format(
-        "directory: %s\n" +
-        "buffer: %s\n",
+        indent + "directory: %s\n" +
+        indent + "buffer: %s",
         directory, buffers.stats().toString());
   }
 

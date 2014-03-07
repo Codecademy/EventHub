@@ -29,9 +29,13 @@ public class CachedEventStorage extends DelegateEventStorage {
   }
 
   @Override
-  public String getVarz() {
+  public String getVarz(int indentation) {
+    String indent  = new String(new char[indentation]).replace('\0', ' ');
     return String.format(
-        "%s\neventCache: %s\n",
-        super.getVarz(), eventCache.stats().toString());
+        "%s\n\n" +
+        indent + this.getClass().getName() + "\n" +
+        indent + "==================\n" +
+        indent + "eventCache: %s",
+        super.getVarz(indentation), eventCache.stats().toString());
   }
 }

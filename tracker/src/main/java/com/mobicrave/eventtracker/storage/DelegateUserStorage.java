@@ -44,8 +44,8 @@ public class DelegateUserStorage implements UserStorage {
   }
 
   @Override
-  public String getVarz() {
-    return userStorage.getVarz();
+  public String getVarz(int indentation) {
+    return userStorage.getVarz(indentation);
   }
 
   @Override

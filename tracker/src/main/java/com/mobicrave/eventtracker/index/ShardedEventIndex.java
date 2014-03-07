@@ -82,8 +82,11 @@ public class ShardedEventIndex implements Closeable {
     datedEventIndex.close();
   }
 
-  public String getVarz() {
-    return String.format("current date: %s\nfilename: %s\n",
+  public String getVarz(int indentation) {
+    String indent  = new String(new char[indentation]).replace('\0', ' ');
+    return String.format(
+        indent + "current date: %s\n" +
+        indent + "filename: %s",
         datedEventIndex.getCurrentDate(), filename);
   }
 }

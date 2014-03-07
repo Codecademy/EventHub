@@ -36,9 +36,13 @@ public class CachedUserStorage extends DelegateUserStorage {
   }
 
   @Override
-  public String getVarz() {
+  public String getVarz(int indentation) {
+    String indent  = new String(new char[indentation]).replace('\0', ' ');
     return String.format(
-        "%s\nuserCache: %s\n",
-        super.getVarz(), userCache.stats().toString());
+        "%s\n\n" +
+        indent + this.getClass().getName() + "\n" +
+        indent + "==================\n" +
+        indent + "userCache: %s",
+        super.getVarz(indentation), userCache.stats().toString());
   }
 }

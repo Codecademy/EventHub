@@ -71,12 +71,15 @@ public class BloomFilteredUserStorage extends DelegateUserStorage {
   }
 
   @Override
-  public String getVarz() {
+  public String getVarz(int indentation) {
+    String indent  = new String(new char[indentation]).replace('\0', ' ');
     return String.format(
-        "%s\n"+
-        "num condition check: %d\n" +
-        "num bloomfilter rejection: %d\n",
-        super.getVarz(), numConditionCheck, numBloomFilterRejection);
+        "%s\n\n"+
+        indent + this.getClass().getName() + "\n" +
+        indent + "==================\n" +
+        indent + "num condition check: %d\n" +
+        indent + "num bloomfilter rejection: %d",
+        super.getVarz(indentation), numConditionCheck, numBloomFilterRejection);
   }
 
   @Override

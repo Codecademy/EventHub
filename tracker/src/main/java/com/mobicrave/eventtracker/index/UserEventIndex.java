@@ -41,8 +41,9 @@ public class UserEventIndex implements Closeable {
     index.invalidateAll();
   }
 
-  public String getVarz() {
-    return String.format("index: %s\n", index.stats().toString());
+  public String getVarz(int indentation) {
+    String indent  = new String(new char[indentation]).replace('\0', ' ');
+    return String.format(indent + "index: %s", index.stats().toString());
   }
 
   public static interface Callback {

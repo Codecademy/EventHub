@@ -82,11 +82,14 @@ public class JournalEventStorage implements EventStorage {
   }
 
   @Override
-  public String getVarz() {
+  public String getVarz(int indentation) {
+    String indent  = new String(new char[indentation]).replace('\0', ' ');
     return String.format(
-        "current id: %d\n" +
-        "metaDataList: %s\n",
-        currentId, metaDataList.getVarz());
+        indent + this.getClass().getName() + "\n" +
+        indent + "==================\n" +
+        indent + "current id: %d\n" +
+        indent + "metaDataList:\n%s",
+        currentId, metaDataList.getVarz(indentation + 1));
   }
 
   public static class MetaData {

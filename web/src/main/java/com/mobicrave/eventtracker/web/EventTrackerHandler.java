@@ -78,6 +78,9 @@ public class EventTrackerHandler extends AbstractHandler {
         String user = viewUser(request);
         response.getWriter().println(user);
         break;
+      case "/users/timeline":
+        response.getWriter().println(userTimeline(request));
+        break;
       case "/events/view":
         String event = viewEvent(request);
         response.getWriter().println(event);
@@ -104,6 +107,15 @@ public class EventTrackerHandler extends AbstractHandler {
     baseRequest.setHandled(true);
   }
 
+  private String userTimeline(HttpServletRequest request) {
+    Gson gson = gsonBuilder.create();
+    List<Event> userEvents = eventTracker.getUserEvents(
+        getUserIdFrom(request),
+        Integer.parseInt(request.getParameter("offset")),
+        Integer.parseInt(request.getParameter("num_records")));
+    return gson.toJson(userEvents);
+  }
+
   private int[][] getRetentionTable(HttpServletRequest request) {
     return eventTracker.getRetentionTable(
         request.getParameter("start_date"),
@@ -117,7 +129,7 @@ public class EventTrackerHandler extends AbstractHandler {
 
   private String viewUser(HttpServletRequest request) {
     Gson gson = gsonBuilder.create();
-    return gson.toJson(eventTracker.getUser(Integer.parseInt(request.getParameter("user_id"))));
+    return gson.toJson(eventTracker.getUser(getUserIdFrom(request)));
   }
 
   private String viewEvent(HttpServletRequest request) {
@@ -186,6 +198,17 @@ public class EventTrackerHandler extends AbstractHandler {
         return request.getParameter(parameterName);
       }
     });
+  }
+
+  private int getUserIdFrom(HttpServletRequest request) {
+    int userId;
+    String externalUserId = request.getParameter("external_user_id");
+    if (externalUserId != null) {
+      userId = eventTracker.getUserId(externalUserId);
+    } else {
+      userId = Integer.parseInt(request.getParameter("user_id"));
+    }
+    return userId;
   }
 
   public static void main(String[] args) throws Exception {

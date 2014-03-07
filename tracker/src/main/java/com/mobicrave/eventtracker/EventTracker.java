@@ -29,10 +29,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-// TODO: have more debugging endpoint (print paginated events by event type, print paginated users)
+// TODO: remove eventType and event_type duplicate from event
+// TODO: manage UserEventIndex memory myself
 // TODO: snapshot user properties to event properties
-// TODO: finish README.md
-// --------------- End of V1 Beta
+// TODO(UI): ask for professional UI design opinion
+// TODO(UI): support segmentation
+// TODO(UI): support user event timeline (including adding necessary api endpoints,
+// TODO(UI):          e.g. getting offset for a given user and date)
+// TODO: finish README.md (including benchmark)
+// --------------- End of V1 beta
+// TODO: deploy and verify it can handle CC traffic
+// --------------- End of V1
+// TODO: make server start fast
 // TODO: retention table add user criteria (a/b testing)
 // TODO: optimize user storage for update
 // TODO: property statistics for segmentation
@@ -179,6 +187,10 @@ public class EventTracker implements Closeable {
     return userStorage.updateUser(user);
   }
 
+  public int getUserId(String externalUserId) {
+    return userStorage.getId(externalUserId);
+  }
+
   public User getUser(int userId) {
     return userStorage.getUser(userId);
   }
@@ -231,6 +243,13 @@ public class EventTracker implements Closeable {
         userStorage.getVarz(1),
         shardedEventIndex.getVarz(1),
         userEventIndex.getVarz(1));
+  }
+
+  public List<Event> getUserEvents(int userId, int offset, int numRecords) {
+    List<Event> events = Lists.newArrayList();
+    userEventIndex.enumerateEventIdsByOffset(userId, offset, numRecords,
+        new CollectEventCallback(events, eventStorage));
+    return events;
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

@@ -2,6 +2,7 @@ package com.mobicrave.eventtracker.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.mobicrave.eventtracker.EventTracker;
 
 import java.io.Closeable;
 import java.io.File;
@@ -35,8 +36,8 @@ public class ShardedEventIndex implements Closeable {
   }
 
   public void enumerateEventIds(String eventType, String startDate, String endDate,
-      EventIndex.Callback aggregateUserIdsCallback) {
-    eventIndexMap.get(eventType).enumerateEventIds(startDate, endDate, aggregateUserIdsCallback);
+      EventIndex.Callback callback) {
+    eventIndexMap.get(eventType).enumerateEventIds(startDate, endDate, callback);
   }
 
   public int ensureEventType(String eventType) {

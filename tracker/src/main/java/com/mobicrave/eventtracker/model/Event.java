@@ -42,6 +42,15 @@ public class Event {
     return new Event(new ByteBufferMap(byteBuffer.duplicate()));
   }
 
+  @Override
+  public String toString() {
+    return String.format(
+        "event type: %s\n" +
+        "date: %s\n" +
+        "external user id: %s",
+        getEventType(), getDate(), getExternalUserId());
+  }
+
   public static class Builder {
     private final String eventType;
     private final String externalUserId;

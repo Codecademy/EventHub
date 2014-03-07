@@ -4,6 +4,11 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -12,6 +17,7 @@ import com.mobicrave.eventtracker.Criterion;
 import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.EventTrackerModule;
 import com.mobicrave.eventtracker.base.DateHelper;
+import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.index.ShardedEventIndexModule;
 import com.mobicrave.eventtracker.index.UserEventIndexModule;
 import com.mobicrave.eventtracker.list.DmaIdListModule;
@@ -30,6 +36,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -38,11 +45,14 @@ import java.util.Properties;
 public class EventTrackerHandler extends AbstractHandler {
   private final EventTracker eventTracker;
   private final DateHelper dateHelper;
+  private final GsonBuilder gsonBuilder;
   private boolean isLogging;
 
-  public EventTrackerHandler(EventTracker eventTracker, DateHelper dateHelper) {
+  public EventTrackerHandler(EventTracker eventTracker, DateHelper dateHelper,
+      GsonBuilder gsonBuilder) {
     this.eventTracker = eventTracker;
     this.dateHelper = dateHelper;
+    this.gsonBuilder = gsonBuilder;
     isLogging = false;
   }
 
@@ -106,17 +116,17 @@ public class EventTrackerHandler extends AbstractHandler {
   }
 
   private String viewUser(HttpServletRequest request) {
-    Gson gson = new Gson();
+    Gson gson = gsonBuilder.create();
     return gson.toJson(eventTracker.getUser(Integer.parseInt(request.getParameter("user_id"))));
   }
 
   private String viewEvent(HttpServletRequest request) {
-    Gson gson = new Gson();
+    Gson gson = gsonBuilder.create();
     return gson.toJson(eventTracker.getEvent(Long.parseLong(request.getParameter("event_id"))));
   }
 
   private String getEventTypes() {
-    Gson gson = new Gson();
+    Gson gson = gsonBuilder.create();
     return gson.toJson(eventTracker.getEventTypes());
   }
 
@@ -196,7 +206,12 @@ public class EventTrackerHandler extends AbstractHandler {
     final EventTracker eventTracker = injector.getInstance(EventTracker.class);
     int port = injector.getInstance(Key.get(Integer.class, Names.named("eventtrackerhandler.port")));
 
-    EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker, new DateHelper());
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.setPrettyPrinting();
+    gsonBuilder.registerTypeAdapter(User.class, new UserJsonSerializer());
+    gsonBuilder.registerTypeAdapter(Event.class, new EventJsonSerializer());
+    EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker, new DateHelper(),
+        gsonBuilder);
     final Server server = new Server(port);
     String webDir = EventTrackerHandler.class.getClassLoader().getResource("frontend").toExternalForm();
 
@@ -224,5 +239,33 @@ public class EventTrackerHandler extends AbstractHandler {
     },"Stop Jetty Hook"));
 
     server.join();
+  }
+
+  private static class UserJsonSerializer implements JsonSerializer<User> {
+    @Override
+    public JsonElement serialize(User user, Type type, JsonSerializationContext jsonSerializationContext) {
+      final JsonObject jsonObject = new JsonObject();
+      user.enumerate(new KeyValueCallback() {
+        @Override
+        public void callback(String key, String value) {
+          jsonObject.addProperty(key, value);
+        }
+      });
+      return jsonObject;
+    }
+  }
+
+  private static class EventJsonSerializer implements JsonSerializer<Event> {
+    @Override
+    public JsonElement serialize(Event event, Type type, JsonSerializationContext jsonSerializationContext) {
+      final JsonObject jsonObject = new JsonObject();
+      event.enumerate(new KeyValueCallback() {
+        @Override
+        public void callback(String key, String value) {
+          jsonObject.addProperty(key, value);
+        }
+      });
+      return jsonObject;
+    }
   }
 }

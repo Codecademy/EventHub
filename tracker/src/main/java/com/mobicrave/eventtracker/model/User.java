@@ -30,6 +30,11 @@ public class User {
     return byteBufferMap.toByteBuffer();
   }
 
+  @Override
+  public String toString() {
+    return String.format("external user id: %s" + getExternalId());
+  }
+
   public static User fromByteBuffer(ByteBuffer byteBuffer) {
     return new User(new ByteBufferMap(byteBuffer.duplicate()));
   }

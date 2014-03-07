@@ -29,8 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-// TODO: refactor varz (add indentation, print headings based on name of the instance variable, not class)
-// TODO: User.toString and Event.toString
 // TODO: have more debugging endpoint (print paginated events by event type, print paginated users)
 // TODO: snapshot user properties to event properties
 // TODO: finish README.md

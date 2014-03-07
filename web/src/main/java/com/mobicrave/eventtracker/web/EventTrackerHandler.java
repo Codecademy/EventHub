@@ -38,16 +38,24 @@ import java.util.Properties;
 public class EventTrackerHandler extends AbstractHandler {
   private final EventTracker eventTracker;
   private final DateHelper dateHelper;
+  private boolean isLogging;
 
   public EventTrackerHandler(EventTracker eventTracker, DateHelper dateHelper) {
     this.eventTracker = eventTracker;
     this.dateHelper = dateHelper;
+    isLogging = false;
   }
 
   public void handle(String target, Request baseRequest, HttpServletRequest request,
       HttpServletResponse response) throws IOException, ServletException {
+    if (isLogging) {
+      System.out.println(request);
+    }
     response.setStatus(HttpServletResponse.SC_OK);
     switch (target) {
+      case "/toggle_logging":
+        isLogging = !isLogging;
+        break;
       case "/users/add_or_update":
         long userId = addOrUpdateUser(request);
         response.getWriter().println(userId);
@@ -55,6 +63,14 @@ public class EventTrackerHandler extends AbstractHandler {
       case "/users/alias":
         aliasUser(request);
         response.getWriter().println("OK");
+        break;
+      case "/users/view":
+        String user = viewUser(request);
+        response.getWriter().println(user);
+        break;
+      case "/events/view":
+        String event = viewEvent(request);
+        response.getWriter().println(event);
         break;
       case "/events/track":
         long eventId = addEvent(request);
@@ -87,6 +103,16 @@ public class EventTrackerHandler extends AbstractHandler {
         request.getParameter("row_event_type"),
         request.getParameter("column_event_type")
     );
+  }
+
+  private String viewUser(HttpServletRequest request) {
+    Gson gson = new Gson();
+    return gson.toJson(eventTracker.getUser(Integer.parseInt(request.getParameter("user_id"))));
+  }
+
+  private String viewEvent(HttpServletRequest request) {
+    Gson gson = new Gson();
+    return gson.toJson(eventTracker.getEvent(Long.parseLong(request.getParameter("event_id"))));
   }
 
   private String getEventTypes() {

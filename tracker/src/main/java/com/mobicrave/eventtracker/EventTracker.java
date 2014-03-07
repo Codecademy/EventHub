@@ -29,9 +29,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-// TODO: snapshot user properties to event properties
+// TODO: the concurrency bug
+// TODO: User.toString and Event.toString
+// TODO: have more debugging endpoint (print paginated events by event type, print paginated users)
 // TODO: refactor varz
-// TODO: frontend integration
+// TODO: snapshot user properties to event properties
 // TODO: finish README.md
 // --------------- End of V1 Beta
 // TODO: retention table add user criteria (a/b testing)
@@ -84,29 +86,31 @@ public class EventTracker implements Closeable {
     for (int i = 0; i < numRows; i++) {
       DateTime currentStartDate = startDate.plusDays(i * numDaysPerRow);
       DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerRow);
-      Set<Integer> userIds = Sets.newHashSet();
+      List<Integer> userIdsList = Lists.newArrayList();
+      Set<Integer> userIdsSet = Sets.newHashSet();
       EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIds);
+          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIdsList, userIdsSet);
       shardedEventIndex.enumerateEventIds(
           rowEventType,
           currentStartDate.toString(DATE_TIME_FORMATTER),
           currentEndDate.toString(DATE_TIME_FORMATTER),
           aggregateUserIdsCallback);
-      rows.add(userIds);
+      rows.add(userIdsSet);
     }
     List<Set<Integer>> columns = Lists.newArrayListWithCapacity(numColumns + numRows);
     for (int i = 0; i < numColumns + numRows; i++) {
       DateTime currentStartDate = startDate.plusDays(i * numDaysPerRow);
       DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerRow);
-      Set<Integer> userIds = Sets.newHashSet();
+      List<Integer> userIdsList = Lists.newArrayList();
+      Set<Integer> userIdsSet = Sets.newHashSet();
       EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIds);
+          new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIdsList, userIdsSet);
       shardedEventIndex.enumerateEventIds(
           columnEventType,
           currentStartDate.toString(DATE_TIME_FORMATTER),
           currentEndDate.toString(DATE_TIME_FORMATTER),
           aggregateUserIdsCallback);
-      columns.add(userIds);
+      columns.add(userIdsSet);
     }
 
     Table<Integer, Integer, Integer> retentionTable = ArrayTable.create(
@@ -138,19 +142,20 @@ public class EventTracker implements Closeable {
     return result;
   }
 
-  public int[] getFunnelCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
+  public synchronized int[] getFunnelCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
       int numDaysToCompleteFunnel, List<Criterion> eventCriteria, List<Criterion> userCriteria) {
     IdList firstStepEventIdList = new MemIdList(new long[10000], 0);
     int[] funnelStepsEventTypeIds = getEventTypeIds(funnelStepsEventTypes);
 
-    Set<Integer> userIds = Sets.newHashSet();
+    List<Integer> userIdsList = Lists.newArrayList();
+    Set<Integer> userIdsSet = Sets.newHashSet();
     EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-        firstStepEventIdList, eventCriteria, userCriteria, userIds);
+        firstStepEventIdList, eventCriteria, userCriteria, userIdsList, userIdsSet);
     shardedEventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
     IdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
-    for (int userId : userIds) {
+    for (int userId : userIdsList) {
       long firstStepEventId = firstStepEventIdIterator.next();
       long maxLastStepEventId = shardedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
       CountFunnelStepsMatched countFunnelStepsMatched = new CountFunnelStepsMatched(
@@ -175,6 +180,14 @@ public class EventTracker implements Closeable {
   public synchronized int addOrUpdateUser(User user) {
     userStorage.ensureUser(user.getExternalId());
     return userStorage.updateUser(user);
+  }
+
+  public User getUser(int userId) {
+    return userStorage.getUser(userId);
+  }
+
+  public Event getEvent(long eventId) {
+    return eventStorage.getEvent(eventId);
   }
 
   public synchronized long addEvent(Event event) {
@@ -229,16 +242,18 @@ public class EventTracker implements Closeable {
     private final IdList earliestEventIdList;
     private final List<Criterion> eventCriteria;
     private final List<Criterion> userCriteria;
+    private final List<Integer> seenUserIdList;
     private final Set<Integer> seenUserIdSet;
 
     public AggregateUserIds(EventStorage eventStorage, UserStorage userStorage,
         IdList earliestEventIdList, List<Criterion> eventCriteria, List<Criterion> userCriteria,
-        Set<Integer> seenUserIdSet) {
+        List<Integer> seenUserIdList, Set<Integer> seenUserIdSet) {
       this.eventStorage = eventStorage;
       this.userStorage = userStorage;
       this.earliestEventIdList = earliestEventIdList;
       this.eventCriteria = eventCriteria;
       this.userCriteria = userCriteria;
+      this.seenUserIdList = seenUserIdList;
       this.seenUserIdSet = seenUserIdSet;
     }
 
@@ -257,6 +272,7 @@ public class EventTracker implements Closeable {
       // TODO: consider other higher performing Set implementation
       if (!seenUserIdSet.contains(userId)) {
         seenUserIdSet.add(userId);
+        seenUserIdList.add(userId);
         earliestEventIdList.add(eventId);
       }
     }

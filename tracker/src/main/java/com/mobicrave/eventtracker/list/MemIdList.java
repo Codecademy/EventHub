@@ -12,6 +12,15 @@ public class MemIdList implements IdList {
   }
 
   @Override
+  public int getStartOffset(long eventId) {
+    int offset = Arrays.binarySearch(list, 0, numRecords, eventId);
+    if (offset < 0) {
+      offset = -offset - 1;
+    }
+    return offset;
+  }
+
+  @Override
   public void add(long id) {
     if (numRecords == list.length) {
       long[] newList = new long[list.length * 2];
@@ -22,11 +31,7 @@ public class MemIdList implements IdList {
   }
 
   @Override
-  public Iterator subList(long firstStepEventId, int maxRecords) {
-    int start = Arrays.binarySearch(list, 0, numRecords, firstStepEventId);
-    if (start < 0) {
-      start = -start - 1;
-    }
+  public Iterator subList(int start, int maxRecords) {
     int end = start + maxRecords;
     end = Math.min(end < 0 ? Integer.MAX_VALUE : end, numRecords);
     return new Iterator(list, start, end);

@@ -3,12 +3,13 @@ package com.mobicrave.eventtracker.list;
 import java.io.Closeable;
 
 public interface IdList extends Closeable {
-  public void add(long id);
-  public IdList.Iterator subList(long firstStepEventId, int maxRecords);
-  public IdList.Iterator iterator();
+  void add(long id);
+  int getStartOffset(long eventId);
+  IdList.Iterator subList(int offset, int maxRecords);
+  IdList.Iterator iterator();
 
   public static interface Iterator {
-    public boolean hasNext();
-    public long next();
+    boolean hasNext();
+    long next();
   }
 }

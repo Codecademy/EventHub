@@ -13,9 +13,15 @@ public class UserEventIndex implements Closeable {
     this.index = index;
   }
 
-  public void enumerateEventIds(int userId, long firstStepEventId, int maxRecords,
+  public int getEventOffset(int userId, long eventId) {
+    IdList idList = index.getUnchecked(userId);
+    return idList.getStartOffset(eventId);
+  }
+
+  public void enumerateEventIds(int userId, int offset, int maxRecords,
       Callback callback) {
-    IdList.Iterator eventIdIterator = index.getUnchecked(userId).subList(firstStepEventId, maxRecords);
+    IdList idList = index.getUnchecked(userId);
+    IdList.Iterator eventIdIterator = idList.subList(offset, maxRecords);
     while (eventIdIterator.hasNext()) {
       if (!callback.shouldContinueOnEventId(eventIdIterator.next())) {
         return;

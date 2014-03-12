@@ -29,6 +29,7 @@ public class DmaIdList implements IdList, Closeable {
     this.capacity = capacity;
   }
 
+  @Override
   public void add(long id) {
     if (numRecords == MAX_NUM_RECORDS) {
       throw new IllegalStateException(
@@ -42,8 +43,12 @@ public class DmaIdList implements IdList, Closeable {
   }
 
   @Override
-  public Iterator subList(long firstStepEventId, int maxRecords) {
-    int startOffset = binarySearchOffset(0, numRecords, firstStepEventId);
+  public int getStartOffset(long eventId) {
+    return binarySearchOffset(0, numRecords, eventId);
+  }
+
+  @Override
+  public Iterator subList(int startOffset, int maxRecords) {
     int endOffset = startOffset + maxRecords;
     endOffset = Math.min(endOffset < 0 ? Integer.MAX_VALUE : endOffset, numRecords);
     return new Iterator(buffer, startOffset, endOffset);

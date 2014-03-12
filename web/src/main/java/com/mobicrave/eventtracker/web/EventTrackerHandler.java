@@ -111,7 +111,7 @@ public class EventTrackerHandler extends AbstractHandler {
     Gson gson = gsonBuilder.create();
     List<Event> userEvents = eventTracker.getUserEvents(
         request.getParameter("external_user_id"),
-        Integer.parseInt(request.getParameter("start_event_id")),
+        Integer.parseInt(request.getParameter("offset")),
         Integer.parseInt(request.getParameter("num_records")));
     return gson.toJson(userEvents);
   }

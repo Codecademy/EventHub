@@ -131,8 +131,8 @@ public class EventTracker implements Closeable {
       CountFunnelStepsMatched countFunnelStepsMatched = new CountFunnelStepsMatched(
           eventStorage, userStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/,
           maxLastStepEventId, eventCriteria, userCriteria);
-      userEventIndex.enumerateEventIds(userId, firstStepEventId, Integer.MAX_VALUE,
-          countFunnelStepsMatched);
+      userEventIndex.enumerateEventIds(userId, userEventIndex.getEventOffset(userId, firstStepEventId),
+          Integer.MAX_VALUE, countFunnelStepsMatched);
       for (int i = 0; i < countFunnelStepsMatched.getNumMatchedSteps(); i++) {
         numFunnelStepsMatched[i]++;
       }
@@ -151,10 +151,6 @@ public class EventTracker implements Closeable {
   public synchronized int addOrUpdateUser(User user) {
     userStorage.ensureUser(user.getExternalId());
     return userStorage.updateUser(user);
-  }
-
-  public int getUserId(String externalUserId) {
-    return userStorage.getId(externalUserId);
   }
 
   public User getUser(int userId) {
@@ -181,10 +177,10 @@ public class EventTracker implements Closeable {
     return shardedEventIndex.getEventTypes();
   }
 
-  public List<Event> getUserEvents(String externalUserId, int startEventId, int numRecords) {
+  public List<Event> getUserEvents(String externalUserId, int offset, int numRecords) {
     List<Event> events = Lists.newArrayList();
     int userId = userStorage.getId(externalUserId);
-    userEventIndex.enumerateEventIds(userId, startEventId, numRecords,
+    userEventIndex.enumerateEventIds(userId, offset, numRecords,
         new CollectEventCallback(events, eventStorage));
     return events;
   }

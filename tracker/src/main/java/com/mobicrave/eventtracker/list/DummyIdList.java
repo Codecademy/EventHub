@@ -7,8 +7,13 @@ public class DummyIdList implements IdList {
   public void add(long id) {}
 
   @Override
-  public Iterator subList(long firstStepEventId, int maxRecords) {
+  public Iterator subList(int offset, int maxRecords) {
     return null;
+  }
+
+  @Override
+  public int getStartOffset(long eventId) {
+    return -1;
   }
 
   @Override

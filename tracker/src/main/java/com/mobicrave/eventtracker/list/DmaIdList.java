@@ -42,15 +42,11 @@ public class DmaIdList implements IdList, Closeable {
   }
 
   @Override
-  public Iterator subList(long firstStepEventId, long maxLastEventId) {
+  public Iterator subList(long firstStepEventId, int maxRecords) {
     int startOffset = binarySearchOffset(0, numRecords, firstStepEventId);
-    int endOffset = binarySearchOffset(startOffset, numRecords, maxLastEventId);
+    int endOffset = startOffset + maxRecords;
+    endOffset = Math.min(endOffset < 0 ? Integer.MAX_VALUE : endOffset, numRecords);
     return new Iterator(buffer, startOffset, endOffset);
-  }
-
-  @Override
-  public IdList.Iterator subListByOffset(int startOffset, int numIds) {
-    return new Iterator(buffer, startOffset, startOffset + numIds);
   }
 
   @Override

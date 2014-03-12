@@ -22,21 +22,14 @@ public class MemIdList implements IdList {
   }
 
   @Override
-  public Iterator subList(long firstStepEventId, long maxLastEventId) {
+  public Iterator subList(long firstStepEventId, int maxRecords) {
     int start = Arrays.binarySearch(list, 0, numRecords, firstStepEventId);
     if (start < 0) {
       start = -start - 1;
     }
-    int end = Arrays.binarySearch(list, 0, numRecords, maxLastEventId);
-    if (end < 0) {
-      end = -end - 1;
-    }
+    int end = start + maxRecords;
+    end = Math.min(end < 0 ? Integer.MAX_VALUE : end, numRecords);
     return new Iterator(list, start, end);
-  }
-
-  @Override
-  public IdList.Iterator subListByOffset(int startOffset, int numIds) {
-    return new Iterator(list, startOffset, startOffset + numIds);
   }
 
   @Override

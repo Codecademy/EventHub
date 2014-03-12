@@ -28,34 +28,30 @@ public class UserEventIndexTest extends GuiceTestCase {
     userEventIndex.addEvent(2, 120);
 
     IdVerificationCallback callback = new IdVerificationCallback(new int[] { 20, 50, 80, 110 });
-    userEventIndex.enumerateEventIds(1, 1, 1000, callback);
+    userEventIndex.enumerateEventIds(1, 1, Integer.MAX_VALUE, callback);
     callback.verify();
 
-    callback = new IdVerificationCallback(new int[] { 50, 80 });
-    userEventIndex.enumerateEventIds(1, 50, 81, callback);
+    callback = new IdVerificationCallback(new int[] { 50, 80, 110 });
+    userEventIndex.enumerateEventIds(1, 50, Integer.MAX_VALUE, callback);
     callback.verify();
 
-    callback = new IdVerificationCallback(new int[] { 50 });
-    userEventIndex.enumerateEventIds(1, 50, 80, callback);
+    callback = new IdVerificationCallback(new int[] { 20, 50, 80 });
+    userEventIndex.enumerateEventIds(1, 20, 3, callback);
     callback.verify();
 
     userEventIndex.close();
     userEventIndex = userEventIndexProvider.get();
 
     callback = new IdVerificationCallback(new int[] { 20, 50, 80, 110 });
-    userEventIndex.enumerateEventIds(1, 1, 1000, callback);
+    userEventIndex.enumerateEventIds(1, 1, Integer.MAX_VALUE, callback);
     callback.verify();
 
-    callback = new IdVerificationCallback(new int[] { 50, 80 });
-    userEventIndex.enumerateEventIds(1, 50, 81, callback);
+    callback = new IdVerificationCallback(new int[] { 50, 80, 110 });
+    userEventIndex.enumerateEventIds(1, 50, Integer.MAX_VALUE, callback);
     callback.verify();
 
-    callback = new IdVerificationCallback(new int[] { 50 });
-    userEventIndex.enumerateEventIds(1, 50, 80, callback);
-    callback.verify();
-
-    callback = new IdVerificationCallback(new int[] { 50, 80 });
-    userEventIndex.enumerateEventIdsByOffset(1, 1, 2, callback);
+    callback = new IdVerificationCallback(new int[] { 20, 50, 80 });
+    userEventIndex.enumerateEventIds(1, 20, 3, callback);
     callback.verify();
   }
 

@@ -283,7 +283,14 @@ public class EventTrackerTest extends GuiceTestCase {
     addEvent(tracker, EVENT_TYPES[3], USER_IDS[0], DATES[3], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[4], USER_IDS[0], DATES[4], Maps.<String, String>newHashMap());
 
-    List<Event> events = tracker.getEventsByExternalUserId(USER_IDS[0], 1, 2);
+    List<Event> events = tracker.getUserEvents(USER_IDS[0], 2, 10);
+    for (int i = 0; i < events.size(); i++) {
+      Assert.assertEquals(EVENT_TYPES[i + 2], events.get(i).getEventType());
+      Assert.assertEquals(DATES[i + 2], events.get(i).getDate());
+      Assert.assertEquals(USER_IDS[0], events.get(i).getExternalUserId());
+    }
+
+    events = tracker.getUserEvents(USER_IDS[0], 2, 2);
     for (int i = 0; i < events.size(); i++) {
       Assert.assertEquals(EVENT_TYPES[i + 2], events.get(i).getEventType());
       Assert.assertEquals(DATES[i + 2], events.get(i).getDate());

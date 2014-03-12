@@ -28,7 +28,7 @@ public class DmaIdListTest extends GuiceTestCase {
     }
     Assert.assertFalse(iterator.hasNext());
 
-    iterator = idList.subList(19, 40);
+    iterator = idList.subList(19, 2);
     for (int i = 1; i < ids.length - 2; i++) {
       Assert.assertTrue(iterator.hasNext());
       Assert.assertEquals(ids[i], iterator.next());
@@ -44,13 +44,6 @@ public class DmaIdListTest extends GuiceTestCase {
     for (long id : ids) {
       Assert.assertTrue(iterator.hasNext());
       Assert.assertEquals(id, iterator.next());
-    }
-    Assert.assertFalse(iterator.hasNext());
-
-    iterator = idList.subListByOffset(1, 2);
-    for (int i = 1; i < 3; i++) {
-      Assert.assertTrue(iterator.hasNext());
-      Assert.assertEquals(ids[i], iterator.next());
     }
     Assert.assertFalse(iterator.hasNext());
   }

@@ -7,12 +7,7 @@ public class DummyIdList implements IdList {
   public void add(long id) {}
 
   @Override
-  public Iterator subList(long firstStepEventId, long maxLastEventId) {
-    return null;
-  }
-
-  @Override
-  public Iterator subListByOffset(int startOffset, int numIds) {
+  public Iterator subList(long firstStepEventId, int maxRecords) {
     return null;
   }
 

@@ -36,7 +36,7 @@ public class EventTest {
     Assert.assertNull(event.get("key_not_exists"));
 
     MyCallback callback = new MyCallback(
-        new String[] { "date", "eventType", "externalUserId", "key1", "key2", "key3" },
+        new String[] { "date", "event_type", "external_user_id", "key1", "key2", "key3" },
         new String[] { "20131101", "eventType1", "foo", "value1", "value2", "value3" });
     event.enumerate(callback);
     callback.verify(6);

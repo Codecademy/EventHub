@@ -15,7 +15,7 @@ public class Event {
   }
 
   public String getEventType() {
-    return byteBufferMap.get("eventType");
+    return byteBufferMap.get("event_type");
   }
 
   public String getDate() {
@@ -23,7 +23,7 @@ public class Event {
   }
 
   public String getExternalUserId() {
-    return byteBufferMap.get("externalUserId");
+    return byteBufferMap.get("external_user_id");
   }
 
   public String get(String key) {
@@ -72,9 +72,9 @@ public class Event {
     public Event build() {
       Map<String, String> allProperties = Maps.newHashMap();
       allProperties.putAll(properties);
-      allProperties.put("eventType", eventType);
+      allProperties.put("event_type", eventType);
       allProperties.put("date", date);
-      allProperties.put("externalUserId", externalUserId);
+      allProperties.put("external_user_id", externalUserId);
       return new Event(ByteBufferMap.build(allProperties));
     }
   }

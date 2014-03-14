@@ -245,14 +245,19 @@ public class EventTrackerTest extends GuiceTestCase {
         ImmutableMap.<String, String>builder().put("foo3", "bar3").build()
     };
 
-    for (int i = 0; i < USER_IDS.length; i++) {
-      tracker.addOrUpdateUser(new User.Builder(USER_IDS[i], properties[i]).build());
-      addEvent(tracker, EVENT_TYPES[0], USER_IDS[i], DATES[0], properties[0]);
-      addEvent(tracker, EVENT_TYPES[1], USER_IDS[i], DATES[1], properties[0]);
-      addEvent(tracker, EVENT_TYPES[2], USER_IDS[i], DATES[2], properties[1]);
-      addEvent(tracker, EVENT_TYPES[3], USER_IDS[i], DATES[3], properties[1]);
-      addEvent(tracker, EVENT_TYPES[4], USER_IDS[i], DATES[4], properties[2]);
-    }
+    tracker.addOrUpdateUser(new User.Builder(USER_IDS[0], properties[0]).build());
+    tracker.addOrUpdateUser(new User.Builder(USER_IDS[1], properties[1]).build());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], properties[0]);
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[0], properties[0]);
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[0], DATES[1], properties[0]);
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[1], properties[0]);
+    addEvent(tracker, EVENT_TYPES[2], USER_IDS[0], DATES[2], properties[1]);
+    addEvent(tracker, EVENT_TYPES[2], USER_IDS[1], DATES[2], properties[1]);
+    addEvent(tracker, EVENT_TYPES[3], USER_IDS[0], DATES[3], properties[1]);
+    addEvent(tracker, EVENT_TYPES[3], USER_IDS[1], DATES[3], properties[1]);
+    addEvent(tracker, EVENT_TYPES[4], USER_IDS[0], DATES[4], properties[2]);
+    addEvent(tracker, EVENT_TYPES[4], USER_IDS[1], DATES[4], properties[2]);
+
     final String[] funnelSteps = { EVENT_TYPES[1], EVENT_TYPES[2], EVENT_TYPES[4] };
     Assert.assertArrayEquals(new int[]{2, 2, 2},
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
@@ -374,9 +379,12 @@ public class EventTrackerTest extends GuiceTestCase {
     Properties prop = new Properties();
     prop.put("eventtracker.directory", getTempDirectory());
     prop.put("eventtracker.eventindex.initialNumEventIdsPerDay", "10");
-    prop.put("eventtracker.usereventindex.numFilesPerDir", "10");
-    prop.put("eventtracker.usereventindex.metaDataCacheSize", "10");
-    prop.put("eventtracker.usereventindex.initialNumEventIdsPerUserDay", "10");
+    prop.put("eventtracker.usereventindex.numPointersPerIndexEntry", "2");
+    prop.put("eventtracker.usereventindex.numIndexEntryPerFile", "2");
+    prop.put("eventtracker.usereventindex.indexEntryFileCacheSize", "2");
+    prop.put("eventtracker.usereventindex.numRecordsPerBlock", "2");
+    prop.put("eventtracker.usereventindex.numBlocksPerFile", "2");
+    prop.put("eventtracker.usereventindex.blockCacheSize", "2");
     prop.put("eventtracker.journaleventstorage.numMetaDataPerFile", "10");
     prop.put("eventtracker.journaleventstorage.metaDataFileCacheSize", "10");
     prop.put("eventtracker.journaleventstorage.journalFileSize", "1024");

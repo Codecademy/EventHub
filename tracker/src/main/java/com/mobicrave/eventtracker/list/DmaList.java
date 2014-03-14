@@ -41,19 +41,17 @@ public class DmaList<T> implements Closeable {
 
   public void add(T t) {
     int currentBufferIndex = (int) (numRecords / numRecordsPerFile);
-    MappedByteBuffer buffer = buffers.getUnchecked(currentBufferIndex);
-    buffer.duplicate();
-    buffer.position((int) (numRecords % numRecordsPerFile) * schema.getObjectSize());
-    buffer.put(schema.toBytes(t));
+    ByteBuffer duplicate = buffers.getUnchecked(currentBufferIndex).duplicate();
+    duplicate.position((int) (numRecords % numRecordsPerFile) * schema.getObjectSize());
+    duplicate.put(schema.toBytes(t));
     metaDataBuffer.putLong(0, ++numRecords);
   }
 
   public void update(long kthRecord, T t) {
     int currentBufferIndex = (int) (kthRecord / numRecordsPerFile);
-    MappedByteBuffer buffer = buffers.getUnchecked(currentBufferIndex);
-    buffer.duplicate();
-    buffer.position((int) (kthRecord % numRecordsPerFile) * schema.getObjectSize());
-    buffer.put(schema.toBytes(t));
+    ByteBuffer duplicate = buffers.getUnchecked(currentBufferIndex).duplicate();
+    duplicate.position((int) (kthRecord % numRecordsPerFile) * schema.getObjectSize());
+    duplicate.put(schema.toBytes(t));
   }
 
   public T get(long kthRecord) {

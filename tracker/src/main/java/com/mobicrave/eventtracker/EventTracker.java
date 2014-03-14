@@ -310,6 +310,7 @@ public class EventTracker implements Closeable {
       if (!eventStorage.satisfy(eventId, eventCriteria)) {
         return true;
       }
+      // TODO: user ctriteria filter should be at higher level
       int userId = eventStorage.getUserId(eventId);
       if (!userStorage.satisfy(userId, userCriteria)) {
         return true;

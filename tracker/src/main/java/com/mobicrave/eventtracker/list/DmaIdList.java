@@ -1,10 +1,10 @@
 package com.mobicrave.eventtracker.list;
 
+import com.mobicrave.eventtracker.base.ByteBufferUtil;
+
 import java.io.Closeable;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 
 /**
  * Currently, it can contain up to MAX_NUM_RECORDS records. ((2^31 - 1) - 4) / 8, i.e. largest
@@ -36,7 +36,9 @@ public class DmaIdList implements IdList, Closeable {
           String.format("DmaIdList reaches its maximum number of records: %d", numRecords));
     }
     if (numRecords == capacity) {
-      expandBuffer(META_DATA_SIZE + Math.min(MAX_NUM_RECORDS, 2 * capacity) * SIZE_OF_DATA);
+      buffer = ByteBufferUtil.expandBuffer(filename, buffer,
+          META_DATA_SIZE + Math.min(MAX_NUM_RECORDS, 2 * capacity) * SIZE_OF_DATA);
+      capacity *= 2;
     }
     buffer.putLong(id);
     buffer.putInt(0, ++numRecords);
@@ -44,7 +46,10 @@ public class DmaIdList implements IdList, Closeable {
 
   @Override
   public int getStartOffset(long eventId) {
-    return binarySearchOffset(0, numRecords, eventId);
+    ByteBuffer duplicate = buffer.duplicate();
+    duplicate.position(META_DATA_SIZE);
+    duplicate = duplicate.slice();
+    return ByteBufferUtil.binarySearchOffset(duplicate, 0, numRecords, eventId, SIZE_OF_DATA);
   }
 
   @Override
@@ -63,34 +68,6 @@ public class DmaIdList implements IdList, Closeable {
   public void close() {
     buffer.force();
     buffer = null;
-  }
-
-  private int binarySearchOffset(int startOffset, int endOffset, long id) {
-    if (startOffset == endOffset) {
-      return endOffset;
-    }
-    int offset = (startOffset + endOffset) >>> 1;
-    long value = buffer.getLong(META_DATA_SIZE + offset * SIZE_OF_DATA);
-    if (value == id) {
-      return offset;
-    } else if (value < id) {
-      return binarySearchOffset(offset + 1, endOffset, id);
-    } else {
-      return binarySearchOffset(startOffset, offset, id);
-    }
-  }
-
-  private void expandBuffer(long newSize) {
-    buffer.force();
-    int oldPosition = buffer.position();
-    try (RandomAccessFile raf = new RandomAccessFile(filename, "rw")) {
-      raf.setLength(newSize);
-      buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
-      buffer.position(oldPosition);
-      capacity *= 2;
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   public interface Factory {

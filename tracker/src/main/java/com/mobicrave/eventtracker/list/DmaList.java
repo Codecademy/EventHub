@@ -5,8 +5,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import com.mobicrave.eventtracker.base.ByteBufferUtil;
 import com.mobicrave.eventtracker.base.Schema;
-import com.mobicrave.eventtracker.storage.JournalUserStorage;
 
 import java.io.Closeable;
 import java.io.File;
@@ -91,15 +91,6 @@ public class DmaList<T> implements Closeable {
     buffers.invalidateAll();
   }
 
-  private static MappedByteBuffer createNewBuffer(String directory, int bufferIndex, int fileSize) {
-    try (RandomAccessFile raf = new RandomAccessFile(String.format("%s/dma_list_%d.mem", directory,
-          bufferIndex), "rw")) {
-      return raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, fileSize);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public static <T> DmaList<T> build(final Schema<T> schema, final String directory,
       final int numRecordsPerFile, int cacheSize) {
     //noinspection ResultOfMethodCallIgnored
@@ -123,7 +114,8 @@ public class DmaList<T> implements Closeable {
           .build(new CacheLoader<Integer, MappedByteBuffer>() {
             @Override
             public MappedByteBuffer load(Integer key) throws Exception {
-              return createNewBuffer(directory, key, fileSize);
+              return ByteBufferUtil.createNewBuffer(
+                  String.format("%s/dma_list_%d.mem", directory, key), fileSize);
             }
           });
       return new DmaList<>(directory, schema, metaDataBuffer, buffers, numRecords, numRecordsPerFile);

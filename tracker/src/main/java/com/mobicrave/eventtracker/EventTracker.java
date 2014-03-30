@@ -141,6 +141,7 @@ public class EventTracker implements Closeable {
   }
 
   public synchronized void aliasUser(String fromExternalUserId, String toExternalUserId) {
+    userStorage.ensureUser(toExternalUserId);
     int id = userStorage.getId(toExternalUserId);
     if (id == UserStorage.USER_NOT_FOUND) {
       throw new IllegalArgumentException(String .format("User: %s does not exist!!!", toExternalUserId));
@@ -151,6 +152,10 @@ public class EventTracker implements Closeable {
   public synchronized int addOrUpdateUser(User user) {
     userStorage.ensureUser(user.getExternalId());
     return userStorage.updateUser(user);
+  }
+
+  public int getOrCreatedUserId(String externalUserId) {
+    return userStorage.ensureUser(externalUserId);
   }
 
   public User getUser(int userId) {

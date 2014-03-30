@@ -1,30 +1,18 @@
 package com.mobicrave.eventtracker.web;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import com.mobicrave.eventtracker.Criterion;
+import com.google.inject.util.Modules;
 import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.EventTrackerModule;
-import com.mobicrave.eventtracker.base.DateHelper;
-import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.index.ShardedEventIndexModule;
 import com.mobicrave.eventtracker.index.UserEventIndexModule;
 import com.mobicrave.eventtracker.list.DmaIdListModule;
-import com.mobicrave.eventtracker.model.Event;
-import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.EventStorageModule;
 import com.mobicrave.eventtracker.storage.UserStorageModule;
+import com.mobicrave.eventtracker.web.commands.Command;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -32,27 +20,23 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
+import javax.inject.Provider;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class EventTrackerHandler extends AbstractHandler {
+public class EventTrackerHandler extends AbstractHandler implements Closeable {
   private final EventTracker eventTracker;
-  private final DateHelper dateHelper;
-  private final GsonBuilder gsonBuilder;
+  private final Map<String, Provider<Command>> commandsMap;
   private boolean isLogging;
 
-  public EventTrackerHandler(EventTracker eventTracker, DateHelper dateHelper,
-      GsonBuilder gsonBuilder) {
+  public EventTrackerHandler(EventTracker eventTracker, Map<String, Provider<Command>> commandsMaps) {
     this.eventTracker = eventTracker;
-    this.dateHelper = dateHelper;
-    this.gsonBuilder = gsonBuilder;
+    this.commandsMap = commandsMaps;
     isLogging = false;
   }
 
@@ -63,141 +47,23 @@ public class EventTrackerHandler extends AbstractHandler {
     }
     response.setStatus(HttpServletResponse.SC_OK);
     switch (target) {
-      case "/toggle_logging":
+      case "/debug":
         isLogging = !isLogging;
-        break;
-      case "/users/add_or_update":
-        long userId = addOrUpdateUser(request);
-        response.getWriter().println(userId);
-        break;
-      case "/users/alias":
-        aliasUser(request);
-        response.getWriter().println("OK");
-        break;
-      case "/users/view":
-        String user = viewUser(request);
-        response.getWriter().println(user);
-        break;
-      case "/users/timeline":
-        response.getWriter().println(getUserTimeline(request));
-        break;
-      case "/events/view":
-        String event = viewEvent(request);
-        response.getWriter().println(event);
-        break;
-      case "/events/track":
-        long eventId = addEvent(request);
-        response.getWriter().println(eventId);
-        break;
-      case "/events/types":
-        response.getWriter().println(getEventTypes());
-        break;
-      case "/events/funnel":
-        int[] funnelSteps = countFunnelSteps(request);
-        response.getWriter().println(Arrays.toString(funnelSteps));
-        break;
-      case "/events/retention":
-        int[][] retentionTable = getRetentionTable(request);
-        response.getWriter().println(Arrays.deepToString(retentionTable));
         break;
       case "/varz":
         response.getWriter().println(eventTracker.getVarz());
         break;
+      default:
+        commandsMap.get(target).get().execute(request, response);
+        break;
     }
+
     baseRequest.setHandled(true);
   }
 
-  private String getUserTimeline(HttpServletRequest request) {
-    Gson gson = gsonBuilder.create();
-    List<Event> userEvents = eventTracker.getUserEvents(
-        request.getParameter("external_user_id"),
-        Integer.parseInt(request.getParameter("offset")),
-        Integer.parseInt(request.getParameter("num_records")));
-    return gson.toJson(userEvents);
-  }
-
-  private int[][] getRetentionTable(HttpServletRequest request) {
-    return eventTracker.getRetentionTable(
-        request.getParameter("start_date"),
-        request.getParameter("end_date"),
-        Integer.parseInt(request.getParameter("num_days_per_row")),
-        Integer.parseInt(request.getParameter("num_columns")),
-        request.getParameter("row_event_type"),
-        request.getParameter("column_event_type")
-    );
-  }
-
-  private String viewUser(HttpServletRequest request) {
-    Gson gson = gsonBuilder.create();
-    return gson.toJson(eventTracker.getUser(Integer.parseInt(request.getParameter("user_id"))));
-  }
-
-  private String viewEvent(HttpServletRequest request) {
-    Gson gson = gsonBuilder.create();
-    return gson.toJson(eventTracker.getEvent(Long.parseLong(request.getParameter("event_id"))));
-  }
-
-  private String getEventTypes() {
-    Gson gson = gsonBuilder.create();
-    return gson.toJson(eventTracker.getEventTypes());
-  }
-
-  private int addOrUpdateUser(HttpServletRequest request) {
-    return eventTracker.addOrUpdateUser(new User.Builder(
-        request.getParameter("external_user_id"),
-        toProperties(request)).build());
-  }
-
-  private void aliasUser(HttpServletRequest request) {
-    eventTracker.aliasUser(
-        request.getParameter("from_external_user_id"),
-        request.getParameter("to_external_user_id"));
-  }
-
-  private synchronized long addEvent(final HttpServletRequest request) {
-    String date = request.getParameter("date");
-    if (date == null) {
-      date = dateHelper.getDate();
-    }
-    Event event = new Event.Builder(
-        request.getParameter("event_type"),
-        request.getParameter("external_user_id"),
-        date,
-        toProperties(request)).build();
-    return eventTracker.addEvent(event);
-  }
-
-  private int[] countFunnelSteps(HttpServletRequest request) {
-    List<Criterion> eventCriteria = getCriteria(request.getParameterValues("eck"),
-        request.getParameterValues("ecv"));
-    List<Criterion> userCriteria = getCriteria(request.getParameterValues("uck"),
-        request.getParameterValues("ucv"));
-    return eventTracker.getFunnelCounts(
-        request.getParameter("start_date"),
-        request.getParameter("end_date"),
-        request.getParameterValues("funnel_steps[]"),
-        Integer.parseInt(request.getParameter("num_days_to_complete_funnel")),
-        eventCriteria,
-        userCriteria);
-  }
-
-  private List<Criterion> getCriteria(String[] criterionKeys, String[] criterionValues) {
-    List<Criterion> eventCriteria = Lists.newArrayList();
-    if (criterionKeys != null) {
-      for (int i = 0; i < criterionKeys.length; i++) {
-        eventCriteria.add(new Criterion(criterionKeys[i], criterionValues[i]));
-      }
-    }
-    return eventCriteria;
-  }
-
-  private Map<String, String> toProperties(final HttpServletRequest request) {
-    return Maps.asMap(request.getParameterMap().keySet(), new Function<String, String>() {
-      @Override
-      public String apply(String parameterName) {
-        return request.getParameter(parameterName);
-      }
-    });
+  @Override
+  public void close() throws IOException {
+    eventTracker.close();
   }
 
   public static void main(String[] args) throws Exception {
@@ -208,22 +74,16 @@ public class EventTrackerHandler extends AbstractHandler {
         EventTrackerHandler.class.getClassLoader().getResourceAsStream("web.properties"));
     properties.putAll(System.getProperties());
 
-    Injector injector = Guice.createInjector(
+    Injector injector = Guice.createInjector(Modules.override(
         new DmaIdListModule(),
         new ShardedEventIndexModule(),
         new UserEventIndexModule(),
         new EventStorageModule(),
         new UserStorageModule(),
-        new EventTrackerModule(properties));
-    final EventTracker eventTracker = injector.getInstance(EventTracker.class);
+        new EventTrackerModule(properties)).with(new Module()));
+    final EventTrackerHandler eventTrackerHandler = injector.getInstance(EventTrackerHandler.class);
     int port = injector.getInstance(Key.get(Integer.class, Names.named("eventtrackerhandler.port")));
 
-    GsonBuilder gsonBuilder = new GsonBuilder();
-    gsonBuilder.setPrettyPrinting();
-    gsonBuilder.registerTypeAdapter(User.class, new UserJsonSerializer());
-    gsonBuilder.registerTypeAdapter(Event.class, new EventJsonSerializer());
-    EventTrackerHandler eventHandler = new EventTrackerHandler(eventTracker, new DateHelper(),
-        gsonBuilder);
     final Server server = new Server(port);
     String webDir = EventTrackerHandler.class.getClassLoader().getResource("frontend").toExternalForm();
 
@@ -232,7 +92,7 @@ public class EventTrackerHandler extends AbstractHandler {
     resourceHandler.setWelcomeFiles(new String[] { "main.html" });
     resourceHandler.setResourceBase(webDir);
     HandlerList handlers = new HandlerList();
-    handlers.setHandlers(new Handler[] { resourceHandler, eventHandler });
+    handlers.setHandlers(new Handler[] { resourceHandler, eventTrackerHandler });
     server.setHandler(handlers);
 
     server.start();
@@ -242,7 +102,7 @@ public class EventTrackerHandler extends AbstractHandler {
         if (server.isStarted()) {
           try {
             server.stop();
-            eventTracker.close();
+            eventTrackerHandler.close();
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -251,33 +111,5 @@ public class EventTrackerHandler extends AbstractHandler {
     },"Stop Jetty Hook"));
 
     server.join();
-  }
-
-  private static class UserJsonSerializer implements JsonSerializer<User> {
-    @Override
-    public JsonElement serialize(User user, Type type, JsonSerializationContext jsonSerializationContext) {
-      final JsonObject jsonObject = new JsonObject();
-      user.enumerate(new KeyValueCallback() {
-        @Override
-        public void callback(String key, String value) {
-          jsonObject.addProperty(key, value);
-        }
-      });
-      return jsonObject;
-    }
-  }
-
-  private static class EventJsonSerializer implements JsonSerializer<Event> {
-    @Override
-    public JsonElement serialize(Event event, Type type, JsonSerializationContext jsonSerializationContext) {
-      final JsonObject jsonObject = new JsonObject();
-      event.enumerate(new KeyValueCallback() {
-        @Override
-        public void callback(String key, String value) {
-          jsonObject.addProperty(key, value);
-        }
-      });
-      return jsonObject;
-    }
   }
 }

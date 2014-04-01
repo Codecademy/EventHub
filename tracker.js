@@ -45,13 +45,6 @@
     this.generatedIdKey = name + "::generatedId";
     this.identifiedUserkey = name + "::identifiedUser";
     this.registeredUserkey = name + "::registeredUser";
-
-    if (!sessionStorage[this.sessionKey]) {
-      sessionStorage[this.sessionKey] = true;
-      // FIXME: move this outside the constructor
-      // in this, we need to invalidate generatedIdKey, registeredUserKey, regenerate IdKey
-      this.invalidateRegisteredUser();
-    }
   };
 
   (function () { // merge to EventTracker.prototype
@@ -167,6 +160,15 @@
       return eventBuffer;
     };
 
+    this._startInterval = function () {
+      var that = this;
+      var flushWrapper = function() {
+        that._flush();
+        setTimeout(flushWrapper, that.flushInterval);
+      };
+      setTimeout(this._flush.bind(this), this.flushInterval);
+    };
+
     this.track = function (eventType) {
       this.queue.enqueue({ type: 'track', params: { eventType: eventType } });
     };
@@ -197,16 +199,15 @@
       this.queue.enqueue({ type: 'invalidateIdentifiedUser' });
     };
 
-    this.startInterval = function () {
-      var that = this;
-      var flushWrapper = function() {
-        that._flush();
-        setTimeout(flushWrapper, that.flushInterval);
-      };
-      setTimeout(this._flush.bind(this), this.flushInterval);
-    };
+    this.start = function () {
+      if (!sessionStorage[this.sessionKey]) {
+        sessionStorage[this.sessionKey] = true;
+        this.invalidateRegisteredUser();
+      }
+      this.invalidateIdentifiedUser();
+      this._startInterval();
+    }
   }).call(EventTracker.prototype);
 
   window.EventTracker = EventTracker;
-  // FIXME: invalidate identified users at each page load
 })(window);

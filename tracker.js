@@ -1,78 +1,67 @@
 (function (window) {
 
   var StorageQueue = function (name) {
-    this.key = ("EventTracker" || options.name) + "::Queue";
+    this.key = name + "::Queue";
   };
 
   (function () { // merge to StorageQueue.prototype
     this._getQueue = function () {
       return JSON.parse(localStorage[this.key] || "[]");
-    }
+    };
 
     this._setQueue = function (queue) {
-      localStorage.setItem(this.key, JSON.stringify(queue))
-    }
+      localStorage.setItem(this.key, JSON.stringify(queue));
+    };
 
     this.enqueue = function (element) {
-      this._setQueue(this._getQueue().concat(element))
-    }
+      this._setQueue(this._getQueue().concat(element));
+    };
 
     this.dequeue = function () {
-      var queue = this._getQueue()
-        , element = queue.splice(0,1)[0];
+      var queue   = this._getQueue();
+      var element = queue.splice(0,1)[0];
 
       this._setQueue(queue);
       return element;
-    }
+    };
 
     this.peek = function () {
-      return this._getQueue().slice(-1)[0];
-    }
-  }).call(StorageQueue.prototype)
+      return this._getQueue()[0];
+    };
+  }).call(StorageQueue.prototype);
 
-  var EventTracker = function (options) {
+  var EventTracker = function (name, queue, options) {
+    this.name = name;
+    this.queue = queue;
+
     options = options || {};
+    this.url = options.url || "";
+    this.flushInterval = (options.flushInterval || 10) * 1000;
 
-    this.FLUSH_INTERVAL = (options.flushInterval || 10) * 1000;
-    this.name = "EventTracker" || options.name
-    this.queue = new StorageQueue(options.name);
-    this.url = options.url;
+    this.sessionKey = name + "::activeSession";
+    this.generatedIdKey = name + "::generatedId";
+    this.identifiedUserkey = name + "::identifiedUser";
+    this.registeredUserkey = name + "::registeredUser";
 
-    this._initializeKeys();
-    this._generateId();
-    this._startInterval();
+    if (!sessionStorage[this.sessionKey]) {
+      sessionStorage[this.sessionKey] = true;
+      localStorage[this.genereratedIdKey] = this._generateId();
+    }
   };
 
   (function () { // merge to EventTracker.prototype
-    this._initializeKeys = function () {
-      this.sessionKey = this.name + "::activeSession";
-      this.generatedIdKey = this.name + "::generatedId";
-      this.identifiedUserkey = this.name + "::identifiedUser";
-      this.registeredUserkey = this.name + "::registeredUser";
-    }
-
-    this._checkForNewSession = function () {
-      if (!sessionStorage[this.sessionKey]) {
-        sessionStorage[this.sessionKey] = true;
-        this._generateId();
-      }
-    }
-
     this._generateId = function () {
-      var generatedId = Math.random().toString(36).substr(2, 9);
-      localStorage[this.genereratedIdKey] = generatedId;
-    }
-
-    this._startInterval = function () {
-      setInterval(this._flush.bind(this), this.FLUSH_INTERVAL);
-    }
+      return Math.random().toString(36).substr(2, 9);
+    };
 
     this._flush = function () {
       var nextEvent = this.queue.peek();
       if (nextEvent && nextEvent.type !== 'event') {
         this._synchronousSend(nextEvent);
       } else {
-        var events = this._dequeueUntilBlockingAction();
+        var events = this._dequeueUntil(function(event) {
+          return event.type === 'event';
+        });
         this._sendEvents(events);
       }
     };
@@ -105,7 +94,7 @@
           events: userEvents
         }
       });
-    }
+    };
 
     this._synchronousSend = function(blockingCommand) {
       if (blockingCommand.type === 'identify') {
@@ -119,11 +108,11 @@
       } else {
         throw 'Unknown Blocking Command';
       }
-    }
+    };
 
     this._setIdentifiedUser = function (user) {
       localStorage.setItem(this.identifiedUserkey, JSON.stringify(user));
-    }
+    };
 
     this._aliasUser = function (params) {
       var that = this;
@@ -141,36 +130,36 @@
           that.queue.dequeue();
         }
       });
-    }
+    };
 
     this._setRegisteredUser = function(properties) {
-      var generatedId = localStorage[this.genereratedIdKey]
-      var user = { id: generatedId, properties: properties }
+      var generatedId = localStorage[this.genereratedIdKey];
+      var user = { id: generatedId, properties: properties };
       localStorage.setItem(this.registeredUserkey, JSON.stringify(user));
-    }
+    };
 
     this._invalidateUser = function () {
       delete localStorage[this.identifiedUserkey];
       delete localStorage[this.registeredUserkey];
-      this._generateId();
-    }
+      localStorage[this.genereratedIdKey] = this._generateId();
+    };
 
-    this._dequeueUntilBlockingAction = function () {
+    this._dequeueUntil = function (predicate) {
       var eventBuffer = [];
       var nextEvent = this.queue.peek();
 
-      while (nextEvent && nextEvent.type === 'event') {
+      while (nextEvent && predicate(nextEvent)) {
         var event = this.queue.dequeue();
         eventBuffer.push(event);
         nextEvent = this.queue.peek();
       }
 
       return eventBuffer;
-    }
+    };
 
     this.track = function (eventType) {
       this.queue.enqueue({ type: 'event', params: { eventType: eventType } });
-    }
+    };
 
     this.identify = function(id, properties) {
       this.queue.enqueue({
@@ -180,19 +169,28 @@
           properties: properties
         }
       });
-    }
+    };
 
     this.alias = function(id) {
       this.queue.enqueue({ type: "alias", params: { id: id } });
-    }
+    };
 
     this.register = function (user) {
       this.queue.enqueue({ type: "register", params: user });
-    }
+    };
 
     this.invalidate = function () {
-      this.queue.enqueue({ type: 'invalidate' })
-    }
+      this.queue.enqueue({ type: 'invalidate' });
+    };
+
+    this.startInterval = function () {
+      var that = this;
+      var flushWrapper = function() {
+        that._flush();
+        setTimeout(flushWrapper, that.flushInterval);
+      };
+      setTimeout(this._flush.bind(this), this.flushInterval);
+    };
   }).call(EventTracker.prototype);
 
   window.EventTracker = EventTracker;

@@ -22,5 +22,3 @@ curl -X POST "http://localhost:8080/events/funnel" --data "start_date=20130101&e
 curl -X POST "http://localhost:8080/events/retention" --data "start_date=20130101&end_date=20130103&row_event_type=signup&column_event_type=view_shopping_cart&num_days_per_row=1&num_columns=2"
 
 
-curl -X POST http://localhost:8080/events/batch_track --data "[ {event_type: 'checkout', external_user_id='ctc', date: '20130104', test: 'foo'}, {event_type: 'checkout', external_user_id='ctc', date: '20130104', test: 'bar' }]"
-curl http://localhost:8080/events/view\?event_id=6

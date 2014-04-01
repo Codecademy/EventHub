@@ -32,11 +32,9 @@ public class BatchTrackEvent extends Command {
 
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
-    String input = CharStreams.toString(
-        new InputStreamReader(request.getInputStream(), Charsets.UTF_8));
 
     List<Map<String, String>> events = gson.fromJson(
-        input, new TypeToken<List<Map<String, String>>>() {}.getType());
+        request.getParameter("events"), new TypeToken<List<Map<String, String>>>() {}.getType());
     PrintWriter writer = response.getWriter();
     for (Map<String, String> eventMap : events) {
       String date = eventMap.get("date");

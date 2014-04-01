@@ -29,19 +29,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-// TODO: manage UserEventIndex memory myself
 // TODO(UI): ask for professional UI design opinion
 // TODO(UI): support segmentation
 // TODO(UI): support user event timeline (including adding necessary api endpoints,
 // TODO(UI):          e.g. getting offset for a given user and date)
 // TODO(JS): integrate JS library
 // TODO(JS): snapshot user properties to event properties
+// TODO: retention table add user criteria (a/b testing)
+// TODO: failure recovery
 // TODO: finish README.md (including benchmark)
 // --------------- End of V1 beta
 // TODO: deploy and verify it can handle CC traffic
 // --------------- End of V1
 // TODO: make server start fast
-// TODO: retention table add user criteria (a/b testing)
 // TODO: optimize user storage for update
 // TODO: property statistics for segmentation
 // TODO: consider column oriented storage

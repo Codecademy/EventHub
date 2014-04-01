@@ -43,9 +43,3 @@
 1. user segmentation widget
 2. event filter widget
 
-## Backend
-1. add/update identify and alias endpoint to return user properties
-2. retention endpoint to support event & user filtering
-3. failure recovery
-4. add the benchmark document
-5. README - include example

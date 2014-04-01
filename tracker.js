@@ -195,6 +195,6 @@
     }
   }).call(EventTracker.prototype);
 
-  window.EventTracker = new EventTracker();
+  window.EventTracker = EventTracker;
 
 })(window);

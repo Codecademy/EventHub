@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+@SuppressWarnings("unchecked")
 public class BloomFilteredEventStorageTest extends GuiceTestCase {
   @Test
   public void testAll() throws Exception {

@@ -85,6 +85,7 @@ public class EventTrackerHandler extends AbstractHandler implements Closeable {
     int port = injector.getInstance(Key.get(Integer.class, Names.named("eventtrackerhandler.port")));
 
     final Server server = new Server(port);
+    @SuppressWarnings("ConstantConditions")
     String webDir = EventTrackerHandler.class.getClassLoader().getResource("frontend").toExternalForm();
 
     ResourceHandler resourceHandler = new ResourceHandler();

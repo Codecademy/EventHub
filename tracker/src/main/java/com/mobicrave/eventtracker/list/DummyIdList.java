@@ -8,6 +8,7 @@ public class DummyIdList implements IdList {
 
   @Override
   public Iterator subList(int offset, int maxRecords) {
+    //noinspection ReturnOfNull
     return null;
   }
 
@@ -18,6 +19,7 @@ public class DummyIdList implements IdList {
 
   @Override
   public Iterator iterator() {
+    //noinspection ReturnOfNull
     return null;
   }
 

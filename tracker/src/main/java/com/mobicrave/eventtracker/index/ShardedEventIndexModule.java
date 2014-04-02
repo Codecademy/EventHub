@@ -47,7 +47,9 @@ public class ShardedEventIndexModule extends AbstractModule {
     File file = new File(datedEventIndexFilename);
     if (file.exists()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+        @SuppressWarnings("unchecked")
         List<String> dates = (List<String>) ois.readObject();
+        @SuppressWarnings("unchecked")
         List<Long> earliestEventIds = (List<Long>) ois.readObject();
         String currentDate = (String) ois.readObject();
         return new DatedEventIndex(datedEventIndexFilename, dates, earliestEventIds, currentDate);
@@ -67,7 +69,9 @@ public class ShardedEventIndexModule extends AbstractModule {
     File file = new File(eventIndexFilename);
     if (file.exists()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+        @SuppressWarnings("unchecked")
         List<String> eventTypes = (List<String>) ois.readObject();
+        @SuppressWarnings("unchecked")
         Map<String, Integer> eventTypeIdMap = (Map<String, Integer>) ois.readObject();
         Map<String, EventIndex> eventIndexMap = Maps.newHashMap();
         for (String eventType : eventTypes) {
@@ -99,6 +103,7 @@ public class ShardedEventIndexModule extends AbstractModule {
                 individualEventIndexDirectory));
         if (file.exists()) {
           try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            @SuppressWarnings("unchecked")
             List<String> dates = (List<String>) ois.readObject();
             SortedMap<String, IdList> eventIdListMap = Maps.newTreeMap();
             for (String date : dates) {

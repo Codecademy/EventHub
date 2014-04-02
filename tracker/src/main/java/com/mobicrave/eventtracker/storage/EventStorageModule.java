@@ -2,20 +2,15 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.io.ByteStreams;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
 import org.fusesource.hawtjournal.api.Journal;
-import org.fusesource.hawtjournal.api.Location;
 
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.io.IOException;
 
 public class EventStorageModule extends AbstractModule {
   @Override

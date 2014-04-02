@@ -63,6 +63,7 @@ public class Module extends AbstractModule {
     Set<Class<? extends Command>> commandClasses = reflections.getSubTypesOf(Command.class);
     for (Class<? extends Command> commandClass : commandClasses) {
       String path = commandClass.getAnnotation(Path.class).value();
+      //noinspection unchecked
       commandsMap.put(path, (Provider<Command>) injector.getProvider(commandClass));
     }
     return new EventTrackerHandler(eventTracker, commandsMap);

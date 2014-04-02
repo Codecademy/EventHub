@@ -2,7 +2,6 @@ package com.mobicrave.eventtracker.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import com.mobicrave.eventtracker.EventTracker;
 
 import java.io.Closeable;
 import java.io.File;

@@ -56,6 +56,7 @@ public class UserStorageModule extends AbstractModule {
     int currentId = 0;
     if (file.exists()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+        //noinspection unchecked
         idMap = (Map<String, Integer>) ois.readObject();
         currentId = ois.readInt();
       } catch (ClassNotFoundException | IOException e) {

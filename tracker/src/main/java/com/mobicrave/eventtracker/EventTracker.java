@@ -29,15 +29,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-// TODO(UI): ask for professional UI design opinion
 // TODO(UI): support segmentation
 // TODO(UI): support user event timeline (including adding necessary api endpoints,
 // TODO(UI):          e.g. getting offset for a given user and date)
-// TODO(JS): integrate JS library
-// TODO(JS): snapshot user properties to event properties
 // TODO: retention table add user criteria (a/b testing)
 // TODO: failure recovery
 // TODO: finish README.md (including benchmark)
+// TODO: fix script.sh
 // --------------- End of V1 beta
 // TODO: deploy and verify it can handle CC traffic
 // --------------- End of V1
@@ -154,10 +152,6 @@ public class EventTracker implements Closeable {
     return userStorage.updateUser(user);
   }
 
-  public int getOrCreatedUserId(String externalUserId) {
-    return userStorage.ensureUser(externalUserId);
-  }
-
   public User getUser(int userId) {
     return userStorage.getUser(userId);
   }
@@ -227,6 +221,7 @@ public class EventTracker implements Closeable {
       DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerCohort);
       List<Integer> userIdsList = Lists.newArrayList();
       Set<Integer> userIdsSet = Sets.newHashSet();
+      @SuppressWarnings("unchecked")
       EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
           new DummyIdList(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, userIdsList, userIdsSet);
       shardedEventIndex.enumerateEventIds(

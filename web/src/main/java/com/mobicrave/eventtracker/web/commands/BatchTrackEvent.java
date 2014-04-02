@@ -1,7 +1,5 @@
 package com.mobicrave.eventtracker.web.commands;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.mobicrave.eventtracker.EventTracker;
@@ -12,7 +10,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;

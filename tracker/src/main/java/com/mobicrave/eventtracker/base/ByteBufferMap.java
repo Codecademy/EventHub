@@ -42,8 +42,10 @@ public class ByteBufferMap {
     return buffer;
   }
 
+  // TODO: make return type Optional<String>
   private String get(String targetKey, int start, int end, int numProperties) {
     if (start >= end) {
+      //noinspection ReturnOfNull
       return null;
     }
     ByteBuffer currentBuffer = byteBuffer.duplicate();

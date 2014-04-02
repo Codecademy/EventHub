@@ -1,8 +1,6 @@
 package com.mobicrave.eventtracker.base;
 
 import com.google.common.collect.Maps;
-import com.mobicrave.eventtracker.base.ByteBufferMap;
-import com.mobicrave.eventtracker.base.KeyValueCallback;
 import org.junit.Assert;
 import org.junit.Test;
 

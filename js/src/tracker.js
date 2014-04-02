@@ -73,13 +73,17 @@
       var events = [];
       var user = this._getUser();
       trackCommands.forEach(function(trackCommand) {
-        var event = {
-          event_type: trackCommand.params.eventType,
-          external_user_id: user.id,
-        };
+        var event = {};
+
         Object.keys(user.properties).forEach(function(p) {
           event[p] = user.properties[p];
         });
+        Object.keys(trackCommand.params.properties).forEach(function(p) {
+          event[p] = trackCommand.params.properties[p];
+        });
+
+        event.event_type = trackCommand.params.eventType;
+        event.external_user_id = user.id;
         events.push(event);
       });
 
@@ -121,15 +125,15 @@
     };
 
     this._aliasUser = function(params, success) {
-      var identifiedUser = localStorage.getObject(this.identifiedUserKey);
+      var generatedId = localStorage.getObject(this.generatedIdKey);
 
       $.ajax({
-        url: this.url + '/events/alias',
+        url: this.url + '/users/alias',
         jsonp: "callback",
         dataType: "jsonp",
         data: {
-          from_external_user_id: identifiedUser.id,
-          to_external_user_id: params.id
+          from_external_user_id: params.id,
+          to_external_user_id: generatedId
         },
         success: success
       });
@@ -163,8 +167,13 @@
       return eventBuffer;
     };
 
-    this.track = function(eventType) {
-      this.queue.enqueue({ type: 'track', params: { eventType: eventType } });
+    this.track = function(eventType, properties) {
+      properties = properties || {};
+
+      this.queue.enqueue({
+        type: 'track',
+        params: { eventType: eventType, properties: properties }
+      });
     };
 
     this.identify = function(id, properties) {

@@ -7,6 +7,8 @@
 
 ### Compile and run
 ```bash
+export JAVA_HOME=$(/usr/libexec/java_home)
+
 cd ${EVENT_TRACKER_DIR}
 mvn -am -pl web clean package
 java -jar web/target/web-1.0-SNAPSHOT.jar

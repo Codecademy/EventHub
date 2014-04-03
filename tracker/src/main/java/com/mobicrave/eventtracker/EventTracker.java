@@ -29,10 +29,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-// TODO(UI): support segmentation
+// TODO(UI): support event filtering for both cohort and funnel
 // TODO(UI): support user event timeline (including adding necessary api endpoints,
 // TODO(UI):          e.g. getting offset for a given user and date)
-// TODO: retention table add user criteria (a/b testing)
+// TODO(JS): replace $.ajax to remove jquery dependency
+// TODO: script.sh to test the flow to link events before and after an user sign up
+// TODO: cohort analysis to add event filter (a/b testing)
 // TODO: failure recovery
 // TODO: finish README.md (including benchmark)
 // TODO: fix script.sh

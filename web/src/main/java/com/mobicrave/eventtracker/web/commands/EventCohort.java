@@ -8,13 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Path("/events/retention")
-public class EventRetention extends Command {
+@Path("/events/cohort")
+public class EventCohort extends Command {
   private final Gson gson;
   private final EventTracker eventTracker;
 
   @Inject
-  public EventRetention(Gson gson, EventTracker eventTracker) {
+  public EventCohort(Gson gson, EventTracker eventTracker) {
     this.gson = gson;
     this.eventTracker = eventTracker;
   }

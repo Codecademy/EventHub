@@ -1,49 +1,92 @@
 # Event Tracker
+**Table of Contents**
+- [Server](#server)
+- [Dashboard](#dashboard)
+- [Javascript Library](#javascript-library)
 
-## How to start the server
+## Server
 ### Required dependency
-* [jdk7](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
+* [java sdk7](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
 * [maven](http://maven.apache.org)
 
 ### Compile and run
 ```bash
+# set up proper JAVA_HOME for mac
 export JAVA_HOME=$(/usr/libexec/java_home)
 
-cd ${EVENT_TRACKER_DIR}
+git clone https://github.com/mobicrave/EventTracker.git
+cd EventTracker
+export EVENT_TRACKER_DIR=`pwd`
 mvn -am -pl web clean package
 java -jar web/target/web-1.0-SNAPSHOT.jar
 ```
 
-## Manually curl the server
+### Manually testing server endpoints
+#### Test with curl
+* Add new event
+    ```bash
+    curl -X POST http://localhost:8080/events/track --data "event_type=signup&external_user_id=foobar&event_property_1=1"
+    ```
 
-### Add new event type
-`curl -X POST http://localhost:8080/add_event_type --data "event_type=signup"`
+* Batch add new event
+    ```bash
+    curl -X POST http://localhost:8080/events/batch_track --data "events=[{event_type: signup, external_user_id: foobar, date: 20130101, event_property_1: 1}]"
+    ```
 
-### Add new user
-`curl -X POST http://localhost:8080/register_user --data "external_user_id=chengtao"`
+* Show all event types
+    ```bash
+    curl http://localhost:8080/events/types
+    ```
 
-### Add new event
-`curl -X POST http://localhost:8080/track_event --data "event_type=signup&external_user_id=chengtao&date=20130101&event_property_1=1"`
+* Show server stats
+    ```bash
+    curl http://localhost:8080/varz
+    ```
 
-### Funnel query
-`curl -X POST http://localhost:8080/count_funnel_steps --data "start_date=20130101&end_date=20130103&funnel_steps=signup&funnel_steps=view_shopping_cart&funnel_steps=checkout&num_days_to_complete_funnel=7&eck=event_property_1&ecv=2"`
+* Funnel query
+    ```bash
+    today=`date +'%Y%m%d'`
+    end_date=`(date -d '+7day' +'%Y%m%d' || date -v '+7d' +'%Y%m%d') 2> /dev/null`
 
-### Retention query
-`curl -X POST "http://localhost:8080/events/retention" --data "start_date=20130101&end_date=20130103&row_event_type=signup&column_event_type=view_shopping_cart&num_days_per_row=1&num_columns=2"`
+    curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=signup&funnel_steps[]=view_shopping_cart&funnel_steps[]=checkout&num_days_to_complete_funnel=7&eck=event_property_1&ecv=1"
+    ```
 
-### Run them all
-Just execute `./script.sh` shell script file.
+* Retention query
+    ```bash
+    today=`date +'%Y%m%d'`
+    end_date=`(date -d '+7day' +'%Y%m%d' || date -v '+7d' +'%Y%m%d') 2> /dev/null`
 
-## How to run the load test
-Download [Apache Jmeter](http://jmeter.apache.org) and open `./load_test.jmx`
+    curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&end_date=${end_date}&row_event_type=signup&column_event_type=view_shopping_cart&num_days_per_row=1&num_columns=2"
+    ```
 
-## Performance
-TODO
-### Experiment setting
-### Memory footprint
-### Query performance
+#### Run them all
+```bash
+cd ${EVENT_TRACKER_DIR}; ./script.sh
+```
 
-## Infrastructure
-TODO
+### How to run the load test
+We use [Apache Jmeter](http://jmeter.apache.org) for load testing, and the load testing script can be found in `${EVENT_TRACKER_DIR}/./load_test.jmx`
 
+### Architecture
 
+### Performance
+#### Experiment setting
+#### Memory footprint
+#### Query performance
+
+## Dashboard
+The server comes with a built-in dashboard which can be found at [http://localhost:8080](http://localhost:8080). Through the dashboard, you can access the server for your funnel and cohort analysis.
+
+## Javascript Library
+The project comes with a javascript library which can be integrated with your website. Currently, the library depends on jQuery.
+
+### API
+#### window.newEventTracker()
+#### EventTracker.track()
+#### EventTracker.alias()
+#### EventTracker.identify()
+#### EventTracker.register()
+
+### Receipes
+#### Link the events sent before and after an user sign up
+#### A/B testing

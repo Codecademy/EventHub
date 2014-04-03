@@ -63,7 +63,7 @@ function getRetention() {
   window.history.replaceState({}, '', '/?' + $.param(retention));
   $.ajax({
     type: "GET",
-    url: "/events/retention",
+    url: "/events/cohort",
     data: retention
   }).done(function(retention) {
       retention = JSON.parse(retention);

@@ -1,7 +1,7 @@
 package com.mobicrave.eventtracker.storage;
 
 import com.google.common.io.ByteStreams;
-import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
 import org.fusesource.hawtjournal.api.Journal;
@@ -61,14 +61,14 @@ public class JournalEventStorage implements EventStorage {
   }
 
   @Override
-  public boolean satisfy(long eventId, List<Criterion> criteria) {
-    if (criteria.isEmpty()) {
+  public boolean satisfy(long eventId, List<Filter> filters) {
+    if (filters.isEmpty()) {
       return true;
     }
 
     Event event = getEvent(eventId);
-    for (Criterion criterion : criteria) {
-      if (!criterion.getValue().equals(event.get(criterion.getKey()))) {
+    for (Filter filter : filters) {
+      if (!filter.getValue().equals(event.get(filter.getKey()))) {
         return false;
       }
     }

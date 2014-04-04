@@ -1,6 +1,6 @@
 package com.mobicrave.eventtracker.storage;
 
-import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.list.DmaList;
@@ -52,22 +52,22 @@ public class BloomFilteredUserStorage extends DelegateUserStorage {
   }
 
   @Override
-  public boolean satisfy(int userId, List<Criterion> criteria) {
-    if (criteria.isEmpty()) {
+  public boolean satisfy(int userId, List<Filter> filters) {
+    if (filters.isEmpty()) {
       return true;
     }
     numConditionCheck++;
 
     BloomFilter bloomFilter = bloomFilterDmaList.get(userId);
-    for (Criterion criterion : criteria) {
-      String bloomFilterKey = getBloomFilterKey(criterion.getKey(), criterion.getValue());
+    for (Filter filter : filters) {
+      String bloomFilterKey = getBloomFilterKey(filter.getKey(), filter.getValue());
       if (!bloomFilter.isPresent(bloomFilterKey)) {
         numBloomFilterRejection++;
         return false;
       }
     }
 
-    return super.satisfy(userId, criteria);
+    return super.satisfy(userId, filters);
   }
 
   @Override

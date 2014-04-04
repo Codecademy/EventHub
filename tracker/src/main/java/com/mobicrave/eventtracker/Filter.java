@@ -1,10 +1,10 @@
 package com.mobicrave.eventtracker;
 
-public class Criterion {
+public class Filter {
   private final String key;
   private final String value;
 
-  public Criterion(String key, String value) {
+  public Filter(String key, String value) {
     this.key = key;
     this.value = value;
   }

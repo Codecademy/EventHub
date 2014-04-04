@@ -1,6 +1,6 @@
 package com.mobicrave.eventtracker.storage;
 
-import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.model.User;
 
 import java.io.Closeable;
@@ -13,7 +13,7 @@ public interface UserStorage extends Closeable {
   int ensureUser(String externalUserId);
   int getId(String externalUserId);
   User getUser(int userId);
-  boolean satisfy(int userId, List<Criterion> criteria);
+  boolean satisfy(int userId, List<Filter> filters);
   void alias(String fromExternalUserId, int toUserId);
   String getVarz(int indentation);
 }

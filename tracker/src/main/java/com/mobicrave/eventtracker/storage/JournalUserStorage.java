@@ -2,7 +2,7 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
-import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
@@ -74,14 +74,14 @@ public class JournalUserStorage implements UserStorage {
   }
 
   @Override
-  public boolean satisfy(int userId, List<Criterion> criteria) {
-    if (criteria.isEmpty()) {
+  public boolean satisfy(int userId, List<Filter> filters) {
+    if (filters.isEmpty()) {
       return true;
     }
 
     User user = getUser(userId);
-    for (Criterion criterion : criteria) {
-      if (!criterion.getValue().equals(user.get(criterion.getKey()))) {
+    for (Filter filter : filters) {
+      if (!filter.getValue().equals(user.get(filter.getKey()))) {
         return false;
       }
     }

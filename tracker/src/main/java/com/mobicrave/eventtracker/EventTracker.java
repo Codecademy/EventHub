@@ -33,11 +33,15 @@ import java.util.Set;
 // TODO(UI): support user event timeline (including adding necessary api endpoints,
 // TODO(UI):          e.g. getting offset for a given user and date)
 // TODO(JS): replace $.ajax to remove jquery dependency
-// TODO: script.sh to test the flow to link events before and after an user sign up
 // TODO: cohort analysis to add event filter (a/b testing)
+// TODO: script.sh to test the flow for a/b testing
 // TODO: failure recovery
-// TODO: finish README.md (including benchmark)
-// TODO: fix script.sh
+// TODO: finish README.md
+// TODO:   dashboard screenshots
+// TODO:   Javascript library
+// TODO:   architecture
+// TODO:   performance
+// TODO: code style and naming review
 // --------------- End of V1 beta
 // TODO: deploy and verify it can handle CC traffic
 // --------------- End of V1
@@ -113,14 +117,14 @@ public class EventTracker implements Closeable {
   }
 
   public synchronized int[] getFunnelCounts(String startDate, String endDate, String[] funnelStepsEventTypes,
-      int numDaysToCompleteFunnel, List<Criterion> eventCriteria, List<Criterion> userCriteria) {
+      int numDaysToCompleteFunnel, List<Filter> eventFilters, List<Filter> userFilters) {
     IdList firstStepEventIdList = new MemIdList(new long[10000], 0);
     int[] funnelStepsEventTypeIds = getEventTypeIds(funnelStepsEventTypes);
 
     List<Integer> userIdsList = Lists.newArrayList();
     Set<Integer> userIdsSet = Sets.newHashSet();
     EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-        firstStepEventIdList, eventCriteria, userCriteria, userIdsList, userIdsSet);
+        firstStepEventIdList, eventFilters, userFilters, userIdsList, userIdsSet);
     shardedEventIndex.enumerateEventIds(funnelStepsEventTypes[0], startDate, endDate,
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
@@ -130,7 +134,7 @@ public class EventTracker implements Closeable {
       long maxLastStepEventId = shardedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
       CountFunnelStepsMatched countFunnelStepsMatched = new CountFunnelStepsMatched(
           eventStorage, userStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/,
-          maxLastStepEventId, eventCriteria, userCriteria);
+          maxLastStepEventId, eventFilters, userFilters);
       userEventIndex.enumerateEventIds(userId, userEventIndex.getEventOffset(userId, firstStepEventId),
           Integer.MAX_VALUE, countFunnelStepsMatched);
       for (int i = 0; i < countFunnelStepsMatched.getNumMatchedSteps(); i++) {
@@ -240,19 +244,19 @@ public class EventTracker implements Closeable {
     private final EventStorage eventStorage;
     private final UserStorage userStorage;
     private final IdList earliestEventIdList;
-    private final List<Criterion> eventCriteria;
-    private final List<Criterion> userCriteria;
+    private final List<Filter> eventFilters;
+    private final List<Filter> userFilters;
     private final List<Integer> seenUserIdList;
     private final Set<Integer> seenUserIdSet;
 
     public AggregateUserIds(EventStorage eventStorage, UserStorage userStorage,
-        IdList earliestEventIdList, List<Criterion> eventCriteria, List<Criterion> userCriteria,
+        IdList earliestEventIdList, List<Filter> eventFilters, List<Filter> userFilters,
         List<Integer> seenUserIdList, Set<Integer> seenUserIdSet) {
       this.eventStorage = eventStorage;
       this.userStorage = userStorage;
       this.earliestEventIdList = earliestEventIdList;
-      this.eventCriteria = eventCriteria;
-      this.userCriteria = userCriteria;
+      this.eventFilters = eventFilters;
+      this.userFilters = userFilters;
       this.seenUserIdList = seenUserIdList;
       this.seenUserIdSet = seenUserIdSet;
     }
@@ -262,11 +266,11 @@ public class EventTracker implements Closeable {
       if (seenUserIdSet.contains(eventStorage.getUserId(eventId))) {
         return;
       }
-      if (!eventStorage.satisfy(eventId, eventCriteria)) {
+      if (!eventStorage.satisfy(eventId, eventFilters)) {
         return;
       }
       int userId = eventStorage.getUserId(eventId);
-      if (!userStorage.satisfy(userId, userCriteria)) {
+      if (!userStorage.satisfy(userId, userFilters)) {
         return;
       }
       // TODO: consider other higher performing Set implementation
@@ -283,20 +287,20 @@ public class EventTracker implements Closeable {
     private final UserStorage userStorage;
     private final int[] funnelStepsEventTypeIds;
     private int numMatchedSteps;
-    private final List<Criterion> eventCriteria;
-    private final List<Criterion> userCriteria;
+    private final List<Filter> eventFilters;
+    private final List<Filter> userFilters;
     private final long maxEventId;
 
     public CountFunnelStepsMatched(EventStorage eventStorage, UserStorage userStorage,
-        int[] funnelStepsEventTypeIds, int numMatchedSteps, long maxEventId, List<Criterion> eventCriteria,
-        List<Criterion> userCriteria) {
+        int[] funnelStepsEventTypeIds, int numMatchedSteps, long maxEventId, List<Filter> eventFilters,
+        List<Filter> userFilters) {
       this.eventStorage = eventStorage;
       this.userStorage = userStorage;
       this.funnelStepsEventTypeIds = funnelStepsEventTypeIds;
       this.numMatchedSteps = numMatchedSteps;
       this.maxEventId = maxEventId;
-      this.eventCriteria = eventCriteria;
-      this.userCriteria = userCriteria;
+      this.eventFilters = eventFilters;
+      this.userFilters = userFilters;
     }
 
     @Override
@@ -309,12 +313,12 @@ public class EventTracker implements Closeable {
         return true;
       }
 
-      if (!eventStorage.satisfy(eventId, eventCriteria)) {
+      if (!eventStorage.satisfy(eventId, eventFilters)) {
         return true;
       }
       // TODO: user ctriteria filter should be at higher level
       int userId = eventStorage.getUserId(eventId);
-      if (!userStorage.satisfy(userId, userCriteria)) {
+      if (!userStorage.satisfy(userId, userFilters)) {
         return true;
       }
       numMatchedSteps++;

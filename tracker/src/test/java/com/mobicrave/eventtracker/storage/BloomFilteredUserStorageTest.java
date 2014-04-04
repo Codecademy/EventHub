@@ -3,7 +3,7 @@ package com.mobicrave.eventtracker.storage;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Injector;
-import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.integration.GuiceTestCase;
 import com.mobicrave.eventtracker.model.User;
 import org.junit.Assert;
@@ -49,20 +49,20 @@ public class BloomFilteredUserStorageTest extends GuiceTestCase {
     }
 
     Assert.assertEquals(-1, userStorage.getId("NOT EXIST"));
-    List[] matchedCriteria = new List[] {
-        Lists.newArrayList(new Criterion("foo1", "bar1"), new Criterion("foo2", "bar2")),
-        Lists.newArrayList(new Criterion("foo2", "bar2")),
-        Lists.newArrayList(new Criterion("foo3", "bar3"))
+    List[] matchedFilters = new List[] {
+        Lists.newArrayList(new Filter("foo1", "bar1"), new Filter("foo2", "bar2")),
+        Lists.newArrayList(new Filter("foo2", "bar2")),
+        Lists.newArrayList(new Filter("foo3", "bar3"))
     };
-    List[] unmatchedCriteria = new List[] {
-        Lists.newArrayList(new Criterion("foo1", "bar1"), new Criterion("foo2", "bar2"),
-            new Criterion("foo3", "bar3")),
-        Lists.newArrayList(new Criterion("foo2", "bar1")),
-        Lists.newArrayList(new Criterion("foo1", "bar1"))
+    List[] unmatchedFilters = new List[] {
+        Lists.newArrayList(new Filter("foo1", "bar1"), new Filter("foo2", "bar2"),
+            new Filter("foo3", "bar3")),
+        Lists.newArrayList(new Filter("foo2", "bar1")),
+        Lists.newArrayList(new Filter("foo1", "bar1"))
     };
     for (int i = 0; i < externalIds.length - 1; i++) {
-      Assert.assertTrue(userStorage.satisfy(i, matchedCriteria[i]));
-      Assert.assertFalse(userStorage.satisfy(i, unmatchedCriteria[i]));
+      Assert.assertTrue(userStorage.satisfy(i, matchedFilters[i]));
+      Assert.assertFalse(userStorage.satisfy(i, unmatchedFilters[i]));
       Assert.assertEquals(externalIds[i], userStorage.getUser(i).getExternalId());
       Assert.assertEquals(i, userStorage.getId(externalIds[i]));
       for (Map.Entry<String, String> entry : properties[i].entrySet()) {
@@ -77,8 +77,8 @@ public class BloomFilteredUserStorageTest extends GuiceTestCase {
         new User.Builder(externalIds[externalIds.length - 1], properties[externalIds.length - 1])
             .build());
     for (int i = 0; i < externalIds.length; i++) {
-      Assert.assertTrue(userStorage.satisfy(i, matchedCriteria[i]));
-      Assert.assertFalse(userStorage.satisfy(i, unmatchedCriteria[i]));
+      Assert.assertTrue(userStorage.satisfy(i, matchedFilters[i]));
+      Assert.assertFalse(userStorage.satisfy(i, unmatchedFilters[i]));
       Assert.assertEquals(externalIds[i], userStorage.getUser(i).getExternalId());
       Assert.assertEquals(i, userStorage.getId(externalIds[i]));
       for (Map.Entry<String, String> entry : properties[i].entrySet()) {

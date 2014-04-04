@@ -1,6 +1,6 @@
 package com.mobicrave.eventtracker.storage;
 
-import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.model.Event;
 
 import java.io.IOException;
@@ -34,8 +34,8 @@ public class DelegateEventStorage implements EventStorage {
   }
 
   @Override
-  public boolean satisfy(long eventId, List<Criterion> criteria) {
-    return eventStorage.satisfy(eventId, criteria);
+  public boolean satisfy(long eventId, List<Filter> filters) {
+    return eventStorage.satisfy(eventId, filters);
   }
 
   @Override

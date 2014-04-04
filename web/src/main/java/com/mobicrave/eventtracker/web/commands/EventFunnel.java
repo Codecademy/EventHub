@@ -2,7 +2,7 @@ package com.mobicrave.eventtracker.web.commands;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.mobicrave.eventtracker.Criterion;
+import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.EventTracker;
 
 import javax.inject.Inject;
@@ -24,28 +24,28 @@ public class EventFunnel extends Command {
 
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
-    List<Criterion> eventCriteria = getCriteria(request.getParameterValues("eck"),
-        request.getParameterValues("ecv"));
-    List<Criterion> userCriteria = getCriteria(request.getParameterValues("uck"),
-        request.getParameterValues("ucv"));
+    List<Filter> eventFilters = getFilters(request.getParameterValues("efk"),
+        request.getParameterValues("efv"));
+    List<Filter> userFilters = getFilters(request.getParameterValues("ufk"),
+        request.getParameterValues("ufv"));
 
     int[] funnelCounts = eventTracker.getFunnelCounts(
         request.getParameter("start_date"),
         request.getParameter("end_date"),
         request.getParameterValues("funnel_steps[]"),
         Integer.parseInt(request.getParameter("num_days_to_complete_funnel")),
-        eventCriteria,
-        userCriteria);
+        eventFilters,
+        userFilters);
     response.getWriter().println(gson.toJson(funnelCounts));
   }
 
-  private List<Criterion> getCriteria(String[] criterionKeys, String[] criterionValues) {
-    List<Criterion> eventCriteria = Lists.newArrayList();
-    if (criterionKeys != null) {
-      for (int i = 0; i < criterionKeys.length; i++) {
-        eventCriteria.add(new Criterion(criterionKeys[i], criterionValues[i]));
+  private List<Filter> getFilters(String[] filterKeys, String[] filterValues) {
+    List<Filter> eventFilters = Lists.newArrayList();
+    if (filterKeys != null) {
+      for (int i = 0; i < filterKeys.length; i++) {
+        eventFilters.add(new Filter(filterKeys[i], filterValues[i]));
       }
     }
-    return eventCriteria;
+    return eventFilters;
   }
 }

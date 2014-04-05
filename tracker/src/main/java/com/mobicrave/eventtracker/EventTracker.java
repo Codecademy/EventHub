@@ -34,7 +34,6 @@ import java.util.Set;
 // TODO(UI): support user event timeline (including adding necessary api endpoints,
 // TODO(UI):          e.g. getting offset for a given user and date)
 // TODO(JS): replace $.ajax to remove jquery dependency
-// TODO: cohort analysis to add event filter (a/b testing)
 // TODO: failure recovery
 // TODO: finish README.md
 // TODO:   dashboard screenshots
@@ -54,10 +53,6 @@ import java.util.Set;
 // TODO: move synchronization responsibility to low level
 // TODO: compression of DmaIdList
 // TODO: native byte order for performance
-/**
- * The corresponding user has to be added before his/her event can be tracked.
- * The date of the receiving events have to be monotonically increasing
- */
 public class EventTracker implements Closeable {
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
 
@@ -78,13 +73,15 @@ public class EventTracker implements Closeable {
 
   public int[][] getRetentionTable(String startDateString,
       String endDateString, int numDaysPerCohort, int numColumns, String rowEventType,
-      String columnEventType) {
+      String columnEventType, Filter rowEventFilter, Filter columnEventFilter) {
     DateTime startDate = DATE_TIME_FORMATTER.parseDateTime(startDateString);
     DateTime endDate = DATE_TIME_FORMATTER.parseDateTime(endDateString);
     int numRows = (Days.daysBetween(startDate, endDate).getDays() + 1) / numDaysPerCohort;
 
-    List<Set<Integer>> rowIdSets = getUserIdsSets(rowEventType, startDate, numDaysPerCohort, numRows);
-    List<Set<Integer>> columnIdSets = getUserIdsSets(columnEventType, startDate, numDaysPerCohort,
+    List<Set<Integer>> rowIdSets = getUserIdsSets(rowEventType, startDate, rowEventFilter,
+        numDaysPerCohort, numRows);
+    List<Set<Integer>> columnIdSets = getUserIdsSets(columnEventType, startDate, columnEventFilter,
+        numDaysPerCohort,
         numColumns + numRows);
 
     Table<Integer, Integer, Integer> retentionTable = ArrayTable.create(
@@ -220,16 +217,16 @@ public class EventTracker implements Closeable {
     return eventTypeIds;
   }
 
-  private List<Set<Integer>> getUserIdsSets(String groupByEventType, DateTime startDate, int numDaysPerCohort, int numCohorts) {
+  private List<Set<Integer>> getUserIdsSets(String groupByEventType, DateTime startDate,
+      Filter eventFilter, int numDaysPerCohort, int numCohorts) {
     List<Set<Integer>> rows = Lists.newArrayListWithCapacity(numCohorts);
     for (int i = 0; i < numCohorts; i++) {
       DateTime currentStartDate = startDate.plusDays(i * numDaysPerCohort);
       DateTime currentEndDate = startDate.plusDays((i + 1) * numDaysPerCohort);
       List<Integer> userIdsList = Lists.newArrayList();
       Set<Integer> userIdsSet = Sets.newHashSet();
-      @SuppressWarnings("unchecked")
       EventIndex.Callback aggregateUserIdsCallback = new AggregateUserIds(eventStorage, userStorage,
-          new DummyIdList(), TrueFilter.INSTANCE, TrueFilter.INSTANCE, userIdsList, userIdsSet);
+          new DummyIdList(), eventFilter, TrueFilter.INSTANCE, userIdsList, userIdsSet);
       shardedEventIndex.enumerateEventIds(
           groupByEventType,
           currentStartDate.toString(DATE_TIME_FORMATTER),

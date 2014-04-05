@@ -2,11 +2,8 @@ package com.mobicrave.eventtracker.web.commands;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.mobicrave.eventtracker.storage.filter.And;
-import com.mobicrave.eventtracker.storage.filter.ExactMatch;
 import com.mobicrave.eventtracker.storage.filter.Filter;
 import com.mobicrave.eventtracker.EventTracker;
-import com.mobicrave.eventtracker.storage.filter.TrueFilter;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -48,29 +45,4 @@ public class EventFunnel extends Command {
     response.getWriter().println(gson.toJson(funnelCounts));
   }
 
-  private String[] merge(String[] x, String[] y) {
-    if (x == null) {
-      return y;
-    }
-    if (y == null) {
-      return x;
-    }
-
-    String[] ret = new String[x.length + y.length];
-    System.arraycopy(x, 0, ret, 0, x.length);
-    System.arraycopy(y, 0, ret, x.length, y.length);
-    return ret;
-  }
-
-  private Filter getFilter(String[] filterKeys, String[] filterValues) {
-    if (filterKeys == null || filterValues == null) {
-      return TrueFilter.INSTANCE;
-    }
-
-    List<Filter> eventFilters = Lists.newArrayList();
-    for (int i = 0; i < filterKeys.length; i++) {
-      eventFilters.add(new ExactMatch(filterKeys[i], filterValues[i]));
-    }
-    return new And(eventFilters);
-  }
 }

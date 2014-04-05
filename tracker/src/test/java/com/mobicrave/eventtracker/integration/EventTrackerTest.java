@@ -329,43 +329,43 @@ public class EventTrackerTest extends GuiceTestCase {
         "20130107" };
 
     addEvent(tracker, EVENT_TYPES[2], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], ImmutableMap.of("foo1", "bar1"));
 
-    addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[0], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[0], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[1], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[1], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[2], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[3], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[3], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[0], ImmutableMap.of("foo1", "bar1"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[0], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[1], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[1], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[2], ImmutableMap.of("foo1", "bar1"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[2], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[3], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[1], DATES[3], ImmutableMap.of("foo2", "bar2"));
 
     addEvent(tracker, EVENT_TYPES[2], USER_IDS[2], DATES[0], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[0], USER_IDS[2], DATES[1], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[2], DATES[1], ImmutableMap.of("foo1", "bar1"));
 
-    addEvent(tracker, EVENT_TYPES[0], USER_IDS[3], DATES[2], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[2], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[3], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[3], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[0], USER_IDS[3], DATES[4], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[5], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[5], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[3], DATES[2], ImmutableMap.of("foo1", "bar1"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[2], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[3], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[3], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[3], DATES[4], ImmutableMap.of("foo1", "bar1"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[4], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[5], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[3], DATES[5], ImmutableMap.of("foo2", "bar2"));
 
-    addEvent(tracker, EVENT_TYPES[0], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[0], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
-    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], Maps.<String, String>newHashMap());
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[4], DATES[6], ImmutableMap.of("foo1", "bar1"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[0], USER_IDS[4], DATES[6], ImmutableMap.of("foo1", "bar1"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], ImmutableMap.of("foo2", "bar2"));
+    addEvent(tracker, EVENT_TYPES[1], USER_IDS[4], DATES[6], ImmutableMap.of("foo2", "bar2"));
 
     int[][] expectedCount = {
  /*D0,1*/ { 3 /*0,1,2*/, 1 /*1*/  , 1 /*1*/, 0 /**/ },
@@ -373,10 +373,38 @@ public class EventTrackerTest extends GuiceTestCase {
  /*D4,5*/ { 1 /*3*/    , 1 /*3*/  , 0 /**/ , 0 /**/ }
     };
     int[][] retentionTable = tracker.getRetentionTable(
-        "20130101", "20130106", 2, 3, EVENT_TYPES[0], EVENT_TYPES[1]);
+        "20130101", "20130106", 2, 3, EVENT_TYPES[0], EVENT_TYPES[1], TrueFilter.INSTANCE,
+        TrueFilter.INSTANCE);
     for (int i = 0; i < expectedCount.length; i++) {
       for (int j = 0; j < expectedCount[i].length; j++) {
         Assert.assertEquals(expectedCount[i][j], retentionTable[i][j]);
+      }
+    }
+
+    retentionTable = tracker.getRetentionTable(
+        "20130101", "20130106", 2, 3, EVENT_TYPES[0], EVENT_TYPES[1], new ExactMatch("foo1", "bar1"),
+        TrueFilter.INSTANCE);
+    for (int i = 0; i < expectedCount.length; i++) {
+      for (int j = 0; j < expectedCount[i].length; j++) {
+        Assert.assertEquals(expectedCount[i][j], retentionTable[i][j]);
+      }
+    }
+
+    retentionTable = tracker.getRetentionTable(
+        "20130101", "20130106", 2, 3, EVENT_TYPES[0], EVENT_TYPES[1], TrueFilter.INSTANCE,
+        new ExactMatch("foo2", "bar2"));
+    for (int i = 0; i < expectedCount.length; i++) {
+      for (int j = 0; j < expectedCount[i].length; j++) {
+        Assert.assertEquals(expectedCount[i][j], retentionTable[i][j]);
+      }
+    }
+
+    retentionTable = tracker.getRetentionTable(
+        "20130101", "20130106", 2, 3, EVENT_TYPES[0], EVENT_TYPES[1], new ExactMatch("foo1", "bar2"),
+        TrueFilter.INSTANCE);
+    for (int i = 0; i < expectedCount.length; i++) {
+      for (int j = 0; j < expectedCount[i].length; j++) {
+        Assert.assertEquals(0, retentionTable[i][j]);
       }
     }
   }

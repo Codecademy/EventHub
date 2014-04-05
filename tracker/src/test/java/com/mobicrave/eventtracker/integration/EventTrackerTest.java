@@ -22,11 +22,13 @@ import com.mobicrave.eventtracker.storage.JournalEventStorage;
 import com.mobicrave.eventtracker.storage.JournalUserStorage;
 import com.mobicrave.eventtracker.storage.UserStorageModule;
 import com.mobicrave.eventtracker.storage.UserStorage;
+import com.mobicrave.eventtracker.storage.filter.ExactMatch;
+import com.mobicrave.eventtracker.storage.filter.Filter;
+import com.mobicrave.eventtracker.storage.filter.TrueFilter;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Provider;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -35,7 +37,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SuppressWarnings("unchecked")
 public class EventTrackerTest extends GuiceTestCase {
   @Test
   public void testSingleUser() throws Exception {
@@ -53,27 +54,28 @@ public class EventTrackerTest extends GuiceTestCase {
     addEvent(tracker, EVENT_TYPES[4], USER_IDS[0], DATES[4], Maps.<String, String>newHashMap());
 
     final String[] funnelSteps = { EVENT_TYPES[1], EVENT_TYPES[2], EVENT_TYPES[3] };
+    List<Filter> eventFilters = Lists.<Filter>newArrayList(TrueFilter.INSTANCE, TrueFilter.INSTANCE, TrueFilter.INSTANCE);
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 0, 0, 0 },
         tracker.getFunnelCounts(DATES[0], DATES[1], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 1, 0, 0 },
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 1 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 3 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 1, 1, 0 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 2 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 1, 0, 0 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
   }
 
   @Test
@@ -116,28 +118,29 @@ public class EventTrackerTest extends GuiceTestCase {
     addEvent(tracker, EVENT_TYPES[2], USER_IDS[4], DATES[3], Maps.<String, String>newHashMap());
 
     final String[] funnelSteps = { EVENT_TYPES[0], EVENT_TYPES[1], EVENT_TYPES[3] };
+    List<Filter> eventFilters = Lists.<Filter>newArrayList(TrueFilter.INSTANCE, TrueFilter.INSTANCE, TrueFilter.INSTANCE);
     Assert.assertArrayEquals(new int[] { 8, 7, 6 },
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 4, 3, 2 },
         tracker.getFunnelCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
 
     tracker.close();
     tracker = eventTrackerProvider.get();
 
     Assert.assertArrayEquals(new int[] { 8, 7, 6 },
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 4, 3, 2 },
         tracker.getFunnelCounts(DATES[1], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+            eventFilters, TrueFilter.INSTANCE));
   }
 
   @Test
@@ -239,7 +242,7 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] USER_IDS = { "10", "11" };
     final String[] EVENT_TYPES = { "eventType1", "eventType2", "eventType3", "eventType4", "eventType5" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
-    final Map<String, String>[] properties = (Map<String, String>[]) new Map[] {
+    @SuppressWarnings("unchecked") final Map<String, String>[] properties = (Map<String, String>[]) new Map[] {
         ImmutableMap.<String, String>builder().put("foo1", "bar1").put("foo2", "bar2").build(),
         ImmutableMap.<String, String>builder().put("foo2", "bar2").put("foo3", "bar3").build(),
         ImmutableMap.<String, String>builder().put("foo3", "bar3").build()
@@ -259,18 +262,30 @@ public class EventTrackerTest extends GuiceTestCase {
     addEvent(tracker, EVENT_TYPES[4], USER_IDS[1], DATES[4], properties[2]);
 
     final String[] funnelSteps = { EVENT_TYPES[1], EVENT_TYPES[2], EVENT_TYPES[4] };
-    Assert.assertArrayEquals(new int[]{2, 2, 2},
+    List<Filter> eventFilters = Lists.<Filter>newArrayList(TrueFilter.INSTANCE, TrueFilter.INSTANCE, TrueFilter.INSTANCE);
+    Assert.assertArrayEquals(new int[] {2, 2, 2},
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Collections.EMPTY_LIST));
-    Assert.assertArrayEquals(new int[]{2, 2, 0},
+            eventFilters, TrueFilter.INSTANCE));
+    Assert.assertArrayEquals(new int[] {2, 0, 0},
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Lists.newArrayList(new Filter("foo2", "bar2")), Collections.EMPTY_LIST));
-    Assert.assertArrayEquals(new int[]{2, 2, 2},
+            Lists.<Filter>newArrayList(
+                new ExactMatch("foo1", "bar1"),
+                new ExactMatch("foo4", "bar4"),
+                TrueFilter.INSTANCE),
+            TrueFilter.INSTANCE));
+    Assert.assertArrayEquals(new int[] {2, 2, 0},
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Lists.newArrayList(new Filter("foo2", "bar2"))));
+            Lists.<Filter>newArrayList(
+                new ExactMatch("foo2", "bar2"),
+                new ExactMatch("foo2", "bar2"),
+                new ExactMatch("foo2", "bar2")),
+            TrueFilter.INSTANCE));
+    Assert.assertArrayEquals(new int[] {2, 2, 2},
+        tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
+            eventFilters, new ExactMatch("foo2", "bar2")));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
-            Collections.EMPTY_LIST, Lists.newArrayList(new Filter("foo3", "bar3"))));
+            eventFilters, new ExactMatch("foo3", "bar3")));
   }
 
   @Test

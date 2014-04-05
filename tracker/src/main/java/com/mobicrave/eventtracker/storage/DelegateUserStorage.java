@@ -1,10 +1,9 @@
 package com.mobicrave.eventtracker.storage;
 
-import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.model.User;
+import com.mobicrave.eventtracker.storage.visitor.Visitor;
 
 import java.io.IOException;
-import java.util.List;
 
 public class DelegateUserStorage implements UserStorage {
   private final UserStorage userStorage;
@@ -34,8 +33,8 @@ public class DelegateUserStorage implements UserStorage {
   }
 
   @Override
-  public boolean satisfy(int userId, List<Filter> filters) {
-    return userStorage.satisfy(userId, filters);
+  public Visitor getFilterVisitor(int userId) {
+    return userStorage.getFilterVisitor(userId);
   }
 
   @Override

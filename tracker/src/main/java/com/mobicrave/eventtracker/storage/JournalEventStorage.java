@@ -1,15 +1,17 @@
 package com.mobicrave.eventtracker.storage;
 
 import com.google.common.io.ByteStreams;
-import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
+import com.mobicrave.eventtracker.storage.visitor.DelayedVisitorProxy;
+import com.mobicrave.eventtracker.storage.visitor.EventFilterVisitor;
+import com.mobicrave.eventtracker.storage.visitor.Visitor;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 
+import javax.inject.Provider;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 public class JournalEventStorage implements EventStorage {
   private final Journal eventJournal;
@@ -56,23 +58,19 @@ public class JournalEventStorage implements EventStorage {
   }
 
   @Override
-  public int getUserId(long eventId) {
-    return schema.getUserId(metaDataList.getBytes(eventId));
+  public Visitor getFilterVisitor(final long eventId) {
+    return new DelayedVisitorProxy(new Provider<Visitor>() {
+      @Override
+      public Visitor get() {
+        Event event = getEvent(eventId);
+        return new EventFilterVisitor(event);
+      }
+    });
   }
 
   @Override
-  public boolean satisfy(long eventId, List<Filter> filters) {
-    if (filters.isEmpty()) {
-      return true;
-    }
-
-    Event event = getEvent(eventId);
-    for (Filter filter : filters) {
-      if (!filter.getValue().equals(event.get(filter.getKey()))) {
-        return false;
-      }
-    }
-    return true;
+  public int getUserId(long eventId) {
+    return schema.getUserId(metaDataList.getBytes(eventId));
   }
 
   @Override

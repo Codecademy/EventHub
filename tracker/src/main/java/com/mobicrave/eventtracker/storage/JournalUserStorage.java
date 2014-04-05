@@ -2,15 +2,17 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
-import com.mobicrave.eventtracker.Filter;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
+import com.mobicrave.eventtracker.storage.visitor.DelayedVisitorProxy;
+import com.mobicrave.eventtracker.storage.visitor.UserFilterVisitor;
+import com.mobicrave.eventtracker.storage.visitor.Visitor;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.hawtjournal.api.Location;
 
+import javax.inject.Provider;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 public class JournalUserStorage implements UserStorage {
   private final Journal userJournal;
@@ -74,18 +76,14 @@ public class JournalUserStorage implements UserStorage {
   }
 
   @Override
-  public boolean satisfy(int userId, List<Filter> filters) {
-    if (filters.isEmpty()) {
-      return true;
-    }
-
-    User user = getUser(userId);
-    for (Filter filter : filters) {
-      if (!filter.getValue().equals(user.get(filter.getKey()))) {
-        return false;
+  public Visitor getFilterVisitor(final int userId) {
+    return new DelayedVisitorProxy(new Provider<Visitor>() {
+      @Override
+      public Visitor get() {
+        User user = getUser(userId);
+        return new UserFilterVisitor(user);
       }
-    }
-    return true;
+    });
   }
 
   @Override

@@ -1,14 +1,15 @@
 package com.mobicrave.eventtracker.storage;
 
-import com.mobicrave.eventtracker.Filter;
+import com.mobicrave.eventtracker.storage.filter.ExactMatch;
 import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
+import com.mobicrave.eventtracker.storage.visitor.DelayedVisitorProxy;
+import com.mobicrave.eventtracker.storage.visitor.Visitor;
 
 import javax.inject.Provider;
 import java.io.IOException;
-import java.util.List;
 
 public class BloomFilteredEventStorage extends DelegateEventStorage {
   private final DmaList<BloomFilter> bloomFilterDmaList;
@@ -39,22 +40,16 @@ public class BloomFilteredEventStorage extends DelegateEventStorage {
   }
 
   @Override
-  public boolean satisfy(long eventId, List<Filter> filters) {
-    if (filters.isEmpty()) {
-      return true;
-    }
-    numConditionCheck++;
-
-    BloomFilter bloomFilter = bloomFilterDmaList.get(eventId);
-    for (Filter filter : filters) {
-      String bloomFilterKey = getBloomFilterKey(filter.getKey(), filter.getValue());
-      if (!bloomFilter.isPresent(bloomFilterKey)) {
-        numBloomFilterRejection++;
-        return false;
+  public Visitor getFilterVisitor(final long eventId) {
+    return new DelayedVisitorProxy(new Provider<Visitor>() {
+      @Override
+      public Visitor get() {
+        final BloomFilter bloomFilter = bloomFilterDmaList.get(eventId);
+        final Visitor visitorFromSuper = BloomFilteredEventStorage.super.getFilterVisitor(eventId);
+        numConditionCheck++;
+        return new BloomFilteredFilterVisitor(bloomFilter, visitorFromSuper);
       }
-    }
-
-    return super.satisfy(eventId, filters);
+    });
   }
 
   @Override
@@ -77,5 +72,25 @@ public class BloomFilteredEventStorage extends DelegateEventStorage {
 
   private static String getBloomFilterKey(String key, String value) {
     return key + value;
+  }
+
+  private class BloomFilteredFilterVisitor implements Visitor {
+    private final BloomFilter bloomFilter;
+    private final Visitor visitor;
+
+    public BloomFilteredFilterVisitor(BloomFilter bloomFilter, Visitor visitor) {
+      this.bloomFilter = bloomFilter;
+      this.visitor = visitor;
+    }
+
+    @Override
+    public boolean visit(ExactMatch exactMatch) {
+      String bloomFilterKey = getBloomFilterKey(exactMatch.getKey(), exactMatch.getValue());
+      if (!bloomFilter.isPresent(bloomFilterKey)) {
+        numBloomFilterRejection++;
+        return false;
+      }
+      return visitor.visit(exactMatch);
+    }
   }
 }

@@ -54,8 +54,12 @@ curl -X POST http://localhost:8080/events/batch_track --data "events=[
   page: 'home'
 }, {
   external_user_id: 'chengtao+3@codecademy.com',
-  experiment_signup_v1: 'new console',
   event_type: 'signup'
+}, {
+  external_user_id: 'chengtao+4@codecademy.com',
+  event_type: 'pageview',
+  experiment_signup_v1: 'new console',
+  page: 'home'
 }]
 "
 echo ""
@@ -77,9 +81,9 @@ curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&e
 echo ""
 
 echo -e "\033[1;32mshow A/B testing signup funnel (control):\033[0m pageview -> signup"
-curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=pageview&funnel_steps[]=signup&num_days_to_complete_funnel=7&efk=experiment_signup_v1&efv=control"
+curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=pageview&funnel_steps[]=signup&num_days_to_complete_funnel=7&efk0=experiment_signup_v1&efv0=control&efk0=page&efv0=home"
 echo ""
 
 echo -e "\033[1;32mshow A/B testing signup funnel (new console):\033[0m pageview -> signup"
-curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=pageview&funnel_steps[]=signup&num_days_to_complete_funnel=7&efk=experiment_signup_v1&efv=new console"
+curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=pageview&funnel_steps[]=signup&num_days_to_complete_funnel=7&efk0=experiment_signup_v1&efv0=new console&efk0=page&efv0=home"
 echo ""

@@ -3,7 +3,9 @@ package com.mobicrave.eventtracker.storage;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Injector;
-import com.mobicrave.eventtracker.Filter;
+import com.mobicrave.eventtracker.storage.filter.And;
+import com.mobicrave.eventtracker.storage.filter.ExactMatch;
+import com.mobicrave.eventtracker.storage.filter.Filter;
 import com.mobicrave.eventtracker.integration.GuiceTestCase;
 import com.mobicrave.eventtracker.model.Event;
 import org.junit.Assert;
@@ -14,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-@SuppressWarnings("unchecked")
 public class BloomFilteredEventStorageTest extends GuiceTestCase {
   @Test
   public void testAll() throws Exception {
@@ -23,6 +24,7 @@ public class BloomFilteredEventStorageTest extends GuiceTestCase {
     String[] eventTypes = new String[] { "a", "b", "c" };
     String[] externalUserIds = new String[] { "x", "y", "z" };
     String[] dates = new String[] { "20130101", "20130102", "20131111" };
+    @SuppressWarnings("unchecked")
     Map<String, String>[] properties = (Map<String, String>[]) new Map[] {
         ImmutableMap.<String, String>builder().put("foo1", "bar1").put("foo2", "bar2").build(),
         ImmutableMap.<String, String>builder().put("foo2", "bar2").put("foo3", "bar3").build(),
@@ -37,20 +39,17 @@ public class BloomFilteredEventStorageTest extends GuiceTestCase {
           userIds[i], eventTypeIds[i]);
     }
 
-    List[] matchedFilters = new List[] {
-        Lists.newArrayList(new Filter("foo1", "bar1"), new Filter("foo2", "bar2")),
-        Lists.newArrayList(new Filter("foo2", "bar2")),
-        Lists.newArrayList(new Filter("foo3", "bar3"))
-    };
-    List[] unmatchedFilters = new List[] {
-        Lists.newArrayList(new Filter("foo1", "bar1"), new Filter("foo2", "bar2"),
-            new Filter("foo3", "bar3")),
-        Lists.newArrayList(new Filter("foo2", "bar1")),
-        Lists.newArrayList(new Filter("foo1", "bar1"))
-    };
+    List<Filter> matchedFilters = Lists.newArrayList(
+        And.of(new ExactMatch("foo1", "bar1"), new ExactMatch("foo2", "bar2")),
+        new ExactMatch("foo2", "bar2"),
+        new ExactMatch("foo3", "bar3"));
+    List<Filter> unmatchedFilters = Lists.newArrayList(
+        And.of(new ExactMatch("foo1", "bar1"), new ExactMatch("foo2", "bar2"), new ExactMatch("foo3", "bar3")),
+        new ExactMatch("foo2", "bar1"),
+        new ExactMatch("foo1", "bar1"));
     for (int i = 0; i < eventTypes.length - 1; i++) {
-      Assert.assertTrue(eventStorage.satisfy(i, matchedFilters[i]));
-      Assert.assertFalse(eventStorage.satisfy(i, unmatchedFilters[i]));
+      Assert.assertTrue(matchedFilters.get(i).accept(eventStorage.getFilterVisitor(i)));
+      Assert.assertFalse(unmatchedFilters.get(i).accept(eventStorage.getFilterVisitor(i)));
       Assert.assertEquals(eventTypes[i], eventStorage.getEvent(i).getEventType());
       Assert.assertEquals(externalUserIds[i], eventStorage.getEvent(i).getExternalUserId());
       Assert.assertEquals(dates[i], eventStorage.getEvent(i).getDate());
@@ -68,8 +67,8 @@ public class BloomFilteredEventStorageTest extends GuiceTestCase {
         dates[eventTypes.length - 1], properties[eventTypes.length - 1]).build(),
         userIds[eventTypes.length - 1], eventTypeIds[eventTypes.length - 1]);
     for (int i = 0; i < eventTypes.length; i++) {
-      Assert.assertTrue(eventStorage.satisfy(i, matchedFilters[i]));
-      Assert.assertFalse(eventStorage.satisfy(i, unmatchedFilters[i]));
+      Assert.assertTrue(matchedFilters.get(i).accept(eventStorage.getFilterVisitor(i)));
+      Assert.assertFalse(unmatchedFilters.get(i).accept(eventStorage.getFilterVisitor(i)));
       Assert.assertEquals(eventTypes[i], eventStorage.getEvent(i).getEventType());
       Assert.assertEquals(externalUserIds[i], eventStorage.getEvent(i).getExternalUserId());
       Assert.assertEquals(dates[i], eventStorage.getEvent(i).getDate());

@@ -27,10 +27,11 @@ public abstract class Command {
   }
 
   protected String[] merge(String[] x, String[] y) {
-    if (x == null) {
+    if (x == null & y == null) {
+      return null;
+    } else if (x == null) {
       return y.clone();
-    }
-    if (y == null) {
+    } else if (y == null) {
       return x.clone();
     }
 

@@ -14,6 +14,9 @@ import java.nio.MappedByteBuffer;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * UserEventIndex is responsible for indexing events sharded by users.
+ */
 public class UserEventIndex implements Closeable {
   public static final int POINTER_SIZE = 8; // 8 bytes
   public static final int ID_SIZE = 8; // 8 bytes

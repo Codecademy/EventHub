@@ -138,12 +138,12 @@ public class EventTracker implements Closeable {
     for (int userId : userIdsList) {
       long firstStepEventId = firstStepEventIdIterator.next();
       long maxLastStepEventId = datedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
-      CountFunnelStepsMatched countFunnelStepsMatched = new CountFunnelStepsMatched(
+      CountMatchedFunnelSteps countMatchedFunnelSteps = new CountMatchedFunnelSteps(
           eventStorage, userStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/,
           maxLastStepEventId, eventFilters, userFilter);
       userEventIndex.enumerateEventIds(userId, userEventIndex.getEventOffset(userId, firstStepEventId),
-          Integer.MAX_VALUE, countFunnelStepsMatched);
-      for (int i = 0; i < countFunnelStepsMatched.getNumMatchedSteps(); i++) {
+          Integer.MAX_VALUE, countMatchedFunnelSteps);
+      for (int i = 0; i < countMatchedFunnelSteps.getNumMatchedSteps(); i++) {
         numFunnelStepsMatched[i]++;
       }
     }
@@ -194,7 +194,7 @@ public class EventTracker implements Closeable {
     List<Event> events = Lists.newArrayList();
     int userId = userStorage.getId(externalUserId);
     userEventIndex.enumerateEventIds(userId, offset, numRecords,
-        new CollectEventCallback(events, eventStorage));
+        new CollectEvents(events, eventStorage));
     return events;
   }
 
@@ -294,7 +294,7 @@ public class EventTracker implements Closeable {
     }
   }
 
-  private static class CountFunnelStepsMatched implements UserEventIndex.Callback {
+  private static class CountMatchedFunnelSteps implements UserEventIndex.Callback {
     private final EventStorage eventStorage;
     private final UserStorage userStorage;
     private final int[] funnelStepsEventTypeIds;
@@ -303,7 +303,7 @@ public class EventTracker implements Closeable {
     private final Filter userFilter;
     private final long maxEventId;
 
-    public CountFunnelStepsMatched(EventStorage eventStorage, UserStorage userStorage,
+    public CountMatchedFunnelSteps(EventStorage eventStorage, UserStorage userStorage,
         int[] funnelStepsEventTypeIds, int numMatchedSteps, long maxEventId, List<Filter> eventFilters,
         Filter userFilter) {
       this.eventStorage = eventStorage;
@@ -342,11 +342,11 @@ public class EventTracker implements Closeable {
     }
   }
 
-  private static class CollectEventCallback implements UserEventIndex.Callback, EventIndex.Callback {
+  private static class CollectEvents implements UserEventIndex.Callback, EventIndex.Callback {
     private final List<Event> events;
     private final EventStorage eventStorage;
 
-    private CollectEventCallback(List<Event> events, EventStorage eventStorage) {
+    private CollectEvents(List<Event> events, EventStorage eventStorage) {
       this.events = events;
       this.eventStorage = eventStorage;
     }

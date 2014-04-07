@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import com.mobicrave.eventtracker.index.DatedEventIndex;
 import com.mobicrave.eventtracker.index.EventIndex;
 import com.mobicrave.eventtracker.index.ShardedEventIndex;
 import com.mobicrave.eventtracker.index.UserEventIndex;
@@ -34,6 +35,11 @@ import java.util.Set;
 // TODO(UI): support user event timeline (including adding necessary api endpoints,
 // TODO(UI):          e.g. getting offset for a given user and date)
 // TODO(JS): replace $.ajax to remove jquery dependency
+// TODO(ruby): client should buffer and sidekiq
+// TODO: endpoint for autocomplete property keys and values for the given key
+// TODO: password protect dashboard
+// TODO: name space system parameter
+// TODO: update script.sh and tests for experiment parameter naming
 // TODO: failure recovery
 // TODO: finish README.md
 // TODO:   dashboard screenshots
@@ -58,14 +64,17 @@ public class EventTracker implements Closeable {
 
   private final String directory;
   private final ShardedEventIndex shardedEventIndex;
+  private final DatedEventIndex datedEventIndex;
   private final UserEventIndex userEventIndex;
   private final EventStorage eventStorage;
   private final UserStorage userStorage;
 
   public EventTracker(String directory, ShardedEventIndex shardedEventIndex,
-      UserEventIndex userEventIndex, EventStorage eventStorage, UserStorage userStorage) {
+      DatedEventIndex datedEventIndex, UserEventIndex userEventIndex, EventStorage eventStorage,
+      UserStorage userStorage) {
     this.directory = directory;
     this.shardedEventIndex = shardedEventIndex;
+    this.datedEventIndex = datedEventIndex;
     this.userEventIndex = userEventIndex;
     this.eventStorage = eventStorage;
     this.userStorage = userStorage;
@@ -128,7 +137,7 @@ public class EventTracker implements Closeable {
     IdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
     for (int userId : userIdsList) {
       long firstStepEventId = firstStepEventIdIterator.next();
-      long maxLastStepEventId = shardedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
+      long maxLastStepEventId = datedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
       CountFunnelStepsMatched countFunnelStepsMatched = new CountFunnelStepsMatched(
           eventStorage, userStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/,
           maxLastStepEventId, eventFilters, userFilter);
@@ -170,7 +179,9 @@ public class EventTracker implements Closeable {
     int userId = userStorage.ensureUser(event.getExternalUserId());
 
     long eventId = eventStorage.addEvent(event, userId, eventTypeId);
-    shardedEventIndex.addEvent(eventId, event.getEventType(), event.getDate());
+    String date = event.getDate();
+    datedEventIndex.addEvent(eventId, date);
+    shardedEventIndex.addEvent(eventId, event.getEventType(), date);
     userEventIndex.addEvent(userId, eventId);
     return eventId;
   }
@@ -194,15 +205,18 @@ public class EventTracker implements Closeable {
     eventStorage.close();
     userStorage.close();
     shardedEventIndex.close();
+    datedEventIndex.close();
     userEventIndex.close();
   }
 
   public String getVarz() {
     return String.format(
+        "current date: %s\n" +
         "Event Storage:\n==============\n%s\n\n" +
         "User Storage:\n==============\n%s\n\n" +
         "Event Index:\n==============\n%s\n\n" +
         "User Event Index:\n==============\n%s",
+        datedEventIndex.getCurrentDate(),
         eventStorage.getVarz(1),
         userStorage.getVarz(1),
         shardedEventIndex.getVarz(1),

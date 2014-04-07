@@ -52,10 +52,6 @@ public class ShardedEventIndexTest extends GuiceTestCase {
     shardedEventIndex.enumerateEventIds(eventTypes[0], dates[1], dates[3], callback);
     callback.verify();
 
-    Assert.assertEquals(3, shardedEventIndex.findFirstEventIdOnDate(1, 1));
-    Assert.assertEquals(3, shardedEventIndex.findFirstEventIdOnDate(2, 1));
-    Assert.assertEquals(16, shardedEventIndex.findFirstEventIdOnDate(2, 2));
-
     shardedEventIndex.close();
     shardedEventIndex = shardedEventIndexProvider.get();
 
@@ -66,10 +62,6 @@ public class ShardedEventIndexTest extends GuiceTestCase {
     callback = new IdVerificationCallback(new int[] { 3, 4, 16 });
     shardedEventIndex.enumerateEventIds(eventTypes[0], dates[1], dates[3], callback);
     callback.verify();
-
-    Assert.assertEquals(3, shardedEventIndex.findFirstEventIdOnDate(1, 1));
-    Assert.assertEquals(3, shardedEventIndex.findFirstEventIdOnDate(2, 1));
-    Assert.assertEquals(16, shardedEventIndex.findFirstEventIdOnDate(2, 2));
   }
 
   private Provider<ShardedEventIndex> getShardedEventIndexProvider() {

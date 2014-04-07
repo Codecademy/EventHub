@@ -11,6 +11,9 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * ShardedEventIndex is responsible for managing individual EventIndex sharded by event type.
+ */
 public class ShardedEventIndex implements Closeable {
   private final String filename;
   private final EventIndex.Factory eventIndexFactory;
@@ -18,20 +21,13 @@ public class ShardedEventIndex implements Closeable {
   private final Map<String, EventIndex> eventIndexMap;
   // O(numEventTypes)
   private final Map<String, Integer> eventTypeIdMap;
-  private final DatedEventIndex datedEventIndex;
 
   public ShardedEventIndex(String filename, EventIndex.Factory eventIndexFactory,
-      Map<String, EventIndex> eventIndexMap, Map<String, Integer> eventTypeIdMap,
-      DatedEventIndex datedEventIndex) {
+      Map<String, EventIndex> eventIndexMap, Map<String, Integer> eventTypeIdMap) {
     this.filename = filename;
     this.eventIndexFactory = eventIndexFactory;
     this.eventIndexMap = eventIndexMap;
     this.eventTypeIdMap = eventTypeIdMap;
-    this.datedEventIndex = datedEventIndex;
-  }
-
-  public long findFirstEventIdOnDate(long eventIdForStartDate, int numDaysAfter) {
-    return datedEventIndex.findFirstEventIdOnDate(eventIdForStartDate, numDaysAfter);
   }
 
   public void enumerateEventIds(String eventType, String startDate, String endDate,
@@ -52,9 +48,6 @@ public class ShardedEventIndex implements Closeable {
   }
 
   public void addEvent(long eventId, String eventType, String date) {
-    if (!date.equals(datedEventIndex.getCurrentDate())) {
-      datedEventIndex.addEvent(eventId, date);
-    }
     eventIndexMap.get(eventType).addEvent(eventId, date);
   }
 
@@ -79,14 +72,10 @@ public class ShardedEventIndex implements Closeable {
       oos.writeObject(eventTypes);
       oos.writeObject(eventTypeIdMap);
     }
-    datedEventIndex.close();
   }
 
   public String getVarz(int indentation) {
     String indent  = new String(new char[indentation]).replace('\0', ' ');
-    return String.format(
-        indent + "current date: %s\n" +
-        indent + "filename: %s",
-        datedEventIndex.getCurrentDate(), filename);
+    return String.format(indent + "filename: %s", filename);
   }
 }

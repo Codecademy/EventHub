@@ -42,30 +42,9 @@ public class ShardedEventIndexModule extends AbstractModule {
   }
 
   @Provides
-  public DatedEventIndex getDatedEventIndex(
-      @Named("eventtracker.shardedeventindex.datedeventindex.filename") String datedEventIndexFilename) {
-    File file = new File(datedEventIndexFilename);
-    if (file.exists()) {
-      try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-        @SuppressWarnings("unchecked")
-        List<String> dates = (List<String>) ois.readObject();
-        @SuppressWarnings("unchecked")
-        List<Long> earliestEventIds = (List<Long>) ois.readObject();
-        String currentDate = (String) ois.readObject();
-        return new DatedEventIndex(datedEventIndexFilename, dates, earliestEventIds, currentDate);
-      } catch (IOException | ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return new DatedEventIndex(datedEventIndexFilename, Lists.<String>newArrayList(),
-        Lists.<Long>newArrayList(), null);
-  }
-
-  @Provides
   public ShardedEventIndex getEventIndex(
       @Named("eventtracker.shardedeventindex.filename") String eventIndexFilename,
-      EventIndex.Factory individualEventIndexFactory,
-      DatedEventIndex datedEventIndex) {
+      EventIndex.Factory individualEventIndexFactory) {
     File file = new File(eventIndexFilename);
     if (file.exists()) {
       try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
@@ -78,13 +57,13 @@ public class ShardedEventIndexModule extends AbstractModule {
           eventIndexMap.put(eventType, individualEventIndexFactory.build(eventType));
         }
         return new ShardedEventIndex(eventIndexFilename, individualEventIndexFactory, eventIndexMap,
-            eventTypeIdMap, datedEventIndex);
+            eventTypeIdMap);
       } catch (IOException | ClassNotFoundException e) {
         throw new RuntimeException(e);
       }
     }
     return new ShardedEventIndex(eventIndexFilename, individualEventIndexFactory,
-        Maps.<String,EventIndex>newHashMap(), Maps.<String, Integer>newHashMap(), datedEventIndex);
+        Maps.<String,EventIndex>newHashMap(), Maps.<String, Integer>newHashMap());
   }
 
   @Provides

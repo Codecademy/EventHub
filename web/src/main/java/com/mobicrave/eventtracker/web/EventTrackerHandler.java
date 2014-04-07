@@ -7,6 +7,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
 import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.EventTrackerModule;
+import com.mobicrave.eventtracker.index.DatedEventIndexModule;
 import com.mobicrave.eventtracker.index.ShardedEventIndexModule;
 import com.mobicrave.eventtracker.index.UserEventIndexModule;
 import com.mobicrave.eventtracker.list.DmaIdListModule;
@@ -76,6 +77,7 @@ public class EventTrackerHandler extends AbstractHandler implements Closeable {
 
     Injector injector = Guice.createInjector(Modules.override(
         new DmaIdListModule(),
+        new DatedEventIndexModule(),
         new ShardedEventIndexModule(),
         new UserEventIndexModule(),
         new EventStorageModule(),

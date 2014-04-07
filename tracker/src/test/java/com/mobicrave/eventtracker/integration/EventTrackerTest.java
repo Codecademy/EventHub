@@ -8,6 +8,8 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.mobicrave.eventtracker.*;
+import com.mobicrave.eventtracker.index.DatedEventIndex;
+import com.mobicrave.eventtracker.index.DatedEventIndexModule;
 import com.mobicrave.eventtracker.index.EventIndex;
 import com.mobicrave.eventtracker.index.ShardedEventIndex;
 import com.mobicrave.eventtracker.index.ShardedEventIndexModule;
@@ -149,12 +151,13 @@ public class EventTrackerTest extends GuiceTestCase {
 
     final String directory = injector.getInstance(Key.get(String.class, Names.named("eventtracker.directory")));
     final ShardedEventIndex shardedEventIndex = injector.getInstance(ShardedEventIndex.class);
+    final DatedEventIndex datedEventIndex = injector.getInstance(DatedEventIndex.class);
     final UserEventIndex userEventIndex = injector.getInstance(UserEventIndex.class);
     final EventStorage eventStorage = injector.getInstance(JournalEventStorage.class);
     final UserStorage userStorage = injector.getInstance(JournalUserStorage.class);
 
-    final EventTracker tracker = new EventTracker(directory, shardedEventIndex, userEventIndex,
-        eventStorage, userStorage);
+    final EventTracker tracker = new EventTracker(directory, shardedEventIndex, datedEventIndex,
+        userEventIndex, eventStorage, userStorage);
 
     final int NUM_EVENTS = 2000;
     final int NUM_THREADS = 20; // NUM_EVENTS needs to be muliple of NUM_THREADS
@@ -451,6 +454,7 @@ public class EventTrackerTest extends GuiceTestCase {
         new EventTrackerModule(prop),
         new DmaIdListModule(),
         new ShardedEventIndexModule(),
+        new DatedEventIndexModule(),
         new UserEventIndexModule(),
         new EventStorageModule(),
         new UserStorageModule());

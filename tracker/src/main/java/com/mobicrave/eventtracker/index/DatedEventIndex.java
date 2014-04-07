@@ -12,6 +12,9 @@ import java.io.ObjectOutputStream;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * DatedEventIndex is responsible for tracking the earliest event id for a given date.
+ */
 public class DatedEventIndex implements Closeable {
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
 
@@ -53,6 +56,9 @@ public class DatedEventIndex implements Closeable {
   }
 
   public void addEvent(long eventId, String date) {
+    if (currentDate != null && date.compareTo(currentDate) <= 0) {
+      return;
+    }
     currentDate = date;
     dates.add(date);
     earliestEventIds.add(eventId);

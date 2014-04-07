@@ -80,6 +80,13 @@ The server comes with a built-in dashboard which can be found at [http://localho
 ## Javascript Library
 The project comes with a javascript library which can be integrated with your website. Currently, the library depends on jQuery.
 
+### How to run JS tests
+#### install [karma](http://karma-runner.github.io/0.12/index.html)
+```bash
+cd ${EVENT_TRACKER_DIR}
+karma start karma.conf.js
+```
+
 ### API
 #### window.newEventTracker()
 #### EventTracker.track()

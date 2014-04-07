@@ -8,6 +8,7 @@ import com.google.inject.util.Modules;
 import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.EventTrackerModule;
 import com.mobicrave.eventtracker.index.DatedEventIndexModule;
+import com.mobicrave.eventtracker.index.PropertiesIndexModule;
 import com.mobicrave.eventtracker.index.ShardedEventIndexModule;
 import com.mobicrave.eventtracker.index.UserEventIndexModule;
 import com.mobicrave.eventtracker.list.DmaIdListModule;
@@ -79,6 +80,7 @@ public class EventTrackerHandler extends AbstractHandler implements Closeable {
         new DmaIdListModule(),
         new DatedEventIndexModule(),
         new ShardedEventIndexModule(),
+        new PropertiesIndexModule(),
         new UserEventIndexModule(),
         new EventStorageModule(),
         new UserStorageModule(),

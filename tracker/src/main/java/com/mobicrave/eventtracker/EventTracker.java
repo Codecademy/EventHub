@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.mobicrave.eventtracker.index.DatedEventIndex;
 import com.mobicrave.eventtracker.index.EventIndex;
+import com.mobicrave.eventtracker.index.PropertiesIndex;
 import com.mobicrave.eventtracker.index.ShardedEventIndex;
 import com.mobicrave.eventtracker.index.UserEventIndex;
 import com.mobicrave.eventtracker.list.DummyIdList;
@@ -36,11 +37,9 @@ import java.util.Set;
 // TODO(UI):          e.g. getting offset for a given user and date)
 // TODO(JS): replace $.ajax to remove jquery dependency
 // TODO(ruby): client should buffer and sidekiq
-// TODO: endpoint for autocomplete property keys and values for the given key
 // TODO: password protect dashboard
 // TODO: name space system parameter
-// TODO: update script.sh and tests for experiment parameter naming
-// TODO: failure recovery
+// TODO: failure recovery (and flush endpoint)
 // TODO: finish README.md
 // TODO:   dashboard screenshots
 // TODO:   Javascript library
@@ -65,16 +64,18 @@ public class EventTracker implements Closeable {
   private final String directory;
   private final ShardedEventIndex shardedEventIndex;
   private final DatedEventIndex datedEventIndex;
+  private final PropertiesIndex propertiesIndex;
   private final UserEventIndex userEventIndex;
   private final EventStorage eventStorage;
   private final UserStorage userStorage;
 
   public EventTracker(String directory, ShardedEventIndex shardedEventIndex,
-      DatedEventIndex datedEventIndex, UserEventIndex userEventIndex, EventStorage eventStorage,
-      UserStorage userStorage) {
+      DatedEventIndex datedEventIndex, PropertiesIndex propertiesIndex,
+      UserEventIndex userEventIndex, EventStorage eventStorage, UserStorage userStorage) {
     this.directory = directory;
     this.shardedEventIndex = shardedEventIndex;
     this.datedEventIndex = datedEventIndex;
+    this.propertiesIndex = propertiesIndex;
     this.userEventIndex = userEventIndex;
     this.eventStorage = eventStorage;
     this.userStorage = userStorage;
@@ -183,6 +184,7 @@ public class EventTracker implements Closeable {
     datedEventIndex.addEvent(eventId, date);
     shardedEventIndex.addEvent(eventId, event.getEventType(), date);
     userEventIndex.addEvent(userId, eventId);
+    propertiesIndex.addEvent(event);
     return eventId;
   }
 
@@ -205,6 +207,7 @@ public class EventTracker implements Closeable {
     eventStorage.close();
     userStorage.close();
     shardedEventIndex.close();
+    propertiesIndex.close();
     datedEventIndex.close();
     userEventIndex.close();
   }
@@ -249,6 +252,14 @@ public class EventTracker implements Closeable {
       rows.add(userIdsSet);
     }
     return rows;
+  }
+
+  public List<String> getEventKeys(String eventType) {
+    return propertiesIndex.getKeys(eventType);
+  }
+
+  public List<String> getEventValues(String eventType, String eventKey) {
+    return propertiesIndex.getValues(eventType, eventKey);
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

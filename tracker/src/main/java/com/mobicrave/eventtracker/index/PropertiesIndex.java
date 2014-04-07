@@ -1,73 +1,81 @@
 package com.mobicrave.eventtracker.index;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.model.Event;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBIterator;
+import org.iq80.leveldb.WriteBatch;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+
+import static org.fusesource.leveldbjni.JniDBFactory.asString;
+import static org.fusesource.leveldbjni.JniDBFactory.bytes;
 
 public class PropertiesIndex implements Closeable {
   private static final Set<String> KEYS_IGNORED = Sets.newHashSet("", "date",
       "external_user_id", "event_type");
-  private final String filename;
-  private final ConcurrentHashMap<String, ConcurrentSkipListSet<String>> keysMap;
-  private final ConcurrentHashMap<String, ConcurrentSkipListSet<String>> valuesMap;
+  public static final Joiner JOINER = Joiner.on("@@");
+  private static final byte[] VALUE = new byte[0];
 
-  public PropertiesIndex(String filename,
-      ConcurrentHashMap<String, ConcurrentSkipListSet<String>> keysMap,
-      ConcurrentHashMap<String, ConcurrentSkipListSet<String>> valuesMap) {
-    this.filename = filename;
-    this.keysMap = keysMap;
-    this.valuesMap = valuesMap;
+  private final DB keyDb;
+  private final DB valueDb;
+
+  public PropertiesIndex(DB keyDb, DB valueDb) {
+    this.keyDb = keyDb;
+    this.valueDb = valueDb;
   }
 
   @Override
   public void close() throws IOException {
-    //noinspection ResultOfMethodCallIgnored
-    new File(filename).getParentFile().mkdirs();
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-      oos.writeObject(keysMap);
-      oos.writeObject(valuesMap);
-    }
+    keyDb.close();
+    valueDb.close();
   }
 
   public void addEvent(Event event) {
     final String eventType = event.getEventType();
-    keysMap.putIfAbsent(eventType, new ConcurrentSkipListSet<String>());
-    final ConcurrentSkipListSet<String> keysSet = keysMap.get(eventType);
+    final WriteBatch keyBatch = keyDb.createWriteBatch();
+    final WriteBatch valueBatch = keyDb.createWriteBatch();
     event.enumerate(new KeyValueCallback() {
       @Override
       public void callback(String key, String value) {
         if (KEYS_IGNORED.contains(key)) {
           return;
         }
-        keysSet.add(key);
-        String valueMapKey = createKey(eventType, key);
-        valuesMap.putIfAbsent(valueMapKey, new ConcurrentSkipListSet<String>());
-        ConcurrentSkipListSet<String> valuesSet = valuesMap.get(valueMapKey);
-        valuesSet.add(value);
+        keyBatch.put(bytes(JOINER.join(eventType, key)), VALUE);
+        valueBatch.put(bytes(JOINER.join(eventType, key, value)), VALUE);
       }
     });
+    keyDb.write(keyBatch);
+    valueDb.write(valueBatch);
   }
 
   public List<String> getKeys(String eventType) {
-    return Lists.newArrayList(keysMap.get(eventType));
+    return findByPrefix(JOINER.join(eventType, ""), keyDb);
   }
 
   public List<String> getValues(String eventType, String key) {
-    return Lists.newArrayList(valuesMap.get(createKey(eventType, key)));
+    return findByPrefix(JOINER.join(eventType, key, ""), valueDb);
   }
 
-  private String createKey(String eventType, String key) {
-    return String.format("%s@@@%s", eventType, key);
+  private List<String> findByPrefix(String prefix, DB db) {
+    try (DBIterator iterator = db.iterator()) {
+      List<String> keys = Lists.newArrayList();
+      for (iterator.seek(bytes(prefix)); iterator.hasNext(); iterator.next()) {
+        String key = asString(iterator.peekNext().getKey());
+        if (!key.startsWith(prefix)) {
+          break;
+        }
+        keys.add(key.substring(prefix.length()));
+      }
+      return keys;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

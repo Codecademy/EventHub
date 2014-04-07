@@ -38,7 +38,7 @@ describe("EventTracker", function() {
       it("should send tracking events with generated id and registered properties, " +
           "then alias, and finally send events with identified user properties", function() {
         eventTracker.initialize();
-        eventTracker.register({ experiment_signup_v20: 'A' });
+        eventTracker.register({ experiment: 'signup_v20', treatment: 'A' });
         eventTracker.start();
         jasmine.clock().tick(1001);
         var generatedId = eventTracker._getUser().id;
@@ -54,7 +54,8 @@ describe("EventTracker", function() {
         expect($.ajax.calls.all()[0].args[0].data.events[0]).toEqual(jasmine.objectContaining({
           event_type: 'pageview',
           page: 'home page',
-          experiment_signup_v20: 'A'
+          experiment: 'signup_v20',
+          treatment: 'A'
         }));
         expect($.ajax.calls.all()[1].args[0].url).toEqual('http://example.com/users/alias');
         expect($.ajax.calls.all()[1].args[0].data).toEqual(jasmine.objectContaining({
@@ -77,7 +78,8 @@ describe("EventTracker", function() {
         eventTracker.start();
         eventTracker.identify('foo@example.com', {
           age: 30,
-          experiment_track_page_v20: 'A'
+          experiment: 'track_page_v20',
+          treatment: 'A'
         });
         eventTracker.track('pageview', { page: 'javascript track page' });
         eventTracker.track('start track', { track: 'javascript' });
@@ -89,13 +91,15 @@ describe("EventTracker", function() {
           external_user_id: 'foo@example.com',
           event_type: 'pageview',
           page: 'javascript track page',
-          experiment_track_page_v20: 'A',
+          experiment: 'track_page_v20',
+          treatment: 'A',
           age: 30
         }, {
           external_user_id: 'foo@example.com',
           event_type: 'start track',
           track: 'javascript',
-          experiment_track_page_v20: 'A',
+          experiment: 'track_page_v20',
+          treatment: 'A',
           age: 30
         }]);
       });

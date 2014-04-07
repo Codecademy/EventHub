@@ -14,6 +14,7 @@ import com.google.inject.Singleton;
 import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.index.DatedEventIndex;
+import com.mobicrave.eventtracker.index.PropertiesIndex;
 import com.mobicrave.eventtracker.index.ShardedEventIndex;
 import com.mobicrave.eventtracker.index.UserEventIndex;
 import com.mobicrave.eventtracker.model.Event;
@@ -51,11 +52,12 @@ public class Module extends AbstractModule {
       @Named("eventtracker.directory") String directory,
       ShardedEventIndex shardedEventIndex,
       DatedEventIndex datedEventIndex,
+      PropertiesIndex propertiesIndex,
       UserEventIndex userEventIndex,
       BloomFilteredEventStorage eventStorage,
       BloomFilteredUserStorage userStorage) {
-    return new EventTracker(directory, shardedEventIndex, datedEventIndex, userEventIndex,
-        eventStorage, userStorage);
+    return new EventTracker(directory, shardedEventIndex, datedEventIndex, propertiesIndex,
+        userEventIndex, eventStorage, userStorage);
   }
 
   @Provides

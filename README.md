@@ -102,15 +102,127 @@ var eventTracker = window.newEventTracker(name, options);
 ```
 
 #### eventTracker.track()
-The method enqueue the given event which will be cleared in batch at every flushInterval
+The method enqueue the given event which will be cleared in batch at every flushInterval. Beware that if there is no identify method called before the track method is called, the library will automatically generate an user id which remain the same for the entire session (clear after the browser tab is closed), and send the generated user id along with the queued event. On the other hand, if there is an identify method called before the track method is called, the user information passed along with the identify method call will be merged to the queued event.
 ```javascript
-eventTracker.track
+eventTracker.track("signup", {
+  property_1: 'value1',
+  property_2: 'value2'
+});
 ```
 
 #### eventTracker.alias()
-#### eventTracker.identify()
-#### eventTracker.register()
+The method links the given user to the automatically generated user. Typically, you only want to call this method once, and right after the user successfully signs up.
+```javascript
+eventTracker.alias('chengtao@codecademy.com');
+```
 
-### Receipes
+#### eventTracker.identify()
+The method tells the library instead of using the automatically generated user information, use the given information instead.
+```javascript
+eventTracker.identify('chengtao@codecademy.com', {
+  user_property_1: 'value1',
+  user_property_2: 'value2'
+});
+```
+
+#### eventTracker.register()
+The method allows the developer to add additional information to the generated user.
+```javascript
+eventTracker.register({
+  user_property_1: 'value1',
+  user_property_2: 'value2'
+});
+```
+
+### Scenario and Receipes
 #### Link the events sent before and after an user sign up
+The following code
+```javascript
+var eventTracker = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+eventTracker.track('pageview', { page: 'home' });
+eventTracker.register({
+  ip: '10.0.0.1'
+});
+
+// after user signup
+eventTracker.alias('chengtao@codecademy.com');
+eventTracker.identify('chengtao@codecademy.com', {
+  gender: 'male'
+});
+eventTracker.track('pageview', { page: 'learn' });
+```
+ will result in a funnel like
+```javascript
+{
+  user: 'something generated',
+  event: 'pageview',
+  page: 'home',
+  ip: '10.0.0.1'
+}
+link 'chengtao@codecademy.com' to 'something generated'
+{
+  user: 'chengtao@codecademy.com',
+  event: 'pageview',
+  page: 'learn',
+  gender: 'male'
+}
+```
+
 #### A/B testing
+The following code
+```javascript
+var eventTracker = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+eventTracker.identify('chengtao@codecademy.com', {});
+eventTracker.track('pageview', {
+  page: 'javascript exercise 1',
+  experiment: 'fancy feature',
+  treatment: 'new'
+});
+eventTracker.track('submit', {
+  page: 'javascript exercise 1'
+});
+```
+and
+```javascript
+var eventTracker = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+eventTracker.identify('bob@codecademy.com', {});
+eventTracker.track('pageview', {
+  page: 'javascript exercise 1',
+  experiment: 'fancy feature',
+  treatment: 'control'
+});
+eventTracker.track('skip', {
+  page: 'javascript exercise 1'
+});
+```
+will result in two funnels like
+```javascript
+{
+  user: 'chengtao@codecademy.com',
+  event: 'pageview',
+  page: 'javascript exercise 1',
+  experiment: 'fancy feature',
+  treatment: 'new'
+}
+{
+  user: 'chengtao@codecademy.com',
+  event: 'submit',
+  page: 'javascript exercise 1'
+}
+```
+and
+```javascript
+{
+  user: 'bob@codecademy.com',
+  event: 'pageview',
+  page: 'javascript exercise 1',
+  experiment: 'fancy feature',
+  treatment: 'control'
+}
+{
+  user: 'bob@codecademy.com',
+  event: 'skip',
+  page: 'javascript exercise 1'
+}
+```
+

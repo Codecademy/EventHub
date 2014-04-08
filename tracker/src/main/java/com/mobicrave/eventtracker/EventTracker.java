@@ -37,7 +37,6 @@ import java.util.Set;
 // TODO(UI):          e.g. getting offset for a given user and date)
 // TODO(JS): replace $.ajax to remove jquery dependency
 // TODO(ruby): client should buffer and sidekiq
-// TODO: password protect dashboard
 // TODO: name space system parameter
 // TODO: failure recovery (and flush endpoint)
 // TODO: finish README.md

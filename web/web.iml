@@ -16,6 +16,10 @@
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-http:9.1.0.v20131115" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-util:9.1.0.v20131115" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-io:9.1.0.v20131115" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-servlet:9.1.0.v20131115" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-security:9.1.0.v20131115" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-servlets:9.1.0.v20131115" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-continuation:9.1.0.v20131115" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.4" level="project" />
     <orderEntry type="module" module-name="tracker" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:2.3" level="project" />

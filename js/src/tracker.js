@@ -1,4 +1,8 @@
+
+// jsonp impl from http://stackapps.com/questions/891/how-to-call-the-api-via-jsonp-in-plain-old-javascript
+window.DevTips=window.DevTips||{}; (function(dt){ var _2=0; var _3="Query string length exceeds maximum recommended value of "; var _4="Url path length exceeds maximum recommended value of "; var _5=dt.maxQueryStringLength=1000; var _6=dt.maxPathLength=240; var _7=dt.jsEncode=function(_8){ if(_8 instanceof Date){ return new Date(_8).getTime(); } if(_8 instanceof Array){ var _9=[]; for(var i=0;i<_8.length;i++){ _9.push(encodeURIComponent(_8[i])); } return _9.join(";"); } return encodeURIComponent(_8); }; var _b=dt.jsonp=function(_c,_d,_e,_f,_10,_11){ if(_c.length>_6){ throw new Error(_4+_6); } var _12="_callback"+_2++; var _13="?jsonp=DevTips.jsonp."+_12; if(_d){ for(var _14 in _d){ if(_d.hasOwnProperty(_14)){ _13=_13+"&"+_14+"="+_7(_d[_14]); } } } if(_13.length>_5){ throw new Error(_3+_5); } _b[_12]=function(_15){ delete _b[_12]; if(_15.error){ if(_10){ _15.error.callback=_12; _10(_15.error); } }else{ _f(_15); } }; var scr=document.createElement("script"); scr.type="text/javascript"; scr.src=_c+_13; var _17=document.getElementsByTagName("head")[0]; _17.insertBefore(scr,_17.firstChild); _11=_11||10000; window.setTimeout(function(){ if(typeof _b[_12]=="function"){ _b[_12]=function(_18){ delete _b[_12]; }; _10({code:408,message:"Request Timeout",callback:_12}); window.setTimeout(function(){ if(typeof _b[_12]=="function"){ delete _b[_12]; } },60000); } },_11); }; })(DevTips);
 (function(window) {
+
   var generateId = function() {
     return Math.random().toString(36).substr(2, 9);
   };
@@ -108,14 +112,7 @@
         events.push(event);
       });
 
-      $.ajax({
-        url: this.url + '/events/batch_track',
-        jsonp: "callback",
-        dataType: "jsonp",
-        data: {
-          events: events
-        }
-      });
+      window.DevTips.jsonp(this.url + '/events/batch_track', { events: events });
     };
 
     this._synchronousSend = function(blockingCommand) {
@@ -148,16 +145,11 @@
     this._aliasUser = function(params, success) {
       var generatedId = this.localStorage.getObject(this.generatedIdKey);
 
-      $.ajax({
-        url: this.url + '/users/alias',
-        jsonp: "callback",
-        dataType: "jsonp",
-        data: {
+      window.DevTips.jsonp(this.url + '/users/alias', {
           from_external_user_id: params.id,
           to_external_user_id: generatedId
-        },
-        success: success
-      });
+        }, "",
+        success);
     };
 
     this._setGeneratedUser = function(properties) {

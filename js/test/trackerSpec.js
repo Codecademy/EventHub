@@ -17,10 +17,10 @@ describe("EventTracker", function() {
   beforeEach(function() {
     clearStorage();
     jasmine.clock().install();
-    $ = jasmine.createSpyObj('$', ['ajax']);
-    $.ajax.and.callFake(function(params) {
-      if (params.success) {
-        params.success();
+    DevTips = jasmine.createSpyObj('DevTips', ['jsonp']);
+    DevTips.jsonp.and.callFake(function(url, params, api, success, failure) {
+      if (success) {
+        success();
       }
     });
 
@@ -40,10 +40,10 @@ describe("EventTracker", function() {
       eventTracker.track("submission", { a: 'b' });
       eventTracker.flush();
 
-      expect($.ajax.calls.count()).toBe(1);
-      var args = $.ajax.calls.mostRecent().args;
-      expect(args[0].url).toBe('http://example.com/events/batch_track');
-      var eventsSent = args[0].data.events;
+      expect(DevTips.jsonp.calls.count()).toBe(1);
+      var args = DevTips.jsonp.calls.mostRecent().args;
+      expect(args[0]).toBe('http://example.com/events/batch_track');
+      var eventsSent = args[1].events;
       expect(eventsSent[0]).toEqual(
         jasmine.objectContaining({ event_type: 'submission', a: 'b' }));
     });
@@ -56,12 +56,12 @@ describe("EventTracker", function() {
       eventTracker.track("submission");
 
       jasmine.clock().tick(501);
-      expect($.ajax).not.toHaveBeenCalled();
+      expect(DevTips.jsonp).not.toHaveBeenCalled();
       jasmine.clock().tick(500);
-      expect($.ajax.calls.count()).toBe(1);
-      expect($.ajax.calls.mostRecent().args[0].data.events.length).toBe(3);
+      expect(DevTips.jsonp.calls.count()).toBe(1);
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events.length).toBe(3);
       jasmine.clock().tick(5000);
-      expect($.ajax.calls.count()).toBe(1);
+      expect(DevTips.jsonp.calls.count()).toBe(1);
     });
 
     it("should send previously queued events after resumed", function() {
@@ -70,12 +70,12 @@ describe("EventTracker", function() {
       eventTracker.track('submission', { c: 'd' });
       eventTracker.flush();
 
-      expect($.ajax.calls.count()).toBe(2);
-      expect($.ajax.calls.first().args[0].data.events.length).toBe(1);
-      expect($.ajax.calls.first().args[0].data.events[0]).toEqual(
+      expect(DevTips.jsonp.calls.count()).toBe(2);
+      expect(DevTips.jsonp.calls.first().args[1].events.length).toBe(1);
+      expect(DevTips.jsonp.calls.first().args[1].events[0]).toEqual(
         jasmine.objectContaining({ event_type: 'prev-submission', a: 'b' }));
-      expect($.ajax.calls.mostRecent().args[0].data.events.length).toBe(1);
-      expect($.ajax.calls.mostRecent().args[0].data.events[0]).toEqual(
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events.length).toBe(1);
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0]).toEqual(
         jasmine.objectContaining({ event_type: 'submission', c: 'd' }));
     });
   });
@@ -94,8 +94,8 @@ describe("EventTracker", function() {
       eventTracker.track("submission");
       eventTracker.flush();
 
-      expect($.ajax.calls.count()).toBe(1);
-      var eventsSent = $.ajax.calls.mostRecent().args[0].data.events;
+      expect(DevTips.jsonp.calls.count()).toBe(1);
+      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
       var generatedId = eventTracker._getUser().id;
       expect(generatedId).toBeDefined();
       expect(eventsSent[0].external_user_id).toBe(generatedId);
@@ -111,7 +111,7 @@ describe("EventTracker", function() {
       eventTracker.track("submission");
       eventTracker.flush();
 
-      var eventsSent = $.ajax.calls.mostRecent().args[0].data.events;
+      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
       expect(eventsSent[0]).toEqual({
         event_type: 'submission',
         external_user_id: generatedUser.id,
@@ -129,7 +129,7 @@ describe("EventTracker", function() {
       eventTracker.track("submission");
       eventTracker.flush();
 
-      var eventsSent = $.ajax.calls.mostRecent().args[0].data.events;
+      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
       expect(eventsSent[0].external_user_id).not.toBe(generatedUser.id);
     });
 
@@ -144,16 +144,16 @@ describe("EventTracker", function() {
       eventTracker.track('submission', { c: 'd' });
       eventTracker.flush();
 
-      expect($.ajax.calls.count()).toBe(2);
-      expect($.ajax.calls.first().args[0].data.events.length).toBe(1);
-      expect($.ajax.calls.first().args[0].data.events[0]).toEqual({
+      expect(DevTips.jsonp.calls.count()).toBe(2);
+      expect(DevTips.jsonp.calls.first().args[1].events.length).toBe(1);
+      expect(DevTips.jsonp.calls.first().args[1].events[0]).toEqual({
         external_user_id: generatedUser.id,
         event_type: 'prev-submission',
         a: 'b',
         foo: 'bar'
       });
-      expect($.ajax.calls.mostRecent().args[0].data.events.length).toBe(1);
-      expect($.ajax.calls.mostRecent().args[0].data.events[0]).toEqual({
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events.length).toBe(1);
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0]).toEqual({
         external_user_id: generatedUser.id,
         event_type: 'submission',
         c: 'd',
@@ -169,8 +169,8 @@ describe("EventTracker", function() {
       eventTracker.track("submission", { a: 'b' });
       eventTracker.flush();
 
-      expect($.ajax.calls.count()).toBe(1);
-      var eventsSent = $.ajax.calls.mostRecent().args[0].data.events;
+      expect(DevTips.jsonp.calls.count()).toBe(1);
+      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
       expect(eventsSent[0]).toEqual(
         jasmine.objectContaining({
           event_type: 'submission',
@@ -189,7 +189,7 @@ describe("EventTracker", function() {
       eventTracker.track("submission");
       eventTracker.flush();
 
-      var eventsSent = $.ajax.calls.mostRecent().args[0].data.events;
+      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
       expect(eventsSent[0].external_user_id).not.toBe('foo');
       expect(eventsSent[0].foo).toBeUndefined();
     });
@@ -204,18 +204,18 @@ describe("EventTracker", function() {
       eventTracker.track('submission', { c: 'd' });
       eventTracker.flush();
 
-      expect($.ajax.calls.count()).toBe(2);
-      expect($.ajax.calls.first().args[0].data.events.length).toBe(1);
-      expect($.ajax.calls.first().args[0].data.events[0]).toEqual({
+      expect(DevTips.jsonp.calls.count()).toBe(2);
+      expect(DevTips.jsonp.calls.first().args[1].events.length).toBe(1);
+      expect(DevTips.jsonp.calls.first().args[1].events[0]).toEqual({
         external_user_id: 'foo',
         event_type: 'prev-submission',
         a: 'b',
         foo: 'bar'
       });
-      expect($.ajax.calls.mostRecent().args[0].data.events.length).toBe(1);
-      expect($.ajax.calls.mostRecent().args[0].data.events[0].external_user_id).not.toBe('foo');
-      expect($.ajax.calls.mostRecent().args[0].data.events[0].foo).toBeUndefined();
-      expect($.ajax.calls.mostRecent().args[0].data.events[0]).toEqual(jasmine.objectContaining({
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events.length).toBe(1);
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0].external_user_id).not.toBe('foo');
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0].foo).toBeUndefined();
+      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0]).toEqual(jasmine.objectContaining({
         event_type: 'submission',
         c: 'd'
       }));

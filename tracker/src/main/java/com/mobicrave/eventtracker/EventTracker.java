@@ -42,7 +42,6 @@ import java.util.Set;
 // TODO: failure recovery (and flush endpoint)
 // TODO: finish README.md
 // TODO:   dashboard screenshots
-// TODO:   Javascript library
 // TODO:   architecture
 // TODO:   performance
 // TODO: code style and naming review

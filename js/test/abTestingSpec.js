@@ -17,10 +17,10 @@ describe("EventTracker", function() {
   beforeEach(function() {
     clearStorage();
     jasmine.clock().install();
-    $ = jasmine.createSpyObj('$', ['ajax']);
-    $.ajax.and.callFake(function(params) {
-      if (params.success) {
-        params.success();
+    DevTips = jasmine.createSpyObj('DevTips', ['jsonp']);
+    DevTips.jsonp.and.callFake(function(url, params, api, success, failure) {
+      if (success) {
+        success();
       }
     });
 
@@ -51,20 +51,20 @@ describe("EventTracker", function() {
         eventTracker.track('signup', { hello: 'world' });
 
         jasmine.clock().tick(5001);
-        expect($.ajax.calls.count()).toBe(3);
-        expect($.ajax.calls.all()[0].args[0].url).toBe('http://example.com/events/batch_track');
-        expect($.ajax.calls.all()[0].args[0].data.events[0]).toEqual(jasmine.objectContaining({
+        expect(DevTips.jsonp.calls.count()).toBe(3);
+        expect(DevTips.jsonp.calls.all()[0].args[0]).toBe('http://example.com/events/batch_track');
+        expect(DevTips.jsonp.calls.all()[0].args[1].events[0]).toEqual(jasmine.objectContaining({
           event_type: 'pageview',
           page: 'home page',
           experiment: 'signup_v20',
           treatment: 'A'
         }));
-        expect($.ajax.calls.all()[1].args[0].url).toEqual('http://example.com/users/alias');
-        expect($.ajax.calls.all()[1].args[0].data).toEqual(jasmine.objectContaining({
+        expect(DevTips.jsonp.calls.all()[1].args[0]).toEqual('http://example.com/users/alias');
+        expect(DevTips.jsonp.calls.all()[1].args[1]).toEqual(jasmine.objectContaining({
           from_external_user_id: 'foo@example.com',
           to_external_user_id: generatedId
         }));
-        expect($.ajax.calls.all()[2].args[0].data.events[0]).toEqual(jasmine.objectContaining({
+        expect(DevTips.jsonp.calls.all()[2].args[1].events[0]).toEqual(jasmine.objectContaining({
           external_user_id: 'foo@example.com',
           event_type: 'signup',
           hello: 'world',
@@ -87,9 +87,9 @@ describe("EventTracker", function() {
         eventTracker.track('start track', { track: 'javascript' });
 
         jasmine.clock().tick(5001);
-        expect($.ajax.calls.count()).toBe(1);
-        expect($.ajax.calls.first().args[0].url).toBe('http://example.com/events/batch_track');
-        expect($.ajax.calls.first().args[0].data.events).toEqual([{
+        expect(DevTips.jsonp.calls.count()).toBe(1);
+        expect(DevTips.jsonp.calls.first().args[0]).toBe('http://example.com/events/batch_track');
+        expect(DevTips.jsonp.calls.first().args[1].events).toEqual([{
           external_user_id: 'foo@example.com',
           event_type: 'pageview',
           page: 'javascript track page',

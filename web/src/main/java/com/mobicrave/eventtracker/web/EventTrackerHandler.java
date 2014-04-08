@@ -103,7 +103,8 @@ public class EventTrackerHandler extends AbstractHandler implements Closeable {
     @SuppressWarnings("ConstantConditions")
     String webDir = EventTrackerHandler.class.getClassLoader().getResource("frontend").toExternalForm();
     HashLoginService loginService = new HashLoginService();
-    loginService.putUser("codecademy", new Password("ryzacinc"), new String[]{"user"});
+    loginService.putUser(properties.getProperty("eventtrackerhandler.username"),
+        new Password(properties.getProperty("eventtrackerhandler.password")), new String[]{"user"});
 
     server.addBean(loginService);
 

@@ -88,11 +88,28 @@ karma start karma.conf.js
 ```
 
 ### API
+The javascript library is extremely simple and heavily inspired by mixpanel. There are only five methods that developer needs to understand. Beware that behind the scene, the library maintains a queue backed by localStorage, buffers the events in the queue, and have a timer reguarly clear the queue. If the browser doesn't support localStorage, instead, a in-memory queue will be created as the EventTracker is created. Also, our implementation relies on the server to track the timestamp of each event. Therefore, in the case of a browser session disconnected before all the events are sent, the remaining events will be sent in the next browser session and thus have the timestamp recorded as the next session starts.
+
 #### window.newEventTracker()
-#### EventTracker.track()
-#### EventTracker.alias()
-#### EventTracker.identify()
-#### EventTracker.register()
+The method will create an EventTracker and start the timer which clears out the event queue in every second (default)
+```javascript
+var name = "EventTracker";
+var options = {
+  url: 'http://example.com/',
+  flushInterval: 1000 /* in milliseconds */
+};
+var eventTracker = window.newEventTracker(name, options);
+```
+
+#### eventTracker.track()
+The method enqueue the given event which will be cleared in batch at every flushInterval
+```javascript
+eventTracker.track
+```
+
+#### eventTracker.alias()
+#### eventTracker.identify()
+#### eventTracker.register()
 
 ### Receipes
 #### Link the events sent before and after an user sign up

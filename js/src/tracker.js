@@ -1,4 +1,9 @@
 (function(window) {
+  var generateId = function() {
+    return Math.random().toString(36).substr(2, 9);
+  };
+
+
   Storage.prototype.setObject = function(key, value) {
     this.setItem(key, JSON.stringify(value));
   };
@@ -8,21 +13,34 @@
     return value ? JSON.parse(value) : undefined;
   };
 
-  var generateId = function() {
-    return Math.random().toString(36).substr(2, 9);
+
+  var FakeStorage = function() {
+    this.storage = {};
   };
 
-  var StorageQueue = function(name) {
+  (function() {
+    this.setObject = function(key, value) {
+      this.storage[key] = value;
+    };
+
+    this.getObject = function(key) {
+      return this.storage[key];
+    };
+  }).call(FakeStorage.prototype);
+
+
+  var StorageQueue = function(name, localStorage) {
     this.key = name + "::Queue";
+    this.localStorage = localStorage;
   };
 
   (function() { // merge to StorageQueue.prototype
     this._getQueue = function() {
-      return localStorage.getObject(this.key) || [];
+      return this.localStorage.getObject(this.key) || [];
     };
 
     this._setQueue = function(queue) {
-      localStorage.setObject(this.key, queue);
+      this.localStorage.setObject(this.key, queue);
     };
 
     this.enqueue = function(element) {
@@ -42,8 +60,11 @@
     };
   }).call(StorageQueue.prototype);
 
-  var EventTracker = function(name, queue, options) {
+
+  var EventTracker = function(name, queue, localStorage, sessionStorage, options) {
     this.queue = queue;
+    this.localStorage = localStorage;
+    this.sessionStorage = sessionStorage;
 
     options = options || {};
     this.url = options.url || "";
@@ -61,9 +82,9 @@
     };
 
     this._getUser = function() {
-      var identifiedUser = localStorage.getObject(this.identifiedUserKey);
-      var generatedUser = localStorage.getObject(this.generatedUserKey);
-      var generatedId = localStorage.getObject(this.generatedIdKey);
+      var identifiedUser = this.localStorage.getObject(this.identifiedUserKey);
+      var generatedUser = this.localStorage.getObject(this.generatedUserKey);
+      var generatedId = this.localStorage.getObject(this.generatedIdKey);
       return identifiedUser || generatedUser || { id: generatedId, properties: {} };
     };
 
@@ -121,11 +142,11 @@
     };
 
     this._setIdentifiedUser = function(user) {
-      localStorage.setObject(this.identifiedUserKey, user);
+      this.localStorage.setObject(this.identifiedUserKey, user);
     };
 
     this._aliasUser = function(params, success) {
-      var generatedId = localStorage.getObject(this.generatedIdKey);
+      var generatedId = this.localStorage.getObject(this.generatedIdKey);
 
       $.ajax({
         url: this.url + '/users/alias',
@@ -140,18 +161,18 @@
     };
 
     this._setGeneratedUser = function(properties) {
-      var generatedId = localStorage.getObject(this.generatedIdKey);
+      var generatedId = this.localStorage.getObject(this.generatedIdKey);
       var user = { id: generatedId, properties: properties };
-      localStorage.setObject(this.generatedUserKey, user);
+      this.localStorage.setObject(this.generatedUserKey, user);
     };
 
     this._invalidateGeneratedUser = function() {
-      delete localStorage[this.generatedUserKey];
-      localStorage.setObject(this.generatedIdKey, generateId());
+      delete this.localStorage[this.generatedUserKey];
+      this.localStorage.setObject(this.generatedIdKey, generateId());
     };
 
     this._invalidateIdentifiedUser = function() {
-      delete localStorage[this.identifiedUserKey];
+      delete this.localStorage[this.identifiedUserKey];
     };
 
     this._dequeueUntil = function(predicate) {
@@ -219,8 +240,8 @@
     };
 
     this.initialize = function() {
-      if (!sessionStorage[this.sessionKey]) {
-        sessionStorage[this.sessionKey] = true;
+      if (!this.sessionStorage[this.sessionKey]) {
+        this.sessionStorage[this.sessionKey] = true;
         this.invalidateGeneratedUser();
       }
       this.invalidateIdentifiedUser();
@@ -236,11 +257,18 @@
     };
   }).call(EventTracker.prototype);
 
+
+  window.FakeStorage = FakeStorage;
   window.StorageQueue = StorageQueue;
   window.EventTracker = EventTracker;
   window.newEventTracker = function(name, options) {
-    var storageQueue = new StorageQueue(name);
-    var eventTracker = new EventTracker(name, storageQueue, options);
+    var storageQueue = new StorageQueue(name, window.localStorage || new FakeStorage());
+    var eventTracker = new EventTracker(
+        name,
+        storageQueue,
+        window.localStorage || new FakeStorage(),
+        window.sessionStorage || new FakeStorage(),
+        options);
 
     eventTracker.initialize();
     eventTracker.start();

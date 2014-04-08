@@ -25,7 +25,9 @@ describe("EventTracker", function() {
     });
 
     eventTracker = new EventTracker(name,
-      new StorageQueue(name),
+     new StorageQueue(name, window.localStorage),
+      window.localStorage,
+      window.sessionStorage,
       { url: 'http://example.com' });
   });
 

@@ -105,6 +105,61 @@ header {
 	border: 1px solid #ddd;
 }
 
+/* Filter styles */
+
+.filter-toggle {
+	margin-top: 12px;
+	font-size: 14px;
+	color: gray;
+}
+
+.filter-toggle:hover {
+	cursor: pointer;
+}
+
+.filter-toggle.hide {
+	display: none;
+}
+
+.filter-toggle .down-arrow {
+	position: relative;
+	bottom: 9px;
+	left: 5px;
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-bottom: 4px solid gray;
+}
+
+.filters {
+	display: none;
+}
+
+.retention-filters {
+	margin-left: 192px;
+}
+
+.retention-filters .filters {
+	vertical-align: top;
+}
+
+.retention-filters .filters:last-child {
+	margin-left: 193px;
+}
+
+.retention-filters.show-filters {
+	display: block;
+}
+
+.retention-filters.show-filters .filters {
+	display: inline-block;
+}
+
+.funnel-steps.show-filters .filters {
+	display: block;
+}
+
 /* Global styles */
 
 .date-container input {
@@ -152,6 +207,7 @@ header {
 
 .step-container {
 	display: inline-block;
+	vertical-align: top;
 }
 
 .step-container:nth-child(5) .next-step {
@@ -182,10 +238,11 @@ header {
 
 .add-step {
 	display: inline-block;
-	position: relative;
-	top: 3px;
+	vertical-align: top;
 	color: green;
 	opacity: 0.65;
+	position: relative;
+	top: 9px;
 }
 
 .add-step:hover {
@@ -193,8 +250,9 @@ header {
 	cursor: pointer;
 }
 
-.funnel-steps {
+.steps-container {
 	display: inline-block;
+	vertical-align: top;
 }
 
 .completion-rate {
@@ -340,6 +398,10 @@ header {
 
 .retention-show {
 	padding: 20px;
+}
+
+.show-me {
+	color: gray;
 }
 
 .range-container {

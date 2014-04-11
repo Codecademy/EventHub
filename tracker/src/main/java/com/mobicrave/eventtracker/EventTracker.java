@@ -35,13 +35,11 @@ import java.util.Set;
 // TODO(UI): support event filtering for both cohort and funnel
 // TODO(UI): support user event timeline (including adding necessary api endpoints,
 // TODO(UI):          e.g. getting offset for a given user and date)
-// TODO(JS): replace $.ajax to remove jquery dependency
 // TODO(ruby): client should buffer and sidekiq
 // TODO: name space system parameter
 // TODO: failure recovery (and flush endpoint)
 // TODO: finish README.md
 // TODO:   dashboard screenshots
-// TODO:   architecture
 // TODO:   performance
 // TODO: code style and naming review
 // --------------- End of V1 beta

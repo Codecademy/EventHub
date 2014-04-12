@@ -38,9 +38,10 @@ import java.util.Set;
 // TODO(ruby): client should buffer and sidekiq
 // TODO: name space system parameter
 // TODO: failure recovery (and flush endpoint)
+// TODO: support range and regex filter
 // TODO: finish README.md
+// TODO:   query performance
 // TODO:   dashboard screenshots
-// TODO:   performance
 // TODO: code style and naming review
 // --------------- End of V1 beta
 // TODO: deploy and verify it can handle CC traffic

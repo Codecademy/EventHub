@@ -42,13 +42,13 @@ function getEventKey(type) {
   var deferred = $.Deferred();
   $.ajax({
     type: "GET",
-    url: 'http://localhost:8080/events/keys?event_type=' + type
+    url: '/events/keys?event_type=' + type
   }).done(function (keys) {
     keys = JSON.parse(keys);
     typeKeys = {};
     typeKeys[type] = keys; //I have no idea why {a: [1,2,3]} becomes [1,2,3]. Visit later...
     deferred.resolve(typeKeys);
-  })
+  });
   return deferred.promise();
 }
 

@@ -1,10 +1,18 @@
 # Event Tracker
+Event Tracker enables companies to do cross devices event tracking. The events will be joined by their associated users at the server, and the server also comes with a built-in dashboard which can be used to answer the following common business questions
+* what is my funnel conversion rate
+* what is my cohorted KPI retention
+* which variant in my A/B testing has higher conversion rate
+
+Most important of all, it is free and open sourced.
+
 **Table of Contents**
+- [Quick Start](#quick-start)
 - [Server](#server)
 - [Dashboard](#dashboard)
 - [Javascript Library](#javascript-library)
 
-## Server
+## Quick Start
 ### Required dependency
 * [java sdk7](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
 * [maven](http://maven.apache.org)
@@ -21,8 +29,13 @@ mvn -am -pl web clean package
 java -jar web/target/web-1.0-SNAPSHOT.jar
 ```
 
-### Manually testing server endpoints
-#### Test with curl
+### How to run all the tests
+#### Unit/Integration/Functional testing
+```bash
+mvn -am -pl web clean test
+```
+
+#### Manual testing with curl
 * Add new event
     ```bash
     curl -X POST http://localhost:8080/events/track --data "event_type=signup&external_user_id=foobar&event_property_1=1"
@@ -36,6 +49,16 @@ java -jar web/target/web-1.0-SNAPSHOT.jar
 * Show all event types
     ```bash
     curl http://localhost:8080/events/types
+    ```
+
+* Show all property keys for the given event type
+    ```bash
+    curl 'http://localhost:8080/events/keys?event_type=signup'
+    ```
+
+* Show all property values for the given event type and property key
+    ```bash
+    curl 'http://localhost:8080/events/values?event_type=signup&event_key=treatment'
     ```
 
 * Show server stats
@@ -59,23 +82,75 @@ java -jar web/target/web-1.0-SNAPSHOT.jar
     curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&end_date=${end_date}&row_event_type=signup&column_event_type=view_shopping_cart&num_days_per_row=1&num_columns=2"
     ```
 
-#### Run them all
+#### Automated testing with curl
 ```bash
 cd ${EVENT_TRACKER_DIR}; ./script.sh
 ```
 
-### How to run the load test
+#### Load testing with Jmeter
 We use [Apache Jmeter](http://jmeter.apache.org) for load testing, and the load testing script can be found in `${EVENT_TRACKER_DIR}/./load_test.jmx`
 
+## Server
+
+### Key observations & design decisions
+Our goal is to build something usable on a single machine with reasonably large SSD drive. Let's say, hypotheitcally, the server receives 100M events monthly (might cost you few thousand dollars per month to use SAAS provider), and each event is 500 bytes without compression. In the situation, storing all the events likely only takes you few hundreds GB to store all your data with compression, and chances are, only data in recent months are of interest.
+
+Also, to efficiently run basic funnel and cohort queries without filtering, only two forward indices are needed, event index sharded by event types and event index sharded by users. Therefore, our strategy is to make those two indices as small as possible to fit in memory, and if the client want to do filtering for events, we build a bloomfilter rejects most of the non exact-match. Imagine we are running another hypothetical query while assuming both indices and the bloomfilters can be fitted in memory. Say there are 1M events that cannot rejected and need to hit the disk, assuming each SSD disk read is 16 microseconds, we are talking about sub-minute query time, while assuming none of the data are in memory. In practice, the situation is likely much better as we cache all the recently hit records, and most of the queries likely only concern about most recent data.
+
+To simplifies the design of the server and store indices compactly so that they will fit in memory, we made the following two assumptions.
+
+1. Times are associated to the events by the server when received
+2. Date is the finest level of granularity
+
+With the above two assumptions, we can rely on server generated monotonically increasing id to maintain the total order for the events. In addition, as long as we track the id of the first event in any given date, we do not need to store the time information in the indices (which greatly reduce the size of the indices). The direct implication for those assumptions are, first, if the client chose to cache some events locally and sent them later, the timing for those events will be recorded as the server receives them, not when the user made those actions; second, though the server maintains the total ordering of all events, it cannot answer questions like what is the conversion rate for the given funnel between 2pm and 3pm on a given date.
+
+Lastly, for both indices, since they are sharded by event types or users, we expect the size of the indices can be significantly further reduced with proper compression.
+
 ### Architecture
+At the highest level, `com.mobicrave.eventracker.web.EventTrackerHandler` is the main entry point. It runs a [Jetty](http://www.eclipse.org/jetty) server, reflectively collects supported commands under `com.mobicrave.eventracker.web.commands`, handles JSONP request transparently, handles requests to static resources like the dashboard, and most importantly, act as a proxy which translates http request and respones to and from method calls to `com.mobicrave.eventracker.EventTracker`.
+
+`com.mobicrave.eventracker.EventTracker` can be thought of as a facade to the key components of `UserStorage`, `EventStorage`, `ShardedEventIndex`, `DatedEventIndex`, `UserEventIndex` and `PropertiesIndex`.
+
+For `UserStorage` and `EventStorage`, at the lowest level, we implemented `Journal{User,Event}Storage` backed by [HawtJournal](https://github.com/fusesource/hawtjournal/) to store underlying records reliably. In addition, when clients is quering records which cannot be filtered by the supported indices, the server will loop through all tne potential hits, look up the properties from the `Journal` and then filter. For better performance, there are also decorators for each storage like `Cached{User,Event}Storage` to support caching and `BloomFiltered{User,Event}Storage` to support fast rejection for filters like `ExactMatch`. Please also beware that each `Storage` maintains a monotonically increasing counter as the internal id generator for each event and user received.
+
+To make the funnel and corhot queries fast, `EventTracker` also maintains three indices, `ShardedEventIndex`, `UserEventIndex`, and `DatedEventIndex` behind the scene. `DatedEventIndex` simply tracks the mapping from a given date, the id of the first event received in that day. `ShardedEventIndex` can be thought of as sorted event ids sharded by event type. `UserEventIndex` can be thought of as sorted event ids sharded by users.
+
+Lastly, `EventTracker` maintains a `PropertiesIndex` backed by [LevelDB Jni](https://github.com/fusesource/leveldbjni) to track what properties keys are available for a given event type and what properties values are available for a given event type and a property key.
+
+### Horizontal scalabiltiy
+While EventTracker does not need any information from different users, with a broker in front of EventTracker servers, EventTracker can be easily sharded by users and scale horizontally.
 
 ### Performance
-#### Experiment setting
+In the experiment, the server was bootstrapped with subset of data from Codecademy, which has around 53M events and 2.4M users.
+
 #### Memory footprint
+Please beware that the current storage format on disk is fairly inefficient and has serious internal fragmentation. However, when the data are loaded to memory, it will be much more efficient as we would never load those "hole" pages into memory.
+
+| Key Component             | Size in memory  | Note |
+|---------------------------|-----------------|------|
+| ShardedEventIndex         | 424Mb           | (data size) + (index size) <br>= (event id size * number of events) + negligible<br>= (8 * 53M) |
+| UserEventIndex            | 722Mb           | (data size) + (index size) <br>= (event id size * number of events) + (index entry size * number of users)<br>= (8 * 53M) + ((numPointersPerIndexEntry * 2 + 1) * 8 + 4) * 2.4M)<br>= (8 * 53M) + (124 * 2.4M) |
+| BloomFitleredEventStorage | 3.4Gb           | (bloomfilter size) * (number of events) <br>= 64 * 53M |
+
 #### Query performance
+| Query                   | 1st time execution | 2nd time execution | # records |
+|-------------------------|--------------------|--------------------|-----------|
+| Funnel without filters  | 10K   | | |
+| Funnel with filters     | 10K   | | |
+| Cohort without filters  | 10K   | | |
+| Cohort with filters     | 10K   | | |
 
 ## Dashboard
-The server comes with a built-in dashboard which can be found at [http://localhost:8080](http://localhost:8080). Through the dashboard, you can access the server for your funnel and cohort analysis.
+The server comes with a built-in dashboard which is simply some static resources stored in `/web/src/main/resources/frontend` and gets compiled into the server jar file. After running the server, the dashboard can be accessed at [http://localhost:8080](http://localhost:8080). Through the dashboard, you can access the server for your funnel and cohort analysis.
+
+#### Screenshots
+#### Password protection
+The dashboard comes with insecure basic authentication which send unencrypted information without SSL. Please use it at your own discretion. The default username/password is codecademy/ryzacinc and you can change it by modifying your web.properties file or use the following command to start your server
+```bash
+USERNAME=foo
+PASSWORD=bar
+java -Deventtrackerhandler.username=${USERNAME} -Deventtrackerhandler.password=${PASSWORD} -jar web/target/web-1.0-SNAPSHOT.jar
+```
 
 ## Javascript Library
 The project comes with a javascript library which can be integrated with your website. Currently, the library depends on jQuery.

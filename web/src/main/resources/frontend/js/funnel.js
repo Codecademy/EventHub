@@ -1,43 +1,46 @@
 function initFunnelShow() {
-    $('.frame').removeClass('show');
-    $('.funnel-show').addClass('show');
-    $('.container').removeClass('small');
-    var params = $.deparam(window.location.search.substring(1));
-    var funnel = params.type === 'funnel' ? params : {};
-    initializeFunnelSteps(funnel);
-    initializeFunnelDatePickers(funnel);
-    initializeDaysToComplete(funnel)
-    bindFunnelInputListeners();
-    bindRemoveStepListener();
+  $('.body-container').html(Mustache.render(funnelTemplate));
+
+  $('.frame').removeClass('show');
+  $('.funnel-show').addClass('show');
+
+  var params = $.deparam(window.location.search.substring(1));
+  var funnel = params.type === 'funnel' ? params : {};
+
+  initializeFunnelSteps(funnel);
+  initializeFunnelDatePickers(funnel);
+  initializeDaysToComplete(funnel)
+  bindFunnelInputListeners();
+  bindRemoveStepListener();
 }
 
 function getFunnel() {
-    var funnel = {
-      start_date: formatDate($('#funnelStartDate').val()),
-      end_date: formatDate($('#funnelEndDate').val()),
-      funnel_steps: getFunnelSteps(),
-      num_days_to_complete_funnel: $('input[name="days"]').val(),
-      type: 'funnel'
-    };
+  var funnel = {
+    start_date: formatDate($('#funnelStartDate').val()),
+    end_date: formatDate($('#funnelEndDate').val()),
+    funnel_steps: getFunnelSteps(),
+    num_days_to_complete_funnel: $('input[name="days"]').val(),
+    type: 'funnel'
+  };
 
-    $('.step-container').each(function(i, step) {
-      var filterValue = $(step).find('select[name="filterValue"]');
-      if (filterValue.length) {
-        funnel["efv" + i] = $(filterValue).val();
-        funnel["efk" + i] = $(step).find('select[name="filterKey"]').val();
-      }
-    })
+  $('.step-container').each(function(i, step) {
+    var filterValue = $(step).find('select[name="filterValue"]');
+    if (filterValue.length) {
+      funnel["efv" + i] = $(filterValue).val();
+      funnel["efk" + i] = $(step).find('select[name="filterKey"]').val();
+    }
+  })
 
-    window.history.replaceState({}, '', '/?' + $.param(funnel));
-    $.ajax({
-      type: "GET",
-      url: "/events/funnel",
-      data: funnel
-    }).done(function(eventVolumes) {
-        eventVolumes = JSON.parse(eventVolumes);
-        renderCompletionRate(eventVolumes);
-        renderFunnelGraph(eventVolumes);
-    });
+  window.history.replaceState({}, '', '/?' + $.param(funnel));
+  $.ajax({
+    type: "GET",
+    url: "/events/funnel",
+    data: funnel
+  }).done(function(eventVolumes) {
+    eventVolumes = JSON.parse(eventVolumes);
+    renderCompletionRate(eventVolumes);
+    renderFunnelGraph(eventVolumes);
+  });
 }
 
 function getFunnelSteps() {
@@ -135,12 +138,12 @@ function initializeDaysToComplete(funnel) {
 }
 
 function initializeFunnelDatePickers(funnel) {
-    var start_date = funnel.start_date ? unFormatDate(funnel.start_date) : '01/01/2013';
-    var end_date = funnel.end_date ? unFormatDate(funnel.end_date) : '01/30/2013';
-    $( "#funnelStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
-                                        .datepicker('setValue', start_date);
-    $( "#funnelEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
-                                      .datepicker('setValue', end_date);
+  var start_date = funnel.start_date ? unFormatDate(funnel.start_date) : '01/01/2013';
+  var end_date = funnel.end_date ? unFormatDate(funnel.end_date) : '01/30/2013';
+  $( "#funnelStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+                                      .datepicker('setValue', start_date);
+  $( "#funnelEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+                                    .datepicker('setValue', end_date);
 }
 
 function renderFunnelValueFilter($keyFilter) {
@@ -166,39 +169,39 @@ function renderAddFunnelStep() {
 }
 
 function renderCompletionRate(eventVolumes) {
-    var eventLength = eventVolumes.length;
-    var completionRate = (eventVolumes[eventLength - 1] / eventVolumes[0] * 100).toFixed(2);
-    $('.completion-rate').html('<span style="font-weight: bold">' + completionRate + '%</span> Completion Rate');
+  var eventLength = eventVolumes.length;
+  var completionRate = (eventVolumes[eventLength - 1] / eventVolumes[0] * 100).toFixed(2);
+  $('.completion-rate').html('<span style="font-weight: bold">' + completionRate + '%</span> Completion Rate');
 }
 
 function renderFunnelGraph(eventVolumes) {
-    $('.middle').addClass('rendered');
-    $('.graph').empty();
-    var maxEventVolume = Math.max.apply(Math, eventVolumes);
-    var diviser = Math.pow(10, (maxEventVolume.toString().length - 2));
-    var Y_AXIS_MAX = Math.ceil(maxEventVolume / diviser) * diviser;
+  $('.middle').addClass('rendered');
+  $('.graph').empty();
+  var maxEventVolume = Math.max.apply(Math, eventVolumes);
+  var diviser = Math.pow(10, (maxEventVolume.toString().length - 2));
+  var Y_AXIS_MAX = Math.ceil(maxEventVolume / diviser) * diviser;
 
-    $('.y-value').each(function (i, el) {
-        $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1), 10));
-    });
+  $('.y-value').each(function (i, el) {
+      $(el).text(parseInt(Y_AXIS_MAX / 6 * (i + 1), 10));
+  });
 
-    var funnelSteps = getFunnelSteps();
-    var previousVolume;
-    eventVolumes.forEach(function (v, i) {
-        if (i > 0) {
-            view = {
-                conversion: (v / previousVolume * 100).toFixed(2)
-            };
-            $('.graph').append(Mustache.render(spaceTemplate, view));
-        }
-        var view = {
-            height: (v / Y_AXIS_MAX * 100),
-            numEvents: v,
-            eventName: funnelSteps[i]
-        };
-        previousVolume = v;
-        $('.graph').append(Mustache.render(barTemplate, view));
-    });
+  var funnelSteps = getFunnelSteps();
+  var previousVolume;
+  eventVolumes.forEach(function (v, i) {
+      if (i > 0) {
+          view = {
+              conversion: (v / previousVolume * 100).toFixed(2)
+          };
+          $('.graph').append(Mustache.render(spaceTemplate, view));
+      }
+      var view = {
+          height: (v / Y_AXIS_MAX * 100),
+          numEvents: v,
+          eventName: funnelSteps[i]
+      };
+      previousVolume = v;
+      $('.graph').append(Mustache.render(barTemplate, view));
+  });
 
-    $('.funnel-inputs .spinner').removeClass('rendered');
+  $('.funnel-inputs .spinner').removeClass('rendered');
 }

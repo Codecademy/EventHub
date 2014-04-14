@@ -6,36 +6,35 @@ var EVENT_TYPE_KEYS = {};
 //===============================================================================
 
 $(document).ready(function() {
-    bindNavBar();
+  bindNavBar();
 
-    var params = document.location.search;
+  var params = document.location.search;
 
-    if (params.indexOf('type=retention') > -1) {
-      $('.nav-retention').click();
-    } else {
-      $('.nav-funnel').click();
-    }
+  if (params.indexOf('type=retention') > -1) {
+    $('.nav-retention').click();
+  } else {
+    $('.nav-funnel').click();
+  }
 });
 
 function bindNavBar() {
-   $('.nav li').click(function () {
-      $('.nav li').removeClass('active');
-      $(this).addClass('active');
-   });
-   $('.nav-funnel').click(function () {
-      initFunnelShow();
-   });
-   $('.nav-retention').click(function () {
-      initRetentionShow();
-   });
+  $('.nav li').click(function () {
+     $('.nav li').removeClass('active');
+     $(this).addClass('active');
+  });
+  $('.nav-funnel').click(function () {
+     initFunnelShow();
+  });
+  $('.nav-retention').click(function () {
+     initRetentionShow();
+  });
 }
 
-
 function getEventTypes(cb) {
-    $.ajax({
-      type: "GET",
-      url: "/events/types",
-    }).done(cb);
+  $.ajax({
+    type: "GET",
+    url: "/events/types",
+  }).done(cb);
 }
 
 function getEventKey(type) {
@@ -66,8 +65,8 @@ function getEventKeys(cb) {
 }
 
 function formatDate(date) {
-    date = date.split('/');
-    return date[2] + date[0] + date[1];
+  date = date.split('/');
+  return date[2] + date[0] + date[1];
 }
 
 function unFormatDate(date) {

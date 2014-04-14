@@ -1,14 +1,14 @@
 function initRetentionShow() {
-    $('.frame').removeClass('show');
-    $('.retention-show').addClass('show');
-    $('.container').removeClass('small');
+  $('.body-container').html(Mustache.render(retentionTemplate));
 
-    var params = $.deparam(window.location.search.substring(1));
-    var retention = params.type === 'retention' ? params : {};
+  $('.retention-show').addClass('show');
 
-    initializeRetentionShowMe(retention);
-    initializeRetentionDatePickers(retention);
-    bindRetentionInputListeners();
+  var params = $.deparam(window.location.search.substring(1));
+  var retention = params.type === 'retention' ? params : {};
+
+  initializeRetentionShowMe(retention);
+  initializeRetentionDatePickers(retention);
+  bindRetentionInputListeners();
 }
 
 function getRetention() {
@@ -88,25 +88,25 @@ function initializeRetentionDaysLater(retention) {
 }
 
 function initializeRetentionDatePickers(retention) {
-    var start_date = retention.start_date ? unFormatDate(retention.start_date) : '01/01/2013';
-    var end_date = retention.end_date ? unFormatDate(retention.end_date) : '01/30/2013';
-    $( "#retentionStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
-                                           .datepicker('setValue', start_date);
-    $( "#retentionEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
-                                         .datepicker('setValue', end_date);
+  var start_date = retention.start_date ? unFormatDate(retention.start_date) : '01/01/2013';
+  var end_date = retention.end_date ? unFormatDate(retention.end_date) : '01/30/2013';
+  $( "#retentionStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+                                         .datepicker('setValue', start_date);
+  $( "#retentionEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+                                       .datepicker('setValue', end_date);
 }
 
 function initializeRetentionShowMe(retention) {
-    if (!EVENT_TYPES) {
-      getEventTypes(function(eventTypes) {
-          EVENT_TYPES = JSON.parse(eventTypes);
-          renderShowMe(retention);
-          getEventKeys(bindRetentionAddFiltersListener);
-      });
-    } else {
-      renderShowMe(retention);
-      bindRetentionAddFiltersListener();
-    }
+  if (!EVENT_TYPES) {
+    getEventTypes(function(eventTypes) {
+        EVENT_TYPES = JSON.parse(eventTypes);
+        renderShowMe(retention);
+        getEventKeys(bindRetentionAddFiltersListener);
+    });
+  } else {
+    renderShowMe(retention);
+    bindRetentionAddFiltersListener();
+  }
 }
 
 function renderShowMe(retention) {

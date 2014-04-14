@@ -228,4 +228,4 @@ var Funnel = (function () {
 
   return cls;
 
-})();
+});

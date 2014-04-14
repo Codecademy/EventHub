@@ -1,9 +1,16 @@
-//===============================================================================
+/*
+  TODO
+  - Add multiple event filters
+  - Add event filters to URL param
+  - Add zero state for when there is no data to display
+*/
 
 var EVENT_TYPES;
 var EVENT_TYPE_KEYS = {};
 
-//===============================================================================
+var Retention = new Retention();
+var Funnel = new Funnel();
+var Utils = new Utils();
 
 $(document).ready(function() {
   bindNavBar();

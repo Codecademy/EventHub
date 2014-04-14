@@ -20,8 +20,8 @@ var Funnel = (function () {
     var self = this;
 
     var funnel = {
-      start_date: formatDate($('#funnelStartDate').val()),
-      end_date: formatDate($('#funnelEndDate').val()),
+      start_date: Utils.formatDate($('#funnelStartDate').val()),
+      end_date: Utils.formatDate($('#funnelEndDate').val()),
       funnel_steps: this.getFunnelSteps(),
       num_days_to_complete_funnel: $('input[name="days"]').val(),
       type: 'funnel'
@@ -133,9 +133,9 @@ var Funnel = (function () {
     $('.steps-container').empty();
     $('.add-step').remove();
 
-    getEventTypes(function (eventTypes) {
+    Utils.getEventTypes(function (eventTypes) {
       EVENT_TYPES = JSON.parse(eventTypes);
-      getEventKeys(function () {
+      Utils.getEventKeys(function () {
         funnel.steps = funnel.funnel_steps || [EVENT_TYPES[0], EVENT_TYPES[1]];
         funnel.steps.forEach(function (v, i) {
           self.addStep();
@@ -154,8 +154,8 @@ var Funnel = (function () {
   };
 
   cls.initializeFunnelDatePickers = function (funnel) {
-    var start_date = funnel.start_date ? unFormatDate(funnel.start_date) : '01/01/2013';
-    var end_date = funnel.end_date ? unFormatDate(funnel.end_date) : '01/30/2013';
+    var start_date = funnel.start_date ? Utils.unFormatDate(funnel.start_date) : '01/01/2013';
+    var end_date = funnel.end_date ? Utils.unFormatDate(funnel.end_date) : '01/30/2013';
     $( "#funnelStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
                                         .datepicker('setValue', start_date);
     $( "#funnelEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })

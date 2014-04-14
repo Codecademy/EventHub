@@ -19,8 +19,8 @@ var Retention = (function () {
     var self = this;
 
     var retention = {
-      start_date: formatDate($('#retentionStartDate').val()),
-      end_date: formatDate($('#retentionEndDate').val()),
+      start_date: Utils.formatDate($('#retentionStartDate').val()),
+      end_date: Utils.formatDate($('#retentionEndDate').val()),
       row_event_type: $('.show-me select[name="events"]').eq(0).val(),
       column_event_type: $('.show-me select[name="events"]').eq(1).val(),
       num_days_per_row: $('#daysLater').val(),
@@ -94,8 +94,8 @@ var Retention = (function () {
   };
 
   cls.initializeRetentionDatePickers = function (retention) {
-    var start_date = retention.start_date ? unFormatDate(retention.start_date) : '01/01/2013';
-    var end_date = retention.end_date ? unFormatDate(retention.end_date) : '01/30/2013';
+    var start_date = retention.start_date ? Utils.unFormatDate(retention.start_date) : '01/01/2013';
+    var end_date = retention.end_date ? Utils.unFormatDate(retention.end_date) : '01/30/2013';
     $( "#retentionStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
                                            .datepicker('setValue', start_date);
     $( "#retentionEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
@@ -106,10 +106,10 @@ var Retention = (function () {
     var self = this;
 
     if (!EVENT_TYPES) {
-      getEventTypes(function(eventTypes) {
+      Utils.getEventTypes(function(eventTypes) {
         EVENT_TYPES = JSON.parse(eventTypes);
         self.renderShowMe(retention);
-        getEventKeys(bindRetentionAddFiltersListener);
+        Utils.getEventKeys(self.bindRetentionAddFiltersListener.bind(self));
       });
     } else {
       self.renderShowMe(retention);
@@ -176,6 +176,7 @@ var Retention = (function () {
 
   cls.bindRetentionInputListeners = function () {
     var self = this;
+
     $('.calculate-retention').click(function () {
       $('.range-container .spinner').addClass('rendered');
       self.getRetention();
@@ -184,13 +185,14 @@ var Retention = (function () {
 
   cls.bindRetentionAddFiltersListener = function () {
     var self = this;
+
     $('.retention-filters-toggle').click(function () {
       $(this).addClass('hide');
       self.renderRetentionFilters();
       self.bindRetentionFilterKeyListeners();
       self.bindRetentionEventListeners();
     });
-  }
+  };
 
   cls.bindRetentionFilterKeyListeners = function () {
     var self = this;

@@ -8,7 +8,7 @@
 /* Filters */
 
 .retention-filters {
-  margin-left: 189px;
+  margin-left: 192px;
 }
 
 .retention-filters .filters {
@@ -16,7 +16,7 @@
 }
 
 .retention-filters .filters:last-child {
-  margin-left: 193px;
+  margin-left: 189px;
 }
 
 .retention-filters.show-filters {

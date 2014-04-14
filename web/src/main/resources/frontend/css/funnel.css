@@ -1,11 +1,6 @@
 /* Main */
 
 .funnel-show {
-  display: none;
-}
-
-.funnel-show.show {
-  display: block;
   border: 1px solid #ddd;
 }
 

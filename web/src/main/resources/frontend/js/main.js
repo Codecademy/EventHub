@@ -23,10 +23,10 @@ function bindNavBar() {
      $(this).addClass('active');
   });
   $('.nav-funnel').click(function () {
-     initFunnelShow();
+     Funnel.render();
   });
   $('.nav-retention').click(function () {
-     initRetentionShow();
+     Retention.render();
   });
 }
 

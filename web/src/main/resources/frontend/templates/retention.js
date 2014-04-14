@@ -1,5 +1,5 @@
 var retentionTemplate = ' \
-<div class="frame retention-show cf"> \
+<div class="retention-show cf"> \
   <h2>Cohort Definition</h2><br> \
   <div class="eventType-container"></div> \
   <div class="retention-filters-toggle filter-toggle">Filters<span class="down-arrow"></span></div> \

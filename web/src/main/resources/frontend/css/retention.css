@@ -2,18 +2,13 @@
 
 .retention-show {
   padding: 20px;
-  display: none;
-}
-
-.retention-show.show {
-  display: block;
   border: 1px solid #ddd;
 }
 
 /* Filters */
 
 .retention-filters {
-  margin-left: 192px;
+  margin-left: 189px;
 }
 
 .retention-filters .filters {

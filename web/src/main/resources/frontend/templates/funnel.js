@@ -1,5 +1,5 @@
 var funnelTemplate = ' \
-<div class="frame funnel-show"> \
+<div class="funnel-show"> \
   <div class="header"> \
     <h2>Steps</h2><br> \
     <div class="funnel-steps"> \

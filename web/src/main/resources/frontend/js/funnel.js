@@ -1,4 +1,5 @@
 var Funnel = (function () {
+
   var cls = function () {
 
   };
@@ -226,4 +227,5 @@ var Funnel = (function () {
   }
 
   return cls;
+
 })();

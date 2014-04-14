@@ -50,4 +50,5 @@ var Utils = (function () {
   }
 
   return cls;
+
 })();

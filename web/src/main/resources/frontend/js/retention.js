@@ -225,4 +225,5 @@ var Retention = (function () {
   };
 
   return cls;
+
 })();

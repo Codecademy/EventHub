@@ -130,8 +130,9 @@ Please beware that the current storage format on disk is fairly inefficient and 
 |---------------------------|-----------------|------|
 | ShardedEventIndex         | 424Mb           | (data size) + (index size) <br>= (event id size * number of events) + negligible<br>= (8 * 53M) |
 | UserEventIndex            | 722Mb           | (data size) + (index size) <br>= (event id size * number of events) + (index entry size * number of users)<br>= (8 * 53M) + ((numPointersPerIndexEntry * 2 + 1) * 8 + 4) * 2.4M)<br>= (8 * 53M) + (124 * 2.4M) |
-| BloomFitleredEventStorage | 3.4Gb           | (bloomfilter size) * (number of events) <br>= 64 * 53M |
+| BloomFitleredEventStorage | 848Mb           | (bloomfilter size) * (number of events) <br>= 16 * 53M |
 
+#### Write performance
 #### Query performance
 | Query                   | 1st time execution | 2nd time execution | # records |
 |-------------------------|--------------------|--------------------|-----------|

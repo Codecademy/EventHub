@@ -5,6 +5,7 @@ import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.base.KeyValueCallback;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.Event;
+import com.mobicrave.eventtracker.storage.filter.Regex;
 import com.mobicrave.eventtracker.storage.visitor.DelayedVisitorProxy;
 import com.mobicrave.eventtracker.storage.visitor.Visitor;
 
@@ -91,6 +92,11 @@ public class BloomFilteredEventStorage extends DelegateEventStorage {
         return false;
       }
       return visitor.visit(exactMatch);
+    }
+
+    @Override
+    public boolean visit(Regex regex) {
+      return visitor.visit(regex);
     }
   }
 }

@@ -28,6 +28,7 @@ import com.mobicrave.eventtracker.storage.UserStorageModule;
 import com.mobicrave.eventtracker.storage.UserStorage;
 import com.mobicrave.eventtracker.storage.filter.ExactMatch;
 import com.mobicrave.eventtracker.storage.filter.Filter;
+import com.mobicrave.eventtracker.storage.filter.Regex;
 import com.mobicrave.eventtracker.storage.filter.TrueFilter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,6 +41,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 public class EventTrackerTest extends GuiceTestCase {
   @Test
@@ -276,14 +278,14 @@ public class EventTrackerTest extends GuiceTestCase {
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Lists.<Filter>newArrayList(
                 new ExactMatch("foo1", "bar1"),
-                new ExactMatch("foo4", "bar4"),
+                new Regex("foo4", Pattern.compile("b.*4")),
                 TrueFilter.INSTANCE),
             TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] {2, 2, 0},
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             Lists.<Filter>newArrayList(
                 new ExactMatch("foo2", "bar2"),
-                new ExactMatch("foo2", "bar2"),
+                new Regex("foo2", Pattern.compile("bar2")),
                 new ExactMatch("foo2", "bar2")),
             TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] {2, 2, 2},

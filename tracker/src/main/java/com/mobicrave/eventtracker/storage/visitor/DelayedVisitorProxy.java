@@ -1,6 +1,7 @@
 package com.mobicrave.eventtracker.storage.visitor;
 
 import com.mobicrave.eventtracker.storage.filter.ExactMatch;
+import com.mobicrave.eventtracker.storage.filter.Regex;
 
 import javax.inject.Provider;
 
@@ -18,5 +19,13 @@ public class DelayedVisitorProxy implements Visitor {
       cachedVisitor = visitorProvider.get();
     }
     return cachedVisitor.visit(exactMatch);
+  }
+
+  @Override
+  public boolean visit(Regex regex) {
+    if (cachedVisitor == null) {
+      cachedVisitor = visitorProvider.get();
+    }
+    return cachedVisitor.visit(regex);
   }
 }

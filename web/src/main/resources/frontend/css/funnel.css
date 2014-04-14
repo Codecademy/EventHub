@@ -1,0 +1,211 @@
+/* Main */
+
+.funnel-show {
+  display: none;
+}
+
+.funnel-show.show {
+  display: block;
+  border: 1px solid #ddd;
+}
+
+/* Filters */
+
+.funnel-steps.show-filters .filters {
+  display: block;
+}
+
+/* Rest */
+
+.funnel-inputs {
+  float: left;
+}
+
+.step-container {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.step-container:nth-child(5) .next-step {
+  display: none;
+}
+
+.remove-step {
+  display: inline-block;
+  position: relative;
+  top: 3px;
+  margin-left: 5px;
+  color: #EF9DA9;
+  opacity: 0.65;
+}
+
+.remove-step:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.next-step {
+  display: inline-block;
+  position: relative;
+  top: 3px;
+  margin: 0 15px;
+  color: #bbb;
+}
+
+.add-step {
+  display: inline-block;
+  vertical-align: top;
+  color: green;
+  opacity: 0.65;
+  position: relative;
+  top: 9px;
+}
+
+.add-step:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.steps-container {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.completion-rate {
+  position: relative;
+  top: 62px;
+  font-size: 18px;
+  float: right;
+}
+
+.funnel-show .top {
+  padding: 20px;
+}
+
+.funnel-show .middle {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  padding-top: 25px;
+  padding-bottom: 60px;
+  display: none;
+}
+
+.funnel-show .middle.rendered {
+  display: block;
+}
+
+.funnel-show .graph-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.funnel-show .y-axis {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 70px;
+  border-right: 1px solid #cbccdb;
+}
+
+.funnel-show .y-axis .y-value {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  height: 16px;
+  margin-top: -8px;
+  color: #aaa;
+}
+
+.funnel-show .y-axis .y-value:nth-child(5) {
+  top: 14%;
+}
+
+.funnel-show .y-axis .y-value:nth-child(4) {
+  top: 32%;
+}
+
+.funnel-show .y-axis .y-value:nth-child(3) {
+  top: 50%;
+}
+
+.funnel-show .y-axis .y-value:nth-child(2) {
+  top: 68%;
+}
+
+.funnel-show .y-axis .y-value:nth-child(1) {
+  top: 86%;
+}
+
+.funnel-show .graph {
+  position: absolute;
+  top: 0;
+  left: 70px;
+  bottom: 0;
+  right: 20px;
+  padding-left: 20px;
+  border-bottom: 1px solid #cbccdb;
+}
+
+.graph .bar, .graph .space {
+  display: inline-block;
+  position: relative;
+}
+
+.graph .space {
+  height: 100%;
+  width: 110px;
+}
+
+.space .conversion-container {
+  position: absolute;
+  top: 75%;
+  width: 100%;
+  text-align: center;
+}
+
+.space .conversion-container .conversion {
+  display: inline-block;
+  color: white;
+  background: #b1bad0;
+  padding: 8px 4px 8px 10px;
+  font-size: 14px;
+  position: relative;
+  opacity: 0.8;
+  margin-right: 10px;
+}
+
+.space .conversion-container .conversion:after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: 0;
+  left: 100%;
+  border-top: 15px solid transparent;
+  border-left: 10px solid #b1bad0;
+  border-bottom: 15px solid transparent;
+}
+
+.graph .bar {
+  background-color: #67b0e6;
+}
+
+.bar .eventName {
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  bottom: -35px;
+  color: #aaa;
+}
+
+.bar .numEvents {
+  position: absolute;
+  top: -20px;
+  width: 100%;
+  text-align: center;
+  color: #999;
+  font-weight: bold;
+}

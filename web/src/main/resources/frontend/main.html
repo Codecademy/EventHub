@@ -5,13 +5,33 @@
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="css/datepicker.css">
 		<link rel="stylesheet" type="text/css" href="css/common.css">
-		<link rel="stylesheet" type="text/css" href="css/main.css">
+
+		<link rel="stylesheet" type="text/css" href="css/funnel.css">
+		<link rel="stylesheet" type="text/css" href="css/retention.css">
+		<link rel="stylesheet" type="text/css" href="css/filters.css">
+
 		<script src="js/jquery.js"></script>
 		<script src="js/bootstrap-datepicker.js"></script>
 		<script src="js/jquery-deparam.js"></script>
+
 		<script src="js/mustache.js"></script>
+
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/bootstrap-select.min.js"></script>
+
+		<script src="templates/funnel/graph/bar.js"></script>
+		<script src="templates/funnel/graph/space.js"></script>
+		<script src="templates/funnel/step.js"></script>
+		<script src="templates/funnel/add-step.js"></script>
+
+		<script src="templates/retention/show-me.js"></script>
+
+		<script src="templates/event-type.js"></script>
+		<script src="templates/filter-key.js"></script>
+		<script src="templates/filter-value.js"></script>
+
+		<script src="js/funnel.js"></script>
+		<script src="js/retention.js"></script>
 		<script src="js/main.js"></script>
 	</head>
 	<body>
@@ -47,10 +67,10 @@
 							<div class="date-container">
 								<input type="text" id="funnelStartDate" placeholder="Start Date"> - <input type="text" id="funnelEndDate" placeholder="End Date">
 							</div>
-							<div class="two-digits-container">
+							<span>
 								Days to complete: <input class="two-digits" id="daysToComplete" type="text" name="days" value="7">
-							</div>
-							<input class="btn btn-success calculate-funnel" type="submit" value="Calculate Funnel">
+							</span>
+							<input class="btn btn-success calculate-btn calculate-funnel" type="submit" value="Calculate Funnel">
 							<img class="spinner" src="spinner.gif">
 						</div>
 						<div class="completion-rate"></div>
@@ -83,7 +103,7 @@
 					<!-- <div class="two-digits-container">
 						Columns: <input class="two-digits" id="numColumns" type="text" name="columns" value="9">
 					</div> -->
-					<input class="btn btn-success calculate-retention" type="submit" value="Calculate Retention">
+					<input class="btn btn-success calculate-btn calculate-retention" type="submit" value="Calculate Retention">
 					<img class="spinner" src="spinner.gif">
 				</div>
 				<div class="cf table-container">

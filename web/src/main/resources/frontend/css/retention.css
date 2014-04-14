@@ -1,0 +1,147 @@
+/* Main */
+
+.retention-show {
+  padding: 20px;
+  display: none;
+}
+
+.retention-show.show {
+  display: block;
+  border: 1px solid #ddd;
+}
+
+/* Filters */
+
+.retention-filters {
+  margin-left: 192px;
+}
+
+.retention-filters .filters {
+  vertical-align: top;
+}
+
+.retention-filters .filters:last-child {
+  margin-left: 193px;
+}
+
+.retention-filters.show-filters {
+  display: block;
+}
+
+.retention-filters.show-filters .filters {
+  display: inline-block;
+}
+
+/* Rest */
+
+.show-me {
+  color: gray;
+}
+
+.range-container {
+  margin-top: 20px;
+}
+
+.dates-column-container, .events-column-container {
+  border-right: 1px solid #ddd;
+}
+
+.dates-column-container, .events-column-container, .retention-container {
+  float: left;
+}
+
+.dates-column-container .date-title, .events-column-container .event-title,
+.retention-container .retention-title {
+  padding: 10px 0;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.dates div, .events div {
+  padding: 10px 20px;
+  border: 1px solid transparent;
+}
+
+.axis div {
+  display: inline-block;
+  width: 76px;
+  text-align: center;
+}
+
+.retention .box {
+  display: inline-block;
+  width: 76px;
+  padding: 10px;
+  text-align: center;
+  color: white;
+}
+
+.retention {
+  display: inline-block;
+  text-align: left;
+}
+
+.table-container {
+  border: 1px solid #ddd;
+  margin: 20px auto 0;
+  display: none;
+}
+
+.table-container.rendered {
+  display: inline-block;
+}
+
+.gradient-0 {
+  background-color: #CAE4FF;
+  border: 1px solid #CAE4FF;
+}
+
+.gradient-1 {
+  background-color: #9CC5FF;
+  border: 1px solid #9CC5FF;
+}
+
+.gradient-2 {
+  background-color: #8ABAFF;
+  border: 1px solid #8ABAFF;
+}
+
+.gradient-3 {
+  background-color: #75AFFF;
+  border: 1px solid #75AFFF;
+}
+
+.gradient-4 {
+  background-color: #61A3FF;
+  border: 1px solid #61A3FF;
+}
+
+.gradient-5 {
+  background-color: #579DFF;
+  border: 1px solid #579DFF;
+}
+
+.gradient-6 {
+  background-color: #4A95FF;
+  border: 1px solid #4A95FF;
+}
+
+.gradient-7 {
+  background-color: #388BFF;
+  border: 1px solid #388BFF;
+}
+
+.gradient-8 {
+  background-color: #247FFF;
+  border: 1px solid #247FFF;
+}
+
+.gradient-9 {
+  background-color: #1777FF;
+  border: 1px solid #1777FF;
+}
+
+.gradient-10 {
+  background-color: #0D71FF;
+  border: 1px solid #0D71FF;
+}

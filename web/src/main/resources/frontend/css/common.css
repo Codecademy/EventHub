@@ -1,10 +1,7 @@
-/* Begin Global Styles */
-body {
-	font-family: sans-serif;
-}
-/* End Global Styles*/
-
-/* Begin Resets */
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
 
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -26,50 +23,117 @@ time, mark, audio, video {
 	font: inherit;
 	vertical-align: baseline;
 }
+
 /* HTML5 display-role reset for older browsers */
+
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
+
 body {
 	line-height: 1;
 }
+
 ol, ul {
 	list-style: none;
 }
+
 blockquote, q {
 	quotes: none;
 }
+
 blockquote:before, blockquote:after,
 q:before, q:after {
 	content: '';
 	content: none;
 }
+
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
 
-/* End Resets */
-
-/* Begin Clearfix */
-.clearfix:after {
-	visibility: hidden;
-	display: block;
-	font-size: 0;
-	content: " ";
-	clear: both;
-	height: 0;
+select {
+	border: 1px solid #cccccc;
+	background-color: #ffffff;
 }
-.clearfix {
+
+input {
+	color: rgba(0,0,0,0.6);
+}
+
+.bootstrap-select {
+	width: 135px !important;
+}
+
+.btn-group {
+	margin-bottom: 0 !important;
+}
+
+.cf:before,
+.cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}
+
+/**
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+.cf {
+    *zoom: 1;
+}
+
+html {
+	font-family: sans-serif;
+}
+
+.container {
+	width: 1032px;
+	margin: 0 auto;
+}
+
+header {
+	border-bottom: 1px solid #ddd !important;
+}
+
+.header {
+	padding: 18px 18px 0 18px;
+}
+
+.date-container input {
+	width: 98px;
+	padding: 7px;
+}
+
+.date-container, .days-container {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+.two-digits {
+	padding: 7px;
+	width: 37px;
+}
+
+.calculate-btn {
+	margin-left: 10px;
+}
+
+.spinner {
+	height: 20px;
+	position: relative;
+	top: 5px;
+	left: 5px;
+	display: none;
+}
+
+.spinner.rendered {
 	display: inline-block;
 }
-/* start commented backslash hack \*/
-* html .clearfix {
-	height: 1%;
-}
-.clearfix {
-	display: block;
-}
-/* close commented backslash hack */
-/* End Clearfix */
+

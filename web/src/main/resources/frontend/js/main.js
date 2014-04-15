@@ -8,6 +8,8 @@
   - Change from days to complete: [ ] to [ ] Days to complete Funnel.
   - Componetize UI elements
   - Center align text fields
+  - Close date picker on tab
+  - Autorefresh option?
 */
 
 var EVENT_TYPES;

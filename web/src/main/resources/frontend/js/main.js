@@ -7,6 +7,7 @@
   - Add default start date to today
   - Change from days to complete: [ ] to [ ] Days to complete Funnel.
   - Componetize UI elements
+  - Center align text fields
 */
 
 var EVENT_TYPES;

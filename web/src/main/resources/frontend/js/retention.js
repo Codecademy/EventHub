@@ -197,7 +197,7 @@ var Retention = (function () {
   cls.bindRetentionFilterKeyListeners = function () {
     var self = this;
 
-    $('select[name="filterKey"]').off().change(function () {
+    $('select[name="filterKey"]').change(function () {
       $(this).parent().find('.filter-value').remove();
       if ($(this).val() !== 'no filter') {
         self.renderRetentionValueFilter($(this));

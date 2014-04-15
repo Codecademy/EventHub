@@ -88,7 +88,7 @@ var Funnel = (function () {
 
   cls.bindFunnelFilterKeyListeners = function () {
     var self = this;
-    $('select[name="filterKey"]').off().change(function () {
+    $('select[name="filterKey"]').change(function () {
       $(this).parent().find('.filter-value').remove();
       if ($(this).val() !== 'no filter') {
         self.renderFunnelValueFilter($(this));
@@ -163,7 +163,7 @@ var Funnel = (function () {
                                       .datepicker('setValue', end_date);
   };
 
-  cls.renderFunnelValueFilter = function () {
+  cls.renderFunnelValueFilter = function ($keyFilter) {
     var params = {
       event_type: $keyFilter.parent().parent().find('select[name="events"]').val(),
       event_key: $keyFilter.val()

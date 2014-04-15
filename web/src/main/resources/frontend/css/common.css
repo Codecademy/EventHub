@@ -119,6 +119,7 @@ header {
 .two-digits {
 	padding: 7px;
 	width: 37px;
+	text-align: center;
 }
 
 .calculate-btn {

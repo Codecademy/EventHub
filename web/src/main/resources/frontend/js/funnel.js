@@ -155,11 +155,11 @@ var Funnel = (function () {
   };
 
   cls.initializeFunnelDatePickers = function (funnel) {
-    var start_date = funnel.start_date ? Utils.unFormatDate(funnel.start_date) : '01/01/2013';
-    var end_date = funnel.end_date ? Utils.unFormatDate(funnel.end_date) : '01/30/2013';
-    $( "#funnelStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+    var start_date = funnel.start_date ? Utils.unFormatDate(funnel.start_date) : '01/01/2014';
+    var end_date = funnel.end_date ? Utils.unFormatDate(funnel.end_date) : '01/30/2014';
+    $( "#funnelStartDate" ).datepicker().on('changeDate blur', function () { $(this).datepicker('hide'); })
                                         .datepicker('setValue', start_date);
-    $( "#funnelEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+    $( "#funnelEndDate" ).datepicker().on('changeDate blur', function () { $(this).datepicker('hide'); })
                                       .datepicker('setValue', end_date);
   };
 

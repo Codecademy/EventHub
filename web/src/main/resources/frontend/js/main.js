@@ -5,6 +5,8 @@
   - Add event filters to URL param
   - Add zero state for when there is no data to display
   - Add default start date to today
+  - Change from days to complete: [ ] to [ ] Days to complete Funnel.
+  - Componetize UI elements
 */
 
 var EVENT_TYPES;

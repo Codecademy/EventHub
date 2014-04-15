@@ -33,7 +33,7 @@ public class JournalUserStorage implements UserStorage {
     }
     User user = new User.Builder(externalUserId, Maps.<String, String>newHashMap()).build();
     try {
-      id = idMap.getAndIncrementCurrentId();
+      id = idMap.incrementNextAvailableId();
       byte[] location = JournalUtil.locationToBytes(userJournal.write(user.toByteBuffer(), true));
       MetaData metaData = new MetaData(location);
       metaDataList.add(metaData);

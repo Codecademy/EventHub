@@ -38,6 +38,7 @@ import java.util.Set;
 // TODO(ruby): client should buffer and sidekiq
 // TODO: name space system parameter
 // TODO: failure recovery (and flush endpoint)
+// TODO: migrate from HawtJournal to Journal.IO
 // TODO: finish README.md
 // TODO:   load testing performance
 // TODO:   query performance
@@ -47,7 +48,6 @@ import java.util.Set;
 // TODO: add average qps to varz
 // TODO: deploy and verify it can handle CC traffic
 // --------------- End of V1
-// TODO: make server start fast
 // TODO: query language
 // TODO: consider column oriented storage
 // TODO: separate cache for previously computed result? same binary or redis?

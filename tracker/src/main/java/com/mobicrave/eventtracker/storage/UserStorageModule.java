@@ -2,21 +2,20 @@ package com.mobicrave.eventtracker.storage;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Maps;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
+import org.fusesource.leveldbjni.JniDBFactory;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.Options;
 
 import javax.inject.Named;
 import javax.inject.Provider;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Map;
 
 public class UserStorageModule extends AbstractModule {
   @Override
@@ -49,21 +48,14 @@ public class UserStorageModule extends AbstractModule {
   }
 
   @Provides
-  public IdMap getIdMap(@Named("eventtracker.userstorage.directory") String userStorageDirectory) {
-    String filename = userStorageDirectory + "/id_map.ser";
-    File file = new File(filename);
-    Map<String, Integer> idMap = Maps.newConcurrentMap();
-    int currentId = 0;
-    if (file.exists()) {
-      try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-        //noinspection unchecked
-        idMap = (Map<String, Integer>) ois.readObject();
-        currentId = ois.readInt();
-      } catch (ClassNotFoundException | IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return new IdMap(filename, idMap, currentId);
+  public IdMap getIdMap(@Named("eventtracker.userstorage.directory") String userStorageDirectory) throws IOException {
+    String filename = userStorageDirectory + "/id_map.db";
+    //noinspection ResultOfMethodCallIgnored
+    new File(userStorageDirectory).mkdirs();
+    Options options = new Options();
+    options.createIfMissing(true);
+    DB db = JniDBFactory.factory.open(new File(filename), options);
+    return IdMap.create(db);
   }
 
   @Provides

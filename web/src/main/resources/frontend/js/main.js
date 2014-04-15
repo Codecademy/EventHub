@@ -1,8 +1,10 @@
 /*
   TODO
   - Add multiple event filters
+  - Add remove filter option
   - Add event filters to URL param
   - Add zero state for when there is no data to display
+  - Add default start date to today
 */
 
 var EVENT_TYPES;

@@ -12,7 +12,7 @@ var Retention = (function () {
 
     this.initializeRetentionShowMe(retention);
     this.initializeRetentionDatePickers(retention);
-    this.bindRetentionInputListeners();
+    this.bindInputListeners();
   };
 
   cls.getRetention = function () {
@@ -28,16 +28,16 @@ var Retention = (function () {
       type: 'retention'
     };
 
-    $('.retention-filters select[name="filterValue"]').each(function (i, select) {
-      var selectorIndex = $(select).data('index');
-      if (selectorIndex === 0) {
-        retention["cefk"] = $('.retention-filters select[name="filterKey"]').eq(selectorIndex).val();
-        retention["cefv"] = $(this).val();
-      } else {
-        retention["refk"] = $('.retention-filters select[name="filterKey"]').eq(selectorIndex).val();
-        retention["refv"] = $(this).val();
-      }
-    });
+    // $('.retention-filters select[name="filterValue"]').each(function (i, select) {
+    //   var selectorIndex = $(select).data('index');
+    //   if (selectorIndex === 0) {
+    //     retention["cefk"] = $('.retention-filters select[name="filterKey"]').eq(selectorIndex).val();
+    //     retention["cefv"] = $(this).val();
+    //   } else {
+    //     retention["refk"] = $('.retention-filters select[name="filterKey"]').eq(selectorIndex).val();
+    //     retention["refv"] = $(this).val();
+    //   }
+    // });
 
     window.history.replaceState({}, '', '/?' + $.param(retention));
     $.ajax({
@@ -46,11 +46,11 @@ var Retention = (function () {
       data: retention
     }).done(function(retention) {
         retention = JSON.parse(retention);
-        self.renderRetentionGraph(retention);
+        self.renderGraph(retention);
     });
   };
 
-  cls.renderRetentionGraph = function (retention) {
+  cls.renderGraph = function (retention) {
     this.resetRetentionGraph();
     $('.table-container').addClass('rendered');
 
@@ -80,7 +80,7 @@ var Retention = (function () {
     }
 
     $('.range-container .spinner').removeClass('rendered');
-  }
+  };
 
   cls.resetRetentionGraph = function () {
     $('.events').empty();
@@ -109,11 +109,11 @@ var Retention = (function () {
       Utils.getEventTypes(function(eventTypes) {
         EVENT_TYPES = JSON.parse(eventTypes);
         self.renderShowMe(retention);
-        Utils.getEventKeys(self.bindRetentionAddFiltersListener.bind(self));
+        Utils.getEventKeys(self.bindShowFiltersListener.bind(self));
       });
     } else {
       self.renderShowMe(retention);
-      self.bindRetentionAddFiltersListener();
+      self.bindShowFiltersListener();
     }
   };
 
@@ -122,8 +122,11 @@ var Retention = (function () {
       eventTypes: EVENT_TYPES,
       daysLater: retention.num_days_per_row || 7
     };
-    var partials = { "eventType": eventTypeTemplate };
-    $('.eventType-container').html(Mustache.render(showMeTemplate, view, partials));
+    var partials = {
+      "event" : eventTemplate,
+      "eventType": eventTypeTemplate
+    };
+    $('.cohort-definition').html(Mustache.render(showMeTemplate, view, partials));
 
     var rowEventType = retention.row_event_type || EVENT_TYPES[0];
     var columnEventType = retention.column_event_type || EVENT_TYPES[1];
@@ -132,31 +135,11 @@ var Retention = (function () {
     $('.selectpicker').selectpicker('render');
   };
 
-  cls.renderRetentionFilters = function () {
-    var firstEventType = $('.selectpicker[name="events"]').eq(0).val();
-    var secondEventType = $('.selectpicker[name="events"]').eq(1).val();
+  cls.renderValueFilter = function ($keyFilter) {
+    $eventContainerSelector = $keyFilter.parents().eq(2).find('select[name="events"]')
 
-    var view = {
-      filterValues: ['filterValue']
-    };
-    view.filterKeys = ['no filter'].concat(EVENT_TYPE_KEYS[firstEventType])
-    var firstFilter = Mustache.render(filterKeyTemplate, view);
-
-    view.filterKeys = ['no filter'].concat(EVENT_TYPE_KEYS[secondEventType])
-    var secondFilter = Mustache.render(filterKeyTemplate, view);
-    $('.retention-filters').html(firstFilter + secondFilter)
-                           .addClass('show-filters');
-
-    $('.retention-filters .filters').eq(0).find('select[name="filterKey"]').data('type', firstEventType);
-    $('.retention-filters .filters').eq(1).find('select[name="filterKey"]').data('type', secondEventType);
-    $('.show-me select[name="events"]').eq(0).data('index', 0);
-    $('.show-me select[name="events"]').eq(1).data('index', 1);
-    $('.selectpicker').selectpicker('render');
-  };
-
-  cls.renderRetentionValueFilter = function ($keyFilter) {
     var params = {
-      event_type: $keyFilter.data('type'),
+      event_type: $eventContainerSelector.val(),
       event_key: $keyFilter.val()
     }
     $.ajax({
@@ -169,12 +152,10 @@ var Retention = (function () {
       };
       $keyFilter.parent().append(Mustache.render(filterValueTemplate, view));
       $('.selectpicker').selectpicker('render');
-      $('.retention-filters select[name="filterValue"]').eq(0).data('index', 0);
-      $('.retention-filters select[name="filterValue"]').eq(1).data('index', 1); // refactor this later.
     });
   };
 
-  cls.bindRetentionInputListeners = function () {
+  cls.bindInputListeners = function () {
     var self = this;
 
     $('.calculate-retention').click(function () {
@@ -183,44 +164,67 @@ var Retention = (function () {
     });
   };
 
-  cls.bindRetentionAddFiltersListener = function () {
+  cls.bindShowFiltersListener = function () {
     var self = this;
 
     $('.retention-filters-toggle').click(function () {
       $(this).addClass('hide');
-      self.renderRetentionFilters();
-      self.bindRetentionFilterKeyListeners();
-      self.bindRetentionEventListeners();
+      $('.cohort-definition').addClass('show-filters');
+      $('.event-container').each(function (i, el) {
+        self.bindAddFilterListener($(el));
+        self.bindEventSelectorListeners($(el));
+      });
     });
   };
 
-  cls.bindRetentionFilterKeyListeners = function () {
+  cls.bindFilterKeyListeners = function ($eventContainer) {
     var self = this;
 
-    $('select[name="filterKey"]').change(function () {
+    $eventContainer.find('select[name="filterKey"]').last().change(function () {
       $(this).parent().find('.filter-value').remove();
       if ($(this).val() !== 'no filter') {
-        self.renderRetentionValueFilter($(this));
+        self.renderValueFilter($(this));
       }
     });
   };
 
-  cls.bindRetentionEventListeners = function () {
-    $('select[name="events"]').change(function () {
+  cls.bindAddFilterListener = function ($eventContainer) {
+    var self = this;
+    $eventContainer.find('.add-filter').click(function () {
+      var $filtersContainer = $eventContainer.find('.filters-container');
+      var $eventContainersSelector = $eventContainer.find('select[name="events"]');
+
+      var view = {
+        filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$eventContainersSelector.val()])
+      };
+      $filtersContainer.append(Mustache.render(filterKeyTemplate, view));
+
+      self.bindFilterKeyListeners($eventContainer);
+      self.bindRemoveFilterListener($eventContainer);
+      $('.selectpicker').selectpicker('render');
+    });
+  };
+
+  cls.bindRemoveFilterListener = function ($eventContainer) {
+    var self = this;
+    $eventContainer.find('.remove-filter').last().click(function () {
+      var $filters = $(this).parent();
+      $filters.remove();
+    });
+  };
+
+  cls.bindEventSelectorListeners = function ($eventContainer) {
+    var self = this;
+    $eventContainer.find('select[name="events"]').change(function () {
+      $filtersContainer = $eventContainer.find('.filters-container');
+
       var view = {
         filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$(this).val()])
       };
-      var selectorIndex = $(this).data('index');
-      if (selectorIndex === 1) {
-        $('.retention-filters .filters').eq(1).remove();
-        $('.retention-filters').append(Mustache.render(filterKeyTemplate, view));
-      } else {
-        $('.retention-filters .filters').eq(0).remove();
-        $('.retention-filters').prepend(Mustache.render(filterKeyTemplate, view));
-      }
+
+      $filtersContainer.html(Mustache.render(filterKeyTemplate, view))
       $('.selectpicker').selectpicker('render');
-      $('.retention-filters .filters').eq(selectorIndex).find('select[name="filterKey"]').data('type', $(this).val());
-      this.bindRetentionFilterKeyListeners();
+      self.bindFilterKeyListeners($eventContainer);
     });
   };
 

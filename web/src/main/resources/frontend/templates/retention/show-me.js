@@ -1,14 +1,14 @@
 var showMeTemplate = ' \
   <div class="show-me"> \
-    Show me people who did \
-    &nbsp {{> eventType}} &nbsp \
-    then came back and did \
-    &nbsp {{> eventType}} &nbsp \
-    using \
+    <p>Show me people who did</p> \
+    &nbsp {{> event}} &nbsp \
+    <p>then came back and did</p> \
+    &nbsp {{> event}} &nbsp \
+    <p>using</p> \
     &nbsp \
     <span> \
       <input class="two-digits" id="daysLater" type="text" name="daysLater" value="{{daysLater}}"> \
     </span> \
-    &nbsp day cohorts.\
+    &nbsp <p>day cohorts.</p>\
   </div> \
 ';

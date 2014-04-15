@@ -5,5 +5,6 @@ var filterKeyTemplate = ' \
         <option value="{{.}}">{{.}}</option> \
         {{/filterKeys}} \
      </select> \
+     <div class="remove remove-filter"><span class="glyphicon glyphicon-remove"></span></div> \
   </div> \
 ';

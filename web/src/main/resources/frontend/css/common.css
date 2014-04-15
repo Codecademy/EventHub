@@ -138,3 +138,25 @@ header {
 	display: inline-block;
 }
 
+.add {
+  color: green;
+  opacity: 0.65;
+}
+
+.add:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.remove {
+  position: absolute;
+  top: 9px;
+  right: -25px;
+  color: #EF9DA9;
+  opacity: 0.65;
+}
+
+.remove:hover {
+  opacity: 1;
+  cursor: pointer;
+}

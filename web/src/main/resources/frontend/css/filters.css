@@ -27,5 +27,14 @@
 
 .filters {
   display: none;
+  position: relative;
   margin-top: 15px;
+  width: 135px;
+}
+
+.add-filter {
+  display: none;
+  margin-top: 15px;
+  width: 135px;
+  text-align: center;
 }

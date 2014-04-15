@@ -25,20 +25,6 @@
   display: none;
 }
 
-.remove-step {
-  display: inline-block;
-  position: relative;
-  top: 3px;
-  margin-left: 5px;
-  color: #EF9DA9;
-  opacity: 0.65;
-}
-
-.remove-step:hover {
-  opacity: 1;
-  cursor: pointer;
-}
-
 .next-step {
   display: inline-block;
   position: relative;
@@ -50,15 +36,12 @@
 .add-step {
   display: inline-block;
   vertical-align: top;
-  color: green;
-  opacity: 0.65;
   position: relative;
   top: 9px;
 }
 
-.add-step:hover {
-  opacity: 1;
-  cursor: pointer;
+.funnel-steps.show-filters .add-filter {
+  display: block;
 }
 
 .steps-container {

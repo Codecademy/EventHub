@@ -5,34 +5,30 @@
   border: 1px solid #ddd;
 }
 
-/* Filters */
+/* Rest */
 
-.retention-filters {
-  margin-left: 192px;
-}
-
-.retention-filters .filters {
-  vertical-align: top;
-}
-
-.retention-filters .filters:last-child {
-  margin-left: 189px;
-}
-
-.retention-filters.show-filters {
+.cohort-definition.show-filters .filters {
   display: block;
 }
 
-.retention-filters.show-filters .filters {
-  display: inline-block;
+.cohort-definition.show-filters .add-filter {
+  display: block;
 }
-
-/* Rest */
 
 .show-me {
   color: gray;
 }
 
+.show-me p {
+  display: inline-block;
+  vertical-align: top;
+  line-height: 35px;
+}
+
+.show-me > span {
+  display: inline-block;
+  vertical-align: top;
+}
 .range-container {
   margin-top: 20px;
 }

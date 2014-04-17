@@ -169,18 +169,17 @@ var Funnel = (function () {
     var self = this;
 
     $('.steps-container').empty();
-    $('.add-step').remove();
 
     Utils.getEventTypes(function (eventTypes) {
       EVENT_TYPES = JSON.parse(eventTypes);
       Utils.getEventKeys(function () {
+        self.renderAddFunnelStep();
         funnel.steps = funnel.funnel_steps || [EVENT_TYPES[0], EVENT_TYPES[1]];
         funnel.steps.forEach(function (v, i) {
           self.addStep();
           $('.funnel-show select').last().val(v);
           $('.funnel-show select').selectpicker('refresh');
         });
-        self.renderAddFunnelStep();
         self.bindAddStepListener();
         self.bindShowFiltersListener();
       });

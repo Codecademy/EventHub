@@ -5,11 +5,11 @@ import com.google.common.cache.CacheBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.mobicrave.eventtracker.base.BloomFilter;
+import com.mobicrave.eventtracker.base.DB;
 import com.mobicrave.eventtracker.list.DmaList;
 import com.mobicrave.eventtracker.model.User;
 import org.fusesource.hawtjournal.api.Journal;
 import org.fusesource.leveldbjni.JniDBFactory;
-import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
 import javax.inject.Named;
@@ -54,8 +54,7 @@ public class UserStorageModule extends AbstractModule {
     new File(userStorageDirectory).mkdirs();
     Options options = new Options();
     options.createIfMissing(true);
-    DB db = JniDBFactory.factory.open(new File(filename), options);
-    return IdMap.create(db);
+    return IdMap.create(new DB(JniDBFactory.factory.open(new File(filename), options)));
   }
 
   @Provides

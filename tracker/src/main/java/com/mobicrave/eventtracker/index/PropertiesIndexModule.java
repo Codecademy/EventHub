@@ -2,8 +2,8 @@ package com.mobicrave.eventtracker.index;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.mobicrave.eventtracker.base.DB;
 import org.fusesource.leveldbjni.JniDBFactory;
-import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
 import javax.inject.Named;
@@ -21,8 +21,7 @@ public class PropertiesIndexModule extends AbstractModule {
     new File(eventIndexDirectory).mkdirs();
     Options options = new Options();
     options.createIfMissing(true);
-    DB keysDb = JniDBFactory.factory.open(new File(eventIndexDirectory + "/properties_index_keys.db"), options);
-    DB valuesDb = JniDBFactory.factory.open(new File(eventIndexDirectory + "/properties_index_values.db"), options);
-    return new PropertiesIndex(keysDb, valuesDb);
+    return new PropertiesIndex(new DB(
+        JniDBFactory.factory.open(new File(eventIndexDirectory + "/properties_index.db"), options)));
   }
 }

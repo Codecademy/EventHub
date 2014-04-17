@@ -1,12 +1,10 @@
 package com.mobicrave.eventtracker.storage;
 
-import org.iq80.leveldb.DB;
+import com.mobicrave.eventtracker.base.DB;
 
 import java.io.Closeable;
 import java.io.IOException;
 
-import static org.fusesource.leveldbjni.JniDBFactory.asString;
-import static org.fusesource.leveldbjni.JniDBFactory.bytes;
 
 public class IdMap implements Closeable {
   private static final String ID_KEY = "__eventtracker__id";
@@ -21,21 +19,21 @@ public class IdMap implements Closeable {
 
   public int incrementNextAvailableId() {
     int availableId = nextAvailableId;
-    db.put(bytes(ID_KEY), bytes("" + (++nextAvailableId)));
+    db.put(ID_KEY, "" + (++nextAvailableId));
     return availableId;
   }
 
   public void put(String externalId, int id) {
-    db.put(bytes(externalId), bytes("" + id));
+    db.put(externalId, id);
   }
 
   public Integer get(String externalUserId) {
-    byte[] value = db.get(bytes(externalUserId));
+    String value = db.get(externalUserId);
     if (value == null) {
       //noinspection ReturnOfNull
       return null;
     }
-    return Integer.parseInt(asString(value));
+    return Integer.parseInt(value);
   }
 
   public int getCurrentId() {
@@ -48,8 +46,8 @@ public class IdMap implements Closeable {
   }
 
   public static IdMap create(DB db) {
-    byte[] bytes = db.get(bytes(ID_KEY));
-    int currentId = bytes == null ? 0 : Integer.parseInt(asString(bytes));
+    String idString = db.get(ID_KEY);
+    int currentId = idString == null ? 0 : Integer.parseInt(idString);
     return new IdMap(db, currentId);
   }
 }

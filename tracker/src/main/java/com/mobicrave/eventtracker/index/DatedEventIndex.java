@@ -1,14 +1,14 @@
 package com.mobicrave.eventtracker.index;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.mobicrave.eventtracker.base.DB;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,17 +17,19 @@ import java.util.List;
  */
 public class DatedEventIndex implements Closeable {
   private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
+  private static final String DATE_PREFIX = "d";
+  private static final String ID_PREFIX = "i";
 
-  private final String filename;
+  private final DB db;
   // O(numDays)
   private final List<String> dates;
   // O(numDays)
   private final List<Long> earliestEventIds;
   private String currentDate;
 
-  public DatedEventIndex(String filename, List<String> dates, List<Long> earliestEventIds,
+  public DatedEventIndex(DB db, List<String> dates, List<Long> earliestEventIds,
       String currentDate) {
-    this.filename = filename;
+    this.db = db;
     this.dates = dates;
     this.earliestEventIds = earliestEventIds;
     this.currentDate = currentDate;
@@ -55,13 +57,16 @@ public class DatedEventIndex implements Closeable {
     return earliestEventIds.get(endDateOffset);
   }
 
-  public void addEvent(long eventId, String date) {
+  public synchronized void addEvent(long eventId, String date) {
     if (currentDate != null && date.compareTo(currentDate) <= 0) {
       return;
     }
     currentDate = date;
     dates.add(date);
     earliestEventIds.add(eventId);
+
+    db.put(DATE_PREFIX + date, "");
+    db.put(ID_PREFIX + String.format("%020d", eventId), "");
   }
 
   public String getCurrentDate() {
@@ -70,12 +75,19 @@ public class DatedEventIndex implements Closeable {
 
   @Override
   public void close() throws IOException {
-    //noinspection ResultOfMethodCallIgnored
-    new File(filename).getParentFile().mkdirs();
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-      oos.writeObject(dates);
-      oos.writeObject(earliestEventIds);
-      oos.writeObject(currentDate);
-    }
+    db.close();
+  }
+
+  public static DatedEventIndex create(DB db) {
+    List<String> dates = db.findByPrefix(DATE_PREFIX);
+    List<Long> earliestEventIds = Lists.newArrayList(
+        Lists.transform(db.findByPrefix(ID_PREFIX), new Function<String, Long>() {
+          @Override
+          public Long apply(String s) {
+            return Long.parseLong(s);
+          }
+        }));
+    return new DatedEventIndex(db, dates, earliestEventIds,
+        dates.isEmpty() ? "" : dates.get(dates.size() - 1));
   }
 }

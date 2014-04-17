@@ -18,12 +18,15 @@ public class DmaIdList implements IdList, Closeable {
   private static final int MAX_NUM_RECORDS = (Integer.MAX_VALUE - META_DATA_SIZE) / SIZE_OF_DATA;
 
   private final String filename;
+  private final MappedByteBuffer metaDataBuffer;
   private MappedByteBuffer buffer;
   private int numRecords;
   private long capacity;
 
-  public DmaIdList(String filename, MappedByteBuffer buffer, int numRecords, int capacity) {
+  public DmaIdList(String filename, MappedByteBuffer MetaDataBuffer,  MappedByteBuffer buffer,
+      int numRecords, int capacity) {
     this.filename = filename;
+    metaDataBuffer = MetaDataBuffer;
     this.buffer = buffer;
     this.numRecords = numRecords;
     this.capacity = capacity;
@@ -41,7 +44,8 @@ public class DmaIdList implements IdList, Closeable {
       capacity *= 2;
     }
     buffer.putLong(id);
-    buffer.putInt(0, ++numRecords);
+    metaDataBuffer.putInt(0, ++numRecords);
+    metaDataBuffer.force();
   }
 
   @Override

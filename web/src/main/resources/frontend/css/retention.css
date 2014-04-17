@@ -15,10 +15,6 @@
   display: block;
 }
 
-.show-me {
-  color: gray;
-}
-
 .show-me p {
   display: inline-block;
   vertical-align: top;

@@ -59,7 +59,7 @@ select {
 	background-color: #ffffff;
 }
 
-input {
+input, .text--light {
 	color: rgba(0,0,0,0.6);
 }
 

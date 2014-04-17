@@ -1,5 +1,5 @@
 var showMeTemplate = ' \
-  <div class="show-me"> \
+  <div class="show-me text--light"> \
     <p>Show me people who did</p> \
     &nbsp {{> event}} &nbsp \
     <p>then came back and did</p> \

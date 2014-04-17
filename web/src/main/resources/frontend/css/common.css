@@ -94,7 +94,7 @@ html {
 }
 
 .container {
-	width: 1032px;
+	width: 1063px;
 	margin: 0 auto;
 }
 
@@ -149,9 +149,6 @@ header {
 }
 
 .remove {
-  position: absolute;
-  top: 9px;
-  right: -25px;
   color: #EF9DA9;
   opacity: 0.65;
 }

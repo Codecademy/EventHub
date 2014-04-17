@@ -38,3 +38,9 @@
   width: 135px;
   text-align: center;
 }
+
+.remove-filter {
+  position: absolute;
+  top: 9px;
+  right: -25px;
+}

@@ -33,6 +33,13 @@
   color: #bbb;
 }
 
+.remove-step {
+  display: inline-block;
+  position: relative;
+  top: 4px;
+  left: 6px;
+}
+
 .add-step {
   display: inline-block;
   vertical-align: top;

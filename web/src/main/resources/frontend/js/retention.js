@@ -41,6 +41,7 @@ var Retention = (function () {
     });
 
     window.history.replaceState({}, '', '/?' + $.param(retention));
+
     $.ajax({
       type: "GET",
       url: "/events/cohort",

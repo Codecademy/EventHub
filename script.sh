@@ -102,18 +102,18 @@ curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&e
 echo ""
 
 echo -e "\033[1;32mshow A/B testing signup funnel (control):\033[0m pageview -> signup"
-curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=pageview&funnel_steps[]=signup&num_days_to_complete_funnel=7&efk0=experiment&efv0=homepage_v1&efk0=treatment&efv0=control&efk0=page&efv0=home"
+curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=pageview&funnel_steps[]=signup&num_days_to_complete_funnel=7&efk0[]=experiment&efv0[]=homepage_v1&efk0[]=treatment&efv0[]=control&efk0[]=page&efv0[]=home"
 echo ""
 
 echo -e "\033[1;32mshow A/B testing signup funnel (new console):\033[0m pageview -> signup"
-curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=pageview&funnel_steps[]=signup&num_days_to_complete_funnel=7&efk0=experiment&efv0=homepage_v1&efk0=treatment&efv0=new console&efk0=page&efv0=home"
+curl -X POST "http://localhost:8080/events/funnel" --data "start_date=${today}&end_date=${end_date}&funnel_steps[]=pageview&funnel_steps[]=signup&num_days_to_complete_funnel=7&efk0[]=experiment&efv0[]=homepage_v1&efk0[]=treatment&efv0[]=new console&efk0[]=page&efv0[]=home"
 echo ""
 
 echo -e "\033[1;32mshow A/B testing cohort:\033[0m signup -> submission"
-curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&end_date=${end_date}&row_event_type=signup&column_event_type=submission&num_days_per_row=7&num_columns=2&refk=experiment&refv=signup_v1&refk=treatment&refv=control"
+curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&end_date=${end_date}&row_event_type=signup&column_event_type=submission&num_days_per_row=7&num_columns=2&refk[]=experiment&refv[]=signup_v1&refk[]=treatment&refv[]=control"
 echo ""
 
 echo -e "\033[1;32mshow A/B testing cohort:\033[0m signup -> submission"
-curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&end_date=${end_date}&row_event_type=signup&column_event_type=submission&num_days_per_row=7&num_columns=2&refk=experiment&refv=signup_v1&refk=treatment&refv=fancy onboarding"
+curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&end_date=${end_date}&row_event_type=signup&column_event_type=submission&num_days_per_row=7&num_columns=2&refk[]=experiment&refv[]=signup_v1&refk[]=treatment&refv[]=fancy onboarding"
 echo ""
 

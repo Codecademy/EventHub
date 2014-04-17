@@ -22,10 +22,10 @@ public class EventCohort extends Command {
 
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
-    Filter rowEventFilter = getFilter(request.getParameterValues("refk"),
-        request.getParameterValues("refv"));
-    Filter columnEventFilter = getFilter(request.getParameterValues("cefk"),
-        request.getParameterValues("cefv"));
+    Filter rowEventFilter = getFilter(request.getParameterValues("refk[]"),
+        request.getParameterValues("refv[]"));
+    Filter columnEventFilter = getFilter(request.getParameterValues("cefk[]"),
+        request.getParameterValues("cefv[]"));
 
     int[][] retentionTable = eventTracker.getRetentionTable(
         request.getParameter("start_date"),

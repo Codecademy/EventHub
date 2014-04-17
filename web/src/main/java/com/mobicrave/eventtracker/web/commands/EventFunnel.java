@@ -28,8 +28,8 @@ public class EventFunnel extends Command {
     List<Filter> eventFilters = Lists.newArrayList();
     for (int i = 0; i < funnelSteps.length; i++) {
       Filter filter = getFilter(
-          merge(request.getParameterValues("efk"), request.getParameterValues("efk" + i)),
-          merge(request.getParameterValues("efk"), request.getParameterValues("efv" + i)));
+          merge(request.getParameterValues("efk"), request.getParameterValues("efk" + i + "[]")),
+          merge(request.getParameterValues("efk"), request.getParameterValues("efv" + i + "[]")));
       eventFilters.add(filter);
     }
     Filter userFilter = getFilter(request.getParameterValues("ufk"),

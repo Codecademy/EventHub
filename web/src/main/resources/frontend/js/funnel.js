@@ -12,7 +12,7 @@ var Funnel = (function () {
 
     this.initializeFunnelSteps(funnel);
     this.initializeDatePickers(funnel);
-    this.initializeDaysToComplete(funnel)
+    this.initializeDaysToComplete(funnel);
     this.bindInputListeners();
     this.bindRemoveStepListener();
   };
@@ -72,17 +72,7 @@ var Funnel = (function () {
   cls.bindAddFilterListener = function ($step) {
     var self = this;
     $step.find('.add-filter').click(function () {
-      var $filtersContainer = $step.find('.filters-container');
-      var $eventsSelector = $step.find('select[name="events"]');
-
-      var view = {
-        filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$eventsSelector.val()])
-      };
-      $filtersContainer.append(Mustache.render(filterKeyTemplate, view));
-
-      self.bindFilterKeyListeners($step);
-      self.bindRemoveFilterListener($step);
-      $('.selectpicker').selectpicker('render');
+      self.renderKeyFilter($step);
     });
   }
 
@@ -121,7 +111,7 @@ var Funnel = (function () {
     $step.find('select[name="filterKey"]').last().change(function () {
       $(this).parent().find('.filter-value').remove();
       if ($(this).val() !== 'no filter') {
-        self.renderFunnelValueFilter($(this));
+        self.renderValueFilter($(this));
       }
     });
     $('.selectpicker').selectpicker('render');
@@ -132,13 +122,6 @@ var Funnel = (function () {
     $step.find('select[name="events"]').change(function () {
       var $filtersContainer = $(this).parent().find('.filters-container');
       $filtersContainer.empty();
-
-      var view = {
-        filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$(this).val()])
-      };
-      $filtersContainer.append(Mustache.render(filterKeyTemplate, view));
-
-      $('.selectpicker').selectpicker('render');
     });
   };
 
@@ -150,7 +133,6 @@ var Funnel = (function () {
 
     var partials = {
       "eventType": eventTypeTemplate,
-      "filters": filterKeyTemplate
     };
 
     $('.steps-container').append(Mustache.render(stepTemplate, view, partials));
@@ -199,7 +181,21 @@ var Funnel = (function () {
                                       .datepicker('setValue', end_date);
   };
 
-  cls.renderFunnelValueFilter = function ($keyFilter) {
+  cls.renderKeyFilter = function ($step) {
+    var $filtersContainer = $step.find('.filters-container');
+    var $eventsSelector = $step.find('select[name="events"]');
+
+    var view = {
+      filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$eventsSelector.val()])
+    };
+    $filtersContainer.append(Mustache.render(filterKeyTemplate, view));
+
+    this.bindFilterKeyListeners($step);
+    this.bindRemoveFilterListener($step);
+    $('.selectpicker').selectpicker('render');
+  };
+
+  cls.renderValueFilter = function ($keyFilter) {
     var $stepContainer = $keyFilter.parents().eq(2);
     var $eventsSelector = $stepContainer.find('select[name="events"]');
     var $filters = $keyFilter.parent();

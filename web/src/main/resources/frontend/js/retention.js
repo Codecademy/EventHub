@@ -124,6 +124,7 @@ var Retention = (function () {
       eventTypes: EVENT_TYPES,
       daysLater: retention.num_days_per_row || 7
     };
+
     var partials = {
       "event" : eventTemplate,
       "eventType": eventTypeTemplate
@@ -155,6 +156,20 @@ var Retention = (function () {
       $keyFilter.parent().append(Mustache.render(filterValueTemplate, view));
       $('.selectpicker').selectpicker('render');
     });
+  };
+
+  cls.renderKeyFilter = function ($eventContainer) {
+    var $filtersContainer = $eventContainer.find('.filters-container');
+    var $eventContainersSelector = $eventContainer.find('select[name="events"]');
+
+    var view = {
+      filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$eventContainersSelector.val()])
+    };
+    $filtersContainer.append(Mustache.render(filterKeyTemplate, view));
+
+    this.bindFilterKeyListeners($eventContainer);
+    this.bindRemoveFilterListener($eventContainer);
+    $('.selectpicker').selectpicker('render');
   };
 
   cls.bindInputListeners = function () {
@@ -193,17 +208,7 @@ var Retention = (function () {
   cls.bindAddFilterListener = function ($eventContainer) {
     var self = this;
     $eventContainer.find('.add-filter').click(function () {
-      var $filtersContainer = $eventContainer.find('.filters-container');
-      var $eventContainersSelector = $eventContainer.find('select[name="events"]');
-
-      var view = {
-        filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$eventContainersSelector.val()])
-      };
-      $filtersContainer.append(Mustache.render(filterKeyTemplate, view));
-
-      self.bindFilterKeyListeners($eventContainer);
-      self.bindRemoveFilterListener($eventContainer);
-      $('.selectpicker').selectpicker('render');
+      self.renderKeyFilter($eventContainer);
     });
   };
 
@@ -218,15 +223,7 @@ var Retention = (function () {
   cls.bindEventSelectorListeners = function ($eventContainer) {
     var self = this;
     $eventContainer.find('select[name="events"]').change(function () {
-      $filtersContainer = $eventContainer.find('.filters-container');
-
-      var view = {
-        filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$(this).val()])
-      };
-
-      $filtersContainer.html(Mustache.render(filterKeyTemplate, view))
-      $('.selectpicker').selectpicker('render');
-      self.bindFilterKeyListeners($eventContainer);
+      $eventContainer.find('.filters-container').empty();
     });
   };
 

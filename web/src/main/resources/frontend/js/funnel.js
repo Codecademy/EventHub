@@ -29,12 +29,18 @@ var Funnel = (function () {
     };
 
     $('.step-container').each(function(i, step) {
-      var filterValue = $(step).find('select[name="filterValue"]');
-      if (filterValue.length) {
-        funnel["efv" + i] = $(filterValue).val();
-        funnel["efk" + i] = $(step).find('select[name="filterKey"]').val();
-      }
-    })
+      $(step).find('.filters-container .filters').each(function (j, filters) {
+        var $filterValue = $(filters).find('select[name="filterValue"]');
+        var $filterKey = $(filters).find('select[name="filterKey"]');
+        if ($filterValue.length) {
+          funnel["efv" + i] = funnel["efv" + i] || [];
+          funnel["efv" + i] = funnel["efv" + i].concat($filterValue.val());
+
+          funnel["efk" + i] = funnel["efk" + i] || [];
+          funnel["efk" + i] = funnel["efk" + i].concat($filterKey.val());
+        }
+      });
+    });
 
     window.history.replaceState({}, '', '/?' + $.param(funnel));
     $.ajax({

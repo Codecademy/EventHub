@@ -28,16 +28,17 @@ var Retention = (function () {
       type: 'retention'
     };
 
-    // $('.retention-filters select[name="filterValue"]').each(function (i, select) {
-    //   var selectorIndex = $(select).data('index');
-    //   if (selectorIndex === 0) {
-    //     retention["cefk"] = $('.retention-filters select[name="filterKey"]').eq(selectorIndex).val();
-    //     retention["cefv"] = $(this).val();
-    //   } else {
-    //     retention["refk"] = $('.retention-filters select[name="filterKey"]').eq(selectorIndex).val();
-    //     retention["refv"] = $(this).val();
-    //   }
-    // });
+    $('.event-container').each(function (i, event) {
+      $(event).find('.filters-container .filters').each(function (j, filters) {
+        var $filterValue = $(filters).find('select[name="filterValue"]');
+        var $filterKey = $(filters).find('select[name="filterKey"]');
+        var axis = i === 1 ? 'c' : 'r';
+        retention[axis + "efk"] = retention[axis + "efk"] || [];
+        retention[axis + "efk"] = retention[axis + "efk"].concat($filterKey.val());
+        retention[axis + "efv"] = retention[axis + "efv"] || [];
+        retention[axis + "efv"] = retention[axis + "efv"].concat($filterValue.val());
+      });
+    });
 
     window.history.replaceState({}, '', '/?' + $.param(retention));
     $.ajax({

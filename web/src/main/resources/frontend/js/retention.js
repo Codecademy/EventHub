@@ -32,11 +32,13 @@ var Retention = (function () {
       $(event).find('.filters-container .filters').each(function (j, filters) {
         var $filterValue = $(filters).find('select[name="filterValue"]');
         var $filterKey = $(filters).find('select[name="filterKey"]');
-        var axis = i === 1 ? 'c' : 'r';
-        retention[axis + "efk"] = retention[axis + "efk"] || [];
-        retention[axis + "efk"] = retention[axis + "efk"].concat($filterKey.val());
-        retention[axis + "efv"] = retention[axis + "efv"] || [];
-        retention[axis + "efv"] = retention[axis + "efv"].concat($filterValue.val());
+        if ($filterValue.length) {
+          var axis = i === 1 ? 'c' : 'r';
+          retention[axis + "efk"] = retention[axis + "efk"] || [];
+          retention[axis + "efk"] = retention[axis + "efk"].concat($filterKey.val());
+          retention[axis + "efv"] = retention[axis + "efv"] || [];
+          retention[axis + "efv"] = retention[axis + "efv"].concat($filterValue.val());
+        }
       });
     });
 
@@ -107,16 +109,42 @@ var Retention = (function () {
   cls.initializeRetentionShowMe = function(retention) {
     var self = this;
 
-    if (!EVENT_TYPES) {
-      Utils.getEventTypes(function(eventTypes) {
-        EVENT_TYPES = JSON.parse(eventTypes);
+    Utils.getEventTypes(function(eventTypes) {
+      EVENT_TYPES = JSON.parse(eventTypes);
+      Utils.getEventKeys(function () {
+        self.bindShowFiltersListener();
         self.renderShowMe(retention);
-        Utils.getEventKeys(self.bindShowFiltersListener.bind(self));
+
+        var rowEventType = retention.row_event_type || EVENT_TYPES[0];
+        $('.show-me select[name="events"]').eq(0).last().val(rowEventType);
+
+        var columnEventType = retention.column_event_type || EVENT_TYPES[1];
+        $('.show-me select[name="events"]').eq(1).last().val(columnEventType);
+
+        var showFilters = false;
+
+        ['r', 'c'].forEach(function (axis, i) {
+          if (retention[axis + 'efv']) {
+            showFilters = true;
+            retention[axis + 'efv'].forEach(function (filterValue, j) {
+              var $eventContainer = $('.event-container').eq(i);
+              self.renderKeyFilter($eventContainer);
+
+              var filterKey = retention[axis + 'efk'][j];
+              var $filterKey = $eventContainer.find('select[name="filterKey"]').last();
+              $filterKey.val(filterKey);
+
+              self.renderValueFilter($filterKey);
+              var $filterValue = $eventContainer.find('select[name="filterValue"]').last();
+              $filterValue.val(filterValue);
+            });
+          }
+        });
+
+        $('.event-container select').selectpicker('refresh');
+        if (showFilters) $('.retention-filters-toggle').click();
       });
-    } else {
-      self.renderShowMe(retention);
-      self.bindShowFiltersListener();
-    }
+    });
   };
 
   cls.renderShowMe = function (retention) {
@@ -130,11 +158,6 @@ var Retention = (function () {
       "eventType": eventTypeTemplate
     };
     $('.cohort-definition').html(Mustache.render(showMeTemplate, view, partials));
-
-    var rowEventType = retention.row_event_type || EVENT_TYPES[0];
-    var columnEventType = retention.column_event_type || EVENT_TYPES[1];
-    $('.show-me select[name="events"]').eq(0).last().val(rowEventType);
-    $('.show-me select[name="events"]').eq(1).last().val(columnEventType);
     $('.selectpicker').selectpicker('render');
   };
 

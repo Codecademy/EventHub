@@ -156,14 +156,34 @@ var Funnel = (function () {
       EVENT_TYPES = JSON.parse(eventTypes);
       Utils.getEventKeys(function () {
         self.renderAddFunnelStep();
+        self.bindAddStepListener();
+        self.bindShowFiltersListener();
+
+        var showFilters = false;
+
         funnel.steps = funnel.funnel_steps || [EVENT_TYPES[0], EVENT_TYPES[1]];
         funnel.steps.forEach(function (v, i) {
           self.addStep();
-          $('.funnel-show select').last().val(v);
-          $('.funnel-show select').selectpicker('refresh');
+          $('.step-container select[name="events"]').last().val(v);
+          if (funnel['efv' + i]) {
+            showFilters = true;
+            funnel['efv' + i].forEach(function (filterValue, j) {
+              var $step = $('.step-container').last();
+              self.renderKeyFilter($step);
+
+              var filterKey = funnel['efk' + i][j];
+              var $filterKey = $step.find('select[name="filterKey"]').last();
+              $filterKey.val(filterKey)
+
+              self.renderValueFilter($filterKey);
+              var $filterValue = $step.find('select[name="filterValue"]').last();
+              $filterValue.val(filterValue);
+            });
+          }
+          $('.step-container select').selectpicker('refresh');
         });
-        self.bindAddStepListener();
-        self.bindShowFiltersListener();
+
+        if (showFilters) $('.funnel-filters-toggle').click();
       });
     });
   };

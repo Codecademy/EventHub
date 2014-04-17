@@ -98,6 +98,10 @@ html {
 	margin: 0 auto;
 }
 
+.body-container {
+  padding-bottom: 20px;
+}
+
 header {
 	border-bottom: 1px solid #ddd !important;
 }

@@ -42,11 +42,10 @@ public class DmaIdListModule extends AbstractModule {
         try (RandomAccessFile raf = new RandomAccessFile(new File(filename), "rw")) {
           FileChannel channel = raf.getChannel();
           MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, raf.length());
-          MappedByteBuffer metaDataBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, DmaIdList.META_DATA_SIZE);
-          int numRecords = metaDataBuffer.getInt();
+          int numRecords = buffer.getInt();
           int capacity = (int) (raf.length() - DmaIdList.META_DATA_SIZE) / DmaIdList.SIZE_OF_DATA;
           buffer.position(DmaIdList.META_DATA_SIZE + numRecords * DmaIdList.SIZE_OF_DATA);
-          return new DmaIdList(filename, metaDataBuffer, buffer, numRecords, capacity);
+          return new DmaIdList(filename, buffer, numRecords, capacity);
         }
       } catch (IOException e) {
         throw new RuntimeException(e);

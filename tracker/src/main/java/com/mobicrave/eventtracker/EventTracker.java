@@ -37,8 +37,8 @@ import java.util.Set;
 // TODO(UI):          e.g. getting offset for a given user and date)
 // TODO(ruby): client should buffer and sidekiq
 // TODO: name space system parameter
-// TODO: revisit synchronization
 // TODO: test recover with kill -9
+// TODO: revisit synchronization
 // TODO: finish README.md
 // TODO:   load testing performance
 // TODO:   query performance

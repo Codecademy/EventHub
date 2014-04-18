@@ -99,6 +99,8 @@ public class UserEventIndex implements Closeable {
     } else {
       indexEntry = index.get(userId);
       int numRecords = indexEntry.getNumRecords();
+      // this is more or less a hack, it relies on MappedByteBuffer to zeroes the buffer when initialized
+      // which is an undefined behavior in the spec but implemented so in openjdk.
       if (numRecords == 0) {
         Block block = blockFactory.build(0, eventId);
         indexEntry = indexEntryFactory.build();

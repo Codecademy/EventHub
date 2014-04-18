@@ -26,32 +26,35 @@ public class DmaList<T> implements Closeable {
   private final MappedByteBuffer metaDataBuffer;
   // O(numFiles)
   private LoadingCache<Integer, MappedByteBuffer> buffers;
-  private long numRecords;
+  private long maxId;
   private int numRecordsPerFile;
 
   public DmaList(String directory, Schema<T> schema, MappedByteBuffer metaDataBuffer,
-      LoadingCache<Integer, MappedByteBuffer> buffers, long numRecords, int numRecordsPerFile) {
+      LoadingCache<Integer, MappedByteBuffer> buffers, long maxId, int numRecordsPerFile) {
     this.directory = directory;
     this.schema = schema;
     this.metaDataBuffer = metaDataBuffer;
     this.buffers = buffers;
-    this.numRecords = numRecords;
+    this.maxId = maxId;
     this.numRecordsPerFile = numRecordsPerFile;
   }
 
   public void add(T t) {
-    int currentBufferIndex = (int) (numRecords / numRecordsPerFile);
+    int currentBufferIndex = (int) (maxId / numRecordsPerFile);
     ByteBuffer duplicate = buffers.getUnchecked(currentBufferIndex).duplicate();
-    duplicate.position((int) (numRecords % numRecordsPerFile) * schema.getObjectSize());
+    duplicate.position((int) (maxId % numRecordsPerFile) * schema.getObjectSize());
     duplicate.put(schema.toBytes(t));
-    metaDataBuffer.putLong(0, ++numRecords);
+    metaDataBuffer.putLong(0, ++maxId);
     metaDataBuffer.force();
   }
 
-  public void update(long kthRecord, T t) {
-    int currentBufferIndex = (int) (kthRecord / numRecordsPerFile);
+  public void update(long id, T t) {
+    if (id > maxId) {
+      maxId = id;
+    }
+    int currentBufferIndex = (int) (id / numRecordsPerFile);
     ByteBuffer duplicate = buffers.getUnchecked(currentBufferIndex).duplicate();
-    duplicate.position((int) (kthRecord % numRecordsPerFile) * schema.getObjectSize());
+    duplicate.position((int) (id % numRecordsPerFile) * schema.getObjectSize());
     duplicate.put(schema.toBytes(t));
   }
 
@@ -73,8 +76,8 @@ public class DmaList<T> implements Closeable {
     return bytes;
   }
 
-  public long getNumRecords() {
-    return numRecords;
+  public long getMaxId() {
+    return maxId;
   }
 
   public String getVarz(int indentation) {

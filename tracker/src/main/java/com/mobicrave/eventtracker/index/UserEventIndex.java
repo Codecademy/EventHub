@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -21,19 +20,15 @@ public class UserEventIndex implements Closeable {
   public static final int POINTER_SIZE = 8; // 8 bytes
   public static final int ID_SIZE = 8; // 8 bytes
 
-  private final String filename;
   private final DmaList<IndexEntry> index;
   private final IndexEntry.Factory indexEntryFactory;
   private final Block.Factory blockFactory;
-  private final BitSet userIdSet;
 
-  public UserEventIndex(String filename, DmaList<IndexEntry> index,
-      IndexEntry.Factory indexEntryFactory, Block.Factory blockFactory, BitSet userIdSet) {
-    this.filename = filename;
+  public UserEventIndex(DmaList<IndexEntry> index,
+      IndexEntry.Factory indexEntryFactory, Block.Factory blockFactory) {
     this.index = index;
     this.indexEntryFactory = indexEntryFactory;
     this.blockFactory = blockFactory;
-    this.userIdSet = userIdSet;
   }
 
   public int getEventOffset(int userId, long eventId) {
@@ -93,29 +88,36 @@ public class UserEventIndex implements Closeable {
     }
   }
 
-  public void addEvent(int userId, long eventId) {
+  public synchronized void addEvent(int userId, long eventId) {
     IndexEntry indexEntry;
-    if (!userIdSet.get(userId)) {
+    long maxId = index.getMaxId();
+    if (userId > maxId) {
       Block block = blockFactory.build(0, eventId);
       indexEntry = indexEntryFactory.build();
       indexEntry.setMinId(eventId);
       indexEntry.shiftBlock(block);
-      userIdSet.set(userId);
     } else {
       indexEntry = index.get(userId);
       int numRecords = indexEntry.getNumRecords();
-      int numRecordsPerBlock = blockFactory.getNumRecordsPerBlock();
-      int blockOffset = numRecords / numRecordsPerBlock;
-      if (numRecords % numRecordsPerBlock == 0) { // need a new block
-        Block block = blockFactory.build(blockOffset, eventId);
-        Block prevBlock = findBlock(indexEntry, blockOffset - 1);
-        block.getMetaData().setPrevBlockPointer(prevBlock.getMetaData().getPointer());
-        prevBlock.getMetaData().setNextBlockPointer(block.getMetaData().getPointer());
-
+      if (numRecords == 0) {
+        Block block = blockFactory.build(0, eventId);
+        indexEntry = indexEntryFactory.build();
+        indexEntry.setMinId(eventId);
         indexEntry.shiftBlock(block);
       } else {
-        Block block = findBlock(indexEntry, blockOffset);
-        block.add(eventId);
+        int numRecordsPerBlock = blockFactory.getNumRecordsPerBlock();
+        int blockOffset = numRecords / numRecordsPerBlock;
+        if (numRecords % numRecordsPerBlock == 0) { // need a new block
+          Block block = blockFactory.build(blockOffset, eventId);
+          Block prevBlock = findBlock(indexEntry, blockOffset - 1);
+          block.getMetaData().setPrevBlockPointer(prevBlock.getMetaData().getPointer());
+          prevBlock.getMetaData().setNextBlockPointer(block.getMetaData().getPointer());
+
+          indexEntry.shiftBlock(block);
+        } else {
+          Block block = findBlock(indexEntry, blockOffset);
+          block.add(eventId);
+        }
       }
     }
     indexEntry.incrementNumRecord();
@@ -124,11 +126,6 @@ public class UserEventIndex implements Closeable {
 
   @Override
   public void close() throws IOException {
-    //noinspection ResultOfMethodCallIgnored
-    new File(filename).getParentFile().mkdirs();
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-      oos.writeObject(userIdSet);
-    }
     index.close();
     blockFactory.close();
   }

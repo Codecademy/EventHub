@@ -15,9 +15,9 @@ public class UserEventIndexTest extends GuiceTestCase {
   public void testAll() throws Exception {
     Provider<UserEventIndex> dmaUserEventIndexProvider = getDmaUserEventIndexProvider();
     UserEventIndex userEventIndex = dmaUserEventIndexProvider.get();
-    userEventIndex.addEvent(2, 30);
     userEventIndex.addEvent(0, 10);
     userEventIndex.addEvent(1, 20);
+    userEventIndex.addEvent(2, 30);
     userEventIndex.addEvent(0, 40);
     userEventIndex.addEvent(1, 50);
     userEventIndex.addEvent(2, 60);

@@ -16,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.MappedByteBuffer;
-import java.util.BitSet;
 
 public class UserEventIndexModule extends AbstractModule {
   @Override
@@ -92,17 +91,6 @@ public class UserEventIndexModule extends AbstractModule {
       DmaList<UserEventIndex.IndexEntry> index,
       UserEventIndex.IndexEntry.Factory indexEntryFactory,
       UserEventIndex.Block.Factory blockFactory) {
-    String filename = directory + "user_event_index.ser";
-    File file = new File(filename);
-    if (file.exists()) {
-      try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-        BitSet userIdSet = (BitSet) ois.readObject();
-        return new UserEventIndex(filename, index, indexEntryFactory, blockFactory, userIdSet);
-      } catch (IOException | ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    return new UserEventIndex(filename, index, indexEntryFactory, blockFactory, new BitSet());
+    return new UserEventIndex(index, indexEntryFactory, blockFactory);
   }
 }

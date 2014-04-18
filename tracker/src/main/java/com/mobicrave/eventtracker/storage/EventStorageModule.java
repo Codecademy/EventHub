@@ -55,7 +55,7 @@ public class EventStorageModule extends AbstractModule {
       DmaList<JournalEventStorage.MetaData> metaDataList) {
     JournalEventStorage.MetaData.Schema schema = new JournalEventStorage.MetaData.Schema();
     return new JournalEventStorage(
-        eventJournal, schema, metaDataList, metaDataList.getNumRecords());
+        eventJournal, schema, metaDataList, metaDataList.getMaxId());
   }
 
   @Provides

@@ -43,7 +43,7 @@ public class DmaListTest {
     list.update(2, metaDatas[3]);
     Assert.assertEquals(metaDatas[3].getUserId(), list.get(2).getUserId());
     Assert.assertArrayEquals(metaDatas[3].getLocation(), list.get(2).getLocation());
-    Assert.assertEquals(metaDatas.length, list.getNumRecords());
+    Assert.assertEquals(metaDatas.length, list.getMaxId());
   }
 
   private static class MetaData {

@@ -39,7 +39,6 @@ import java.util.Set;
 // TODO: name space system parameter
 // TODO: revisit synchronization
 // TODO: test recover with kill -9
-// TODO: failure recovery (and flush endpoint)
 // TODO: finish README.md
 // TODO:   load testing performance
 // TODO:   query performance
@@ -50,7 +49,7 @@ import java.util.Set;
 // TODO: deploy and verify it can handle CC traffic
 // --------------- End of V1
 // TODO: query language
-// TODO: refactor to have IdManager
+// TODO: refactor to have IdManager & Id class
 // TODO: consider column oriented storage
 // TODO: separate cache for previously computed result? same binary or redis?
 // TODO: move synchronization responsibility to low level

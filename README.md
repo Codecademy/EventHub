@@ -90,9 +90,10 @@ cd ${EVENT_TRACKER_DIR}; ./script.sh
 #### Load testing with Jmeter
 We use [Apache Jmeter](http://jmeter.apache.org) for load testing, and the load testing script can be found in `${EVENT_TRACKER_DIR}/jmeter.jmx`.
 ```bash
-NUM_THREADS=1 java -jar ~/Downloads/apache-jmeter-2.11/bin/ApacheJMeter.jar -JnumThreads=${NUM_THREADS} -n -t jmeter.jmx -p jmeter.properties
-NUM_THREADS=5 java -jar ~/Downloads/apache-jmeter-2.11/bin/ApacheJMeter.jar -JnumThreads=${NUM_THREADS} -n -t jmeter.jmx -p jmeter.properties
-NUM_THREADS=10 java -jar ~/Downloads/apache-jmeter-2.11/bin/ApacheJMeter.jar -JnumThreads=${NUM_THREADS} -n -t jmeter.jmx -p jmeter.properties
+export JMETER_DIR=~/Downloads/apache-jmeter-2.11/
+java -jar ${JMETER_DIR}/bin/ApacheJMeter.jar -JnumThreads=1 -n -t jmeter.jmx -p jmeter.properties
+java -jar ${JMETER_DIR}/bin/ApacheJMeter.jar -JnumThreads=5 -n -t jmeter.jmx -p jmeter.properties
+java -jar ${JMETER_DIR}/bin/ApacheJMeter.jar -JnumThreads=10 -n -t jmeter.jmx -p jmeter.properties
 
 # generate graph (require matplotlib)
 ./plot_jmeter_performance.py 1-jmeter-performance.csv 5-jmeter-performance.csv 10-jmeter-performance.csv

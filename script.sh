@@ -117,3 +117,11 @@ echo -e "\033[1;32mshow A/B testing cohort:\033[0m signup -> submission"
 curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&end_date=${end_date}&row_event_type=signup&column_event_type=submission&num_days_per_row=7&num_columns=2&refk[]=experiment&refv[]=signup_v1&refk[]=treatment&refv[]=fancy onboarding"
 echo ""
 
+
+echo -e "\033[1;32mshow the first event for chengtao@codecademy.com"
+curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=0\&num_records\=1
+echo ""
+
+echo -e "\033[1;32mshow the following 10 events for chengtao@codecademy.com"
+curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=1\&num_records\=10
+echo ""

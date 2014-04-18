@@ -32,23 +32,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-// TODO(UI): support event filtering for both cohort and funnel
-// TODO(UI): support user event timeline (including adding necessary api endpoints,
-// TODO(UI):          e.g. getting offset for a given user and date)
-// TODO(ruby): client should buffer and sidekiq
-// TODO: name space system parameter
-// TODO: test recover with kill -9
-// TODO: revisit synchronization
-// TODO: finish README.md
-// TODO:   load testing performance
-// TODO:   query performance
-// TODO:   dashboard screenshots
-// TODO: code style and naming review
-// --------------- End of V1 beta
-// TODO: add average qps to varz
-// TODO: deploy and verify it can handle CC traffic
-// --------------- End of V1
 // TODO: query language
+// TODO: integrate com.codahale.metrics
 // TODO: refactor to have IdManager & Id class
 // TODO: consider column oriented storage
 // TODO: separate cache for previously computed result? same binary or redis?

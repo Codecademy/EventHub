@@ -45,6 +45,7 @@ public class DmaList<T> implements Closeable {
     duplicate.position((int) (numRecords % numRecordsPerFile) * schema.getObjectSize());
     duplicate.put(schema.toBytes(t));
     metaDataBuffer.putLong(0, ++numRecords);
+    metaDataBuffer.force();
   }
 
   public void update(long kthRecord, T t) {

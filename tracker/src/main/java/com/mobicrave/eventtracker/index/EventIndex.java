@@ -1,16 +1,10 @@
 package com.mobicrave.eventtracker.index;
 
-import com.google.common.collect.Lists;
 import com.mobicrave.eventtracker.list.DmaIdList;
 import com.mobicrave.eventtracker.list.IdList;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 
 public class EventIndex implements Closeable {
@@ -46,25 +40,13 @@ public class EventIndex implements Closeable {
 
   @Override
   public void close() throws IOException {
-    String filename = getFilename(directory);
-    //noinspection ResultOfMethodCallIgnored
-    new File(filename).getParentFile().mkdirs();
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-      List<String> dates = Lists.newArrayList();
-      for (Map.Entry<String, IdList> entry : eventIdListMap.entrySet()) {
-        entry.getValue().close();
-        dates.add(entry.getKey());
-      }
-      oos.writeObject(dates);
+    for (IdList idList : eventIdListMap.values()) {
+      idList.close();
     }
   }
 
   public static String getEventIdListFilename(String directory, String date) {
     return String.format("%s/%s.ser", directory, date);
-  }
-
-  public static String getFilename(String directory) {
-    return String.format("%s/individual_event_index.ser", directory);
   }
 
   public interface Factory {

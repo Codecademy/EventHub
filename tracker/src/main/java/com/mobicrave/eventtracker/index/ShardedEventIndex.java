@@ -1,7 +1,7 @@
 package com.mobicrave.eventtracker.index;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.google.common.io.Files;
 
 import java.io.Closeable;
 import java.io.File;
@@ -43,11 +43,12 @@ public class ShardedEventIndex implements Closeable {
       int eventTypeId = eventIndexMap.size();
       eventTypeIdMap.put(eventType, eventTypeId);
       eventIndexMap.put(eventType, eventIndexFactory.build(eventType));
+      persistEventTypeIdMap();
       return eventTypeId;
     }
   }
 
-  public void addEvent(long eventId, String eventType, String date) {
+  public synchronized void addEvent(long eventId, String eventType, String date) {
     eventIndexMap.get(eventType).addEvent(eventId, date);
   }
 
@@ -61,21 +62,28 @@ public class ShardedEventIndex implements Closeable {
 
   @Override
   public void close() throws IOException {
-    //noinspection ResultOfMethodCallIgnored
-    new File(filename).getParentFile().mkdirs();
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-      List<String> eventTypes = Lists.newArrayList();
-      for (String eventType : eventIndexMap.keySet()) {
-        eventTypes.add(eventType);
-        eventIndexMap.get(eventType).close();
-      }
-      oos.writeObject(eventTypes);
-      oos.writeObject(eventTypeIdMap);
+    for (String eventType : eventIndexMap.keySet()) {
+      eventIndexMap.get(eventType).close();
     }
+    persistEventTypeIdMap();
   }
 
   public String getVarz(int indentation) {
     String indent  = new String(new char[indentation]).replace('\0', ' ');
     return String.format(indent + "filename: %s", filename);
+  }
+
+  private void persistEventTypeIdMap() {
+    //noinspection ResultOfMethodCallIgnored
+    new File(filename).getParentFile().mkdirs();
+    String newFilename = filename + ".new";
+    try {
+      try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(newFilename))) {
+        oos.writeObject(eventTypeIdMap);
+      }
+      Files.move(new File(newFilename), new File(filename));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

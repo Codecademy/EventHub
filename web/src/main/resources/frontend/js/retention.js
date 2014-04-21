@@ -64,7 +64,6 @@ var Retention = (function () {
     var count = 0;
     var currentDate = new Date($('#retentionStartDate').val());
     for (var i = 0; i < retention.length; i++) {
-       if (retention[i][0] === 0) break;
        $('.events').append('<div>' + retention[i][0] + '</div>');
 
        var date = (currentDate.getMonth() + 1) + '/' + currentDate.getDate() + '/' + currentDate.getFullYear();
@@ -74,9 +73,8 @@ var Retention = (function () {
 
        $('.retention').append('<div class="row' + i + '"></div>');
        for (var j = 1; j < retention[i].length; j++) {
-          if (retention[i][j] === 0) break;
           if (i === 0) $('.axis').append('<div>' + j + '</div>');
-          var percentage = retention[i][j] / retention[i][0] * 100;
+          var percentage = retention[i][j] === 0 ? 0 : retention[i][j] / retention[i][0] * 100;
           percentage = percentage === 100 ? percentage : percentage.toFixed(2);
           var boxClass = 'gradient-' + parseInt(percentage / 10, 10);
           $('.row' + i).append('<div class="box ' + boxClass + '">' + percentage + '%</div>');

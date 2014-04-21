@@ -51,6 +51,11 @@ mvn -am -pl web clean test
     curl http://localhost:8080/events/types
     ```
 
+* Show events for a given user
+    ```bash
+    curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=0\&num_records\=1
+    ```
+
 * Show all property keys for the given event type
     ```bash
     curl 'http://localhost:8080/events/keys?event_type=signup'
@@ -144,6 +149,8 @@ Please beware that the current storage format on disk is fairly inefficient and 
 | BloomFitleredEventStorage | 848Mb           | (bloomfilter size) * (number of events) <br>= 16 * 53M |
 
 #### Write performance
+![Throughput and latency by threads](https://raw.github.com/Mobicrave/EventTracker/master/write_performance.png)
+
 #### Query performance
 | Query                   | 1st time execution | 2nd time execution | # records |
 |-------------------------|--------------------|--------------------|-----------|

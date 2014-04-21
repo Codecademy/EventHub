@@ -100,9 +100,9 @@ var Retention = (function () {
   cls.initializeRetentionDatePickers = function (retention) {
     var start_date = retention.start_date ? Utils.unFormatDate(retention.start_date) : '01/01/2014';
     var end_date = retention.end_date ? Utils.unFormatDate(retention.end_date) : '01/30/2014';
-    $( "#retentionStartDate" ).datepicker().on('changeDate blur', function () { $(this).datepicker('hide'); })
+    $( "#retentionStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
                                            .datepicker('setValue', start_date);
-    $( "#retentionEndDate" ).datepicker().on('changeDate blur', function () { $(this).datepicker('hide'); })
+    $( "#retentionEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
                                          .datepicker('setValue', end_date);
   };
 

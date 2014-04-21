@@ -35,13 +35,18 @@
 
 .dates-column-container, .events-column-container, .retention-container {
   float: left;
+  text-align: center;
 }
 
 .dates-column-container .date-title, .events-column-container .event-title,
 .retention-container .retention-title {
-  padding: 10px 0;
+  padding: 10px;
   text-align: center;
   border-bottom: 1px solid #ddd;
+}
+
+.retention-container .retention-title {
+  padding: 10px 0;
 }
 
 .dates div, .events div {
@@ -51,13 +56,13 @@
 
 .axis div {
   display: inline-block;
-  width: 76px;
+  width: 78px;
   text-align: center;
 }
 
 .retention .box {
   display: inline-block;
-  width: 76px;
+  width: 78px;
   padding: 10px;
   text-align: center;
   color: white;

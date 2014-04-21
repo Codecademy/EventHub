@@ -24,7 +24,7 @@ var Retention = (function () {
       row_event_type: $('.show-me select[name="events"]').eq(0).val(),
       column_event_type: $('.show-me select[name="events"]').eq(1).val(),
       num_days_per_row: $('#daysLater').val(),
-      num_columns: 9, //$('#numColumns').val()... Why make things more complicated...
+      num_columns: 11, //$('#numColumns').val()... Why make things more complicated...
       type: 'retention'
     };
 

@@ -137,27 +137,38 @@ Lastly, `EventTracker` maintains a `PropertiesIndex` backed by [LevelDB Jni](htt
 While EventTracker does not need any information from different users, with a broker in front of EventTracker servers, EventTracker can be easily sharded by users and scale horizontally.
 
 ### Performance
-In the experiment, the server was bootstrapped with subset of data from Codecademy, which has around 53M events and 2.4M users.
+In the following three experiments, the spec of the computer used can be found in the following table
+
+| Component      | Spec                                    |
+|----------------|-----------------------------------------|
+| Computer Model | Mac Book Pro, Retina 15-inch, Late 2013 |
+| Processor      | 2GHz Intel Core i7                      |
+| Memory         | 8GB 1600 MHz DDR3                       |
+| Software       | OS X 10.9.2                             |
+| Jvm            | Oracle JDK 1.7                          |
+
+#### Write performance
+The following graph is generated as described in [Load testing with Jmeter](#load-testing-with-jmeter). The graph shows both the throughput and latency of adding the first one million events (without batching) with different number of threads (1, 5, 10, 15).
+![Throughput and latency by threads](http://i60.tinypic.com/16ad66b.png)
+
+#### Query performance
+While it is difficult to come up with a generic benchmark, we would rather show something rather than show nothing. After generating about one million events with the load testing script as described in [Load testing with Jmeter](#load-testing-with-jmeter), we ran the four types of queries twice, once after the server starts cleanly and another time while the cache is still warm.
+
+| Query                   | 1st execution | 2nd execution | command |
+|-------------------------|---------------|---------------|---------|
+| Funnel without filters  | 1.15s         | 0.19s         | curl -X POST "http://localhost:8080/events/funnel" --data "start_date=20130101&end_date=20130130&funnel_steps[]=receive_email&funnel_steps[]=view_track_page&funnel_steps[]=start_track&num_days_to_complete_funnel=30" |
+| Funnel with filters     | 1.31s         | 0.43s         | curl -X POST "http://localhost:8080/events/funnel" --data "start_date=20130101&end_date=20130130&funnel_steps[]=receive_email&funnel_steps[]=view_track_page&funnel_steps[]=start_track&num_days_to_complete_funnel=30&efk0[]=event_property_1&efv0[]=1" |
+| Cohort without filters  | 0.63s         | 0.13s         | curl -X POST "http://localhost:8080/events/cohort" --data "start_date=20130101&end_date=20130130&row_event_type=receive_email&column_event_type=start_track&num_days_per_row=1&num_columns=7" |
+| Cohort with filters     | 1.20s         | 0.32s         | curl -X POST "http://localhost:8080/events/cohort" --data "start_date=20130101&end_date=20130130&row_event_type=receive_email&column_event_type=start_track&num_days_per_row=1&num_columns=7&refk[]=event_property_1&refv[]=1" |
 
 #### Memory footprint
-Please beware that the current storage format on disk is fairly inefficient and has serious internal fragmentation. However, when the data are loaded to memory, it will be much more efficient as we would never load those "hole" pages into memory.
+In the experiment, the server was bootstrapped differently. Instead of using the load testing script, we used subset of data from Codecademy, which has around 53M events and 2.4M users. Please be aware that the current storage format on disk is fairly inefficient and has serious internal fragmentation. However, when the data are loaded to memory, it will be much more efficient as we would never load those "hole" pages into memory.
 
 | Key Component             | Size in memory  | Note |
 |---------------------------|-----------------|------|
 | ShardedEventIndex         | 424Mb           | (data size) + (index size) <br>= (event id size * number of events) + negligible<br>= (8 * 53M) |
 | UserEventIndex            | 722Mb           | (data size) + (index size) <br>= (event id size * number of events) + (index entry size * number of users)<br>= (8 * 53M) + ((numPointersPerIndexEntry * 2 + 1) * 8 + 4) * 2.4M)<br>= (8 * 53M) + (124 * 2.4M) |
 | BloomFitleredEventStorage | 848Mb           | (bloomfilter size) * (number of events) <br>= 16 * 53M |
-
-#### Write performance
-![Throughput and latency by threads](https://raw.github.com/Mobicrave/EventTracker/master/write_performance.png)
-
-#### Query performance
-| Query                   | 1st time execution | 2nd time execution | # records |
-|-------------------------|--------------------|--------------------|-----------|
-| Funnel without filters  | 10K   | | |
-| Funnel with filters     | 10K   | | |
-| Cohort without filters  | 10K   | | |
-| Cohort with filters     | 10K   | | |
 
 ## Dashboard
 The server comes with a built-in dashboard which is simply some static resources stored in `/web/src/main/resources/frontend` and gets compiled into the server jar file. After running the server, the dashboard can be accessed at [http://localhost:8080](http://localhost:8080). Through the dashboard, you can access the server for your funnel and cohort analysis.

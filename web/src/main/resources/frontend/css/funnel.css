@@ -45,6 +45,7 @@
   vertical-align: top;
   position: relative;
   top: 9px;
+  line-height: 16px;
 }
 
 .funnel-steps.show-filters .add-filter {

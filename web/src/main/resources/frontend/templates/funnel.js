@@ -5,7 +5,7 @@ var funnelTemplate = ' \
     <div class="funnel-steps"> \
       <div class="steps-container"></div> \
     </div> \
-    <div class="funnel-filters-toggle filter-toggle">Filters<span class="down-arrow"></span></div> \
+    <div class="funnel-filters-toggle filter-toggle">Show Filters<span class="down-arrow"></span></div> \
   </div> \
   <div class="top"> \
     <div class="cf"> \

@@ -2,7 +2,7 @@ var retentionTemplate = ' \
 <div class="retention-show cf"> \
   <h2>Cohort Definition</h2><br> \
   <div class="cohort-definition"></div> \
-  <div class="retention-filters-toggle filter-toggle">Filters<span class="down-arrow"></span></div> \
+  <div class="retention-filters-toggle filter-toggle">Show Filters<span class="down-arrow"></span></div> \
   <div class="range-container"> \
     <h2>Parameters</h2><br> \
     <div class="date-container"> \

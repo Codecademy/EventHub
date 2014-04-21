@@ -180,11 +180,13 @@
 }
 
 .bar .eventName {
-  width: 100%;
-  text-align: center;
   position: absolute;
   bottom: -35px;
   color: #aaa;
+  width: 200%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bar .numEvents {

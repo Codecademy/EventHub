@@ -21,8 +21,8 @@ var Retention = (function () {
     var retention = {
       start_date: Utils.formatDate($('#retentionStartDate').val()),
       end_date: Utils.formatDate($('#retentionEndDate').val()),
-      row_event_type: $('.show-me select[name="events"]').eq(0).val(),
-      column_event_type: $('.show-me select[name="events"]').eq(1).val(),
+      row_event_type: $('.show-me .event-type--input').eq(0).val(),
+      column_event_type: $('.show-me .event-type--input').eq(1).val(),
       num_days_per_row: $('#daysLater').val(),
       num_columns: 11, //$('#numColumns').val()... Why make things more complicated...
       type: 'retention'
@@ -30,8 +30,8 @@ var Retention = (function () {
 
     $('.event-container').each(function (i, event) {
       $(event).find('.filters-container .filters').each(function (j, filters) {
-        var $filterValue = $(filters).find('select[name="filterValue"]');
-        var $filterKey = $(filters).find('select[name="filterKey"]');
+        var $filterValue = $(filters).find('.filter-value--input');
+        var $filterKey = $(filters).find('.filter-key--input');
         if ($filterValue.length) {
           var axis = i === 1 ? 'c' : 'r';
           retention[axis + "efk"] = retention[axis + "efk"] || [];
@@ -114,10 +114,10 @@ var Retention = (function () {
         self.renderShowMe(retention);
 
         var rowEventType = retention.row_event_type || EVENT_TYPES[0];
-        $('.show-me select[name="events"]').eq(0).last().val(rowEventType);
+        $('.show-me .event-type--input').eq(0).last().val(rowEventType);
 
         var columnEventType = retention.column_event_type || EVENT_TYPES[1];
-        $('.show-me select[name="events"]').eq(1).last().val(columnEventType);
+        $('.show-me .event-type--input').eq(1).last().val(columnEventType);
 
         var showFilters = false;
 
@@ -126,20 +126,19 @@ var Retention = (function () {
             showFilters = true;
             retention[axis + 'efv'].forEach(function (filterValue, j) {
               var $eventContainer = $('.event-container').eq(i);
-              self.renderKeyFilter($eventContainer);
+              self.renderFilterKey($eventContainer);
 
               var filterKey = retention[axis + 'efk'][j];
-              var $filterKey = $eventContainer.find('select[name="filterKey"]').last();
+              var $filterKey = $eventContainer.find('.filter-key--input').last();
               $filterKey.val(filterKey);
 
-              self.renderValueFilter($filterKey);
-              var $filterValue = $eventContainer.find('select[name="filterValue"]').last();
-              $filterValue.val(filterValue);
+              self.renderFilterValue($filterKey, function ($filterValue) {
+                $filterValue.val(filterValue);
+              });
             });
           }
         });
 
-        $('.event-container select').selectpicker('refresh');
         if (showFilters) $('.retention-filters-toggle').click();
       });
     });
@@ -152,45 +151,54 @@ var Retention = (function () {
     };
 
     var partials = {
-      "event" : eventTemplate,
-      "eventType": eventTypeTemplate
+      "event" : eventTemplate
     };
+
     $('.cohort-definition').html(Mustache.render(showMeTemplate, view, partials));
-    $('.selectpicker').selectpicker('render');
+
+    $('.event-type--input').typeahead({
+      source: EVENT_TYPES
+    });
   };
 
-  cls.renderValueFilter = function ($keyFilter) {
-    $eventContainerSelector = $keyFilter.parents().eq(2).find('select[name="events"]')
+  cls.renderFilterValue= function ($filterKey, cb) {
+    var $eventContainer = $filterKey.parents().eq(2);
+    var $eventSelector = $eventContainer.find('.event-type--input');
 
     var params = {
-      event_type: $eventContainerSelector.val(),
-      event_key: $keyFilter.val()
+      event_type: $eventSelector.val(),
+      event_key: $filterKey.val()
     }
+
+    $filterKey.parent().append(Mustache.render(filterValueTemplate));
+
+    var $filterValue = $eventContainer.find('.filter-value--input').last();
+
     $.ajax({
       type: "GET",
       url: "/events/values?" + $.param(params)
     }).done(function(values) {
       values = JSON.parse(values);
-      var view = {
-        filterValues: values
-      };
-      $keyFilter.parent().append(Mustache.render(filterValueTemplate, view));
-      $('.selectpicker').selectpicker('render');
+
+      $filterValue.typeahead({
+        source: values
+      });
+
+      if (cb) cb($filterValue);
     });
   };
 
-  cls.renderKeyFilter = function ($eventContainer) {
+  cls.renderFilterKey = function ($eventContainer) {
     var $filtersContainer = $eventContainer.find('.filters-container');
-    var $eventContainersSelector = $eventContainer.find('select[name="events"]');
+    var $eventSelector = $eventContainer.find('.event-type--input');
 
-    var view = {
-      filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$eventContainersSelector.val()])
-    };
-    $filtersContainer.append(Mustache.render(filterKeyTemplate, view));
+    $filtersContainer.append(Mustache.render(filterKeyTemplate));
+    $filtersContainer.find('.filter-key--input').typeahead({
+        source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventSelector.val()])
+    });
 
     this.bindFilterKeyListeners($eventContainer);
     this.bindRemoveFilterListener($eventContainer);
-    $('.selectpicker').selectpicker('render');
   };
 
   cls.bindInputListeners = function () {
@@ -218,10 +226,10 @@ var Retention = (function () {
   cls.bindFilterKeyListeners = function ($eventContainer) {
     var self = this;
 
-    $eventContainer.find('select[name="filterKey"]').last().change(function () {
+    $eventContainer.find('.filter-key--input').last().change(function () {
       $(this).parent().find('.filter-value').remove();
       if ($(this).val() !== 'no filter') {
-        self.renderValueFilter($(this));
+        self.renderFilterValue($(this));
       }
     });
   };
@@ -229,7 +237,7 @@ var Retention = (function () {
   cls.bindAddFilterListener = function ($eventContainer) {
     var self = this;
     $eventContainer.find('.add-filter').click(function () {
-      self.renderKeyFilter($eventContainer);
+      self.renderFilterKey($eventContainer);
     });
   };
 
@@ -243,7 +251,7 @@ var Retention = (function () {
 
   cls.bindEventSelectorListeners = function ($eventContainer) {
     var self = this;
-    $eventContainer.find('select[name="events"]').change(function () {
+    $eventContainer.find('.event-type--input').change(function () {
       $eventContainer.find('.filters-container').empty();
     });
   };

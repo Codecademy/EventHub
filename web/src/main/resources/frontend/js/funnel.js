@@ -30,8 +30,8 @@ var Funnel = (function () {
 
     $('.step-container').each(function(i, step) {
       $(step).find('.filters-container .filters').each(function (j, filters) {
-        var $filterValue = $(filters).find('select[name="filterValue"]');
-        var $filterKey = $(filters).find('select[name="filterKey"]');
+        var $filterValue = $(filters).find('.filter-value--input');
+        var $filterKey = $(filters).find('.filter-key--input');
         if ($filterValue.length) {
           funnel["efv" + i] = funnel["efv" + i] || [];
           funnel["efv" + i] = funnel["efv" + i].concat($filterValue.val());
@@ -55,7 +55,7 @@ var Funnel = (function () {
   };
 
   cls.getFunnelSteps = function () {
-    var funnelSteps = $('.funnel-steps select[name="events"]').map(function(i, el) {
+    var funnelSteps = $('.funnel-steps .event-type--input').map(function(i, el) {
       return $(el).val();
     }).toArray();
     return funnelSteps;
@@ -72,7 +72,7 @@ var Funnel = (function () {
   cls.bindAddFilterListener = function ($step) {
     var self = this;
     $step.find('.add-filter').click(function () {
-      self.renderKeyFilter($step);
+      self.renderFilterKey($step);
     });
   }
 
@@ -108,18 +108,17 @@ var Funnel = (function () {
 
   cls.bindFilterKeyListeners = function ($step) {
     var self = this;
-    $step.find('select[name="filterKey"]').last().change(function () {
+    $step.find('.filter-key--input').last().change(function () {
       $(this).parent().find('.filter-value').remove();
       if ($(this).val() !== 'no filter') {
-        self.renderValueFilter($(this));
+        self.renderFilterValue($(this));
       }
     });
-    $('.selectpicker').selectpicker('render');
   };
 
   cls.bindEventSelectorListeners = function ($step) {
     var self = this;
-    $step.find('select[name="events"]').change(function () {
+    $step.find('.event-type--input').change(function () {
       var $filtersContainer = $(this).parent().find('.filters-container');
       $filtersContainer.empty();
     });
@@ -128,17 +127,15 @@ var Funnel = (function () {
   cls.addStep = function () {
     var view = {
       eventTypes: EVENT_TYPES,
-      filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[EVENT_TYPES[0]]),
     };
 
-    var partials = {
-      "eventType": eventTypeTemplate,
-    };
-
-    $('.steps-container').append(Mustache.render(stepTemplate, view, partials));
-    $('.selectpicker').selectpicker('render');
+    $('.steps-container').append(Mustache.render(stepTemplate, view));
 
     $step = $('.steps-container .step-container').last();
+
+    $step.find('.event-type--input').typeahead({
+      source: EVENT_TYPES
+    });
 
     this.bindEventSelectorListeners($step);
     this.bindAddFilterListener($step);
@@ -164,23 +161,22 @@ var Funnel = (function () {
         funnel.steps = funnel.funnel_steps || [EVENT_TYPES[0], EVENT_TYPES[1]];
         funnel.steps.forEach(function (v, i) {
           self.addStep();
-          $('.step-container select[name="events"]').last().val(v);
+          $('.step-container .event-type--input').last().val(v);
           if (funnel['efv' + i]) {
             showFilters = true;
             funnel['efv' + i].forEach(function (filterValue, j) {
               var $step = $('.step-container').last();
-              self.renderKeyFilter($step);
+              self.renderFilterKey($step);
 
               var filterKey = funnel['efk' + i][j];
-              var $filterKey = $step.find('select[name="filterKey"]').last();
+              var $filterKey = $step.find('.filter-key--input').last();
               $filterKey.val(filterKey)
 
-              self.renderValueFilter($filterKey);
-              var $filterValue = $step.find('select[name="filterValue"]').last();
-              $filterValue.val(filterValue);
+              self.renderFilterValue($filterKey, function ($filterValue) {
+                $filterValue.val(filterValue);
+              });
             });
           }
-          $('.step-container select').selectpicker('refresh');
         });
 
         if (showFilters) $('.funnel-filters-toggle').click();
@@ -201,29 +197,32 @@ var Funnel = (function () {
                                       .datepicker('setValue', end_date);
   };
 
-  cls.renderKeyFilter = function ($step) {
+  cls.renderFilterKey = function ($step) {
     var $filtersContainer = $step.find('.filters-container');
-    var $eventsSelector = $step.find('select[name="events"]');
+    var $eventsSelector = $step.find('.event-type--input');
 
-    var view = {
-      filterKeys: ['no filter'].concat(EVENT_TYPE_KEYS[$eventsSelector.val()])
-    };
-    $filtersContainer.append(Mustache.render(filterKeyTemplate, view));
+    $filtersContainer.append(Mustache.render(filterKeyTemplate));
+    $step.find('.filter-key--input').typeahead({
+        source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventsSelector.val()])
+    });
 
     this.bindFilterKeyListeners($step);
     this.bindRemoveFilterListener($step);
-    $('.selectpicker').selectpicker('render');
   };
 
-  cls.renderValueFilter = function ($keyFilter) {
-    var $stepContainer = $keyFilter.parents().eq(2);
-    var $eventsSelector = $stepContainer.find('select[name="events"]');
-    var $filters = $keyFilter.parent();
+  cls.renderFilterValue = function ($filterKey, cb) {
+    var $stepContainer = $filterKey.parents().eq(2);
+    var $eventsSelector = $stepContainer.find('.event-type--input');
+    var $filters = $filterKey.parent();
 
     var params = {
       event_type: $eventsSelector.val(),
-      event_key: $keyFilter.val()
-    }
+      event_key: $filterKey.val()
+    };
+
+    $filters.append(Mustache.render(filterValueTemplate));
+
+    var $filterValue = $stepContainer.find('.filter-value--input');
 
     $.ajax({
       type: "GET",
@@ -231,12 +230,11 @@ var Funnel = (function () {
     }).done(function(values) {
       values = JSON.parse(values);
 
-      var view = {
-        filterValues: values
-      };
+      $filterValue.typeahead({
+        source: values
+      });
 
-      $filters.append(Mustache.render(filterValueTemplate, view));
-      $('.selectpicker').selectpicker('render');
+      if (cb) cb($filterValue);
     });
   };
 

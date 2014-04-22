@@ -54,17 +54,13 @@ table {
 	border-spacing: 0;
 }
 
-select {
-	border: 1px solid #cccccc;
-	background-color: #ffffff;
-}
-
 input, .text--light {
 	color: rgba(0,0,0,0.6);
 }
 
-.bootstrap-select {
+input.typeahead {
 	width: 135px !important;
+  display: inline-block;
 }
 
 .btn-group {

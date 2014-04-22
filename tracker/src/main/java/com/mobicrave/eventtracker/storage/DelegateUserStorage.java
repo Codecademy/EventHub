@@ -33,6 +33,11 @@ public class DelegateUserStorage implements UserStorage {
   }
 
   @Override
+  public int getNumRecords() {
+    return userStorage.getNumRecords();
+  }
+
+  @Override
   public Visitor getFilterVisitor(int userId) {
     return userStorage.getFilterVisitor(userId);
   }

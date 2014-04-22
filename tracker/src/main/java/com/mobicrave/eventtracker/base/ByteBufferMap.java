@@ -42,6 +42,18 @@ public class ByteBufferMap {
     return buffer;
   }
 
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    enumerate(new KeyValueCallback() {
+      @Override
+      public void callback(String key, String value) {
+        sb.append(key).append(": ").append(value).append("\n");
+      }
+    });
+    return sb.toString();
+  }
+
   // TODO: make return type Optional<String>
   private String get(String targetKey, int start, int end, int numProperties) {
     if (start >= end) {

@@ -27,6 +27,7 @@ public class BloomFilteredUserStorageTest extends GuiceTestCase {
     Assert.assertEquals(0, userStorage.ensureUser("foo"));
     Assert.assertEquals(0, userStorage.ensureUser("foo"));
     Assert.assertEquals(1, userStorage.ensureUser("bar"));
+    Assert.assertEquals(2, userStorage.getNumRecords());
   }
 
   @Test

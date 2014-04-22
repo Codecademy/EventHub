@@ -15,7 +15,7 @@ public class User {
   }
 
   public String getExternalId() {
-    return get("external_id");
+    return get("external_user_id");
   }
 
   public String get(String key) {
@@ -56,7 +56,7 @@ public class User {
     public User build() {
       Map<String, String> allProperties = Maps.newHashMap();
       allProperties.putAll(properties);
-      allProperties.put("external_id", externalId);
+      allProperties.put("external_user_id", externalId);
       return new User(ByteBufferMap.build(allProperties));
     }
   }

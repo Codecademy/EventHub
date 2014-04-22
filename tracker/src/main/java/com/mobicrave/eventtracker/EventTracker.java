@@ -1,5 +1,6 @@
 package com.mobicrave.eventtracker;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ArrayTable;
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
@@ -147,6 +148,15 @@ public class EventTracker implements Closeable {
     return userStorage.updateUser(user);
   }
 
+  public List<User> getUsers(List<Integer> userIds) {
+    return Lists.transform(userIds, new Function<Integer, User>() {
+      @Override
+      public User apply(Integer input) {
+        return getUser(input);
+      }
+    });
+  }
+
   public User getUser(int userId) {
     return userStorage.getUser(userId);
   }
@@ -242,6 +252,16 @@ public class EventTracker implements Closeable {
 
   public List<String> getEventValues(String eventType, String eventKey, String prefix) {
     return propertiesIndex.getValues(eventType, eventKey, prefix);
+  }
+
+  public long[] findUsers(Filter filter) {
+    MemIdList memIdList = new MemIdList(new long[0], 0);
+    for (int userId = 0; userId < userStorage.getNumRecords(); userId++) {
+      if (filter.accept(userStorage.getFilterVisitor(userId))) {
+        memIdList.add(userId);
+      }
+    }
+    return memIdList.getList();
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

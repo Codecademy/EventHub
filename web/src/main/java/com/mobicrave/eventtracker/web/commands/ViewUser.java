@@ -1,5 +1,7 @@
 package com.mobicrave.eventtracker.web.commands;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.mobicrave.eventtracker.EventTracker;
 import com.mobicrave.eventtracker.model.User;
@@ -8,6 +10,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Path("/users/view")
 public class ViewUser extends Command {
@@ -22,7 +26,14 @@ public class ViewUser extends Command {
 
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
-    User user = eventTracker.getUser(Integer.parseInt(request.getParameter("user_id")));
+    List<Integer> userIds = Lists.transform(
+        Arrays.asList(request.getParameterValues("user_id[]")), new Function<String, Integer>() {
+      @Override
+      public Integer apply(String input) {
+        return Integer.parseInt(input);
+      }
+    });
+    List<User> user = eventTracker.getUsers(userIds);
     response.getWriter().println(gson.toJson(user));
   }
 }

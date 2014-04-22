@@ -66,6 +66,11 @@ mvn -am -pl web clean test
     curl 'http://localhost:8080/events/values?event_type=signup&event_key=treatment'
     ```
 
+* Show all property values for the given event type, property key and value prefix
+    ```bash
+    curl 'http://localhost:8080/events/values?event_type=signup&event_key=treatment&prefix=fa'
+    ```
+
 * Show server stats
     ```bash
     curl http://localhost:8080/varz

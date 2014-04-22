@@ -16,7 +16,7 @@ public class DB {
     this.db = db;
   }
 
-  public List<String> findByPrefix(String prefix) {
+  public List<String> findByPrefix(String prefix, int substringStartsAt) {
     try (DBIterator iterator = db.iterator()) {
       List<String> keys = Lists.newArrayList();
       for (iterator.seek(bytes(prefix)); iterator.hasNext(); iterator.next()) {
@@ -24,7 +24,7 @@ public class DB {
         if (!key.startsWith(prefix)) {
           break;
         }
-        keys.add(key.substring(prefix.length()));
+        keys.add(key.substring(substringStartsAt));
       }
       return keys;
     } catch (IOException e) {

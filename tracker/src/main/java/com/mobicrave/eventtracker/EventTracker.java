@@ -240,8 +240,8 @@ public class EventTracker implements Closeable {
     return propertiesIndex.getKeys(eventType);
   }
 
-  public List<String> getEventValues(String eventType, String eventKey) {
-    return propertiesIndex.getValues(eventType, eventKey);
+  public List<String> getEventValues(String eventType, String eventKey, String prefix) {
+    return propertiesIndex.getValues(eventType, eventKey, prefix);
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

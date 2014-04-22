@@ -79,9 +79,9 @@ public class DatedEventIndex implements Closeable {
   }
 
   public static DatedEventIndex create(DB db) {
-    List<String> dates = db.findByPrefix(DATE_PREFIX);
+    List<String> dates = db.findByPrefix(DATE_PREFIX, DATE_PREFIX.length());
     List<Long> earliestEventIds = Lists.newArrayList(
-        Lists.transform(db.findByPrefix(ID_PREFIX), new Function<String, Long>() {
+        Lists.transform(db.findByPrefix(ID_PREFIX, ID_PREFIX.length()), new Function<String, Long>() {
           @Override
           public Long apply(String s) {
             return Long.parseLong(s);

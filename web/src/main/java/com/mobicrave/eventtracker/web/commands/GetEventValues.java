@@ -22,9 +22,12 @@ public class GetEventValues extends Command {
 
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
+    String prefix = request.getParameter("prefix");
+    prefix = (prefix == null ? "" : prefix);
     List<String> values = eventTracker.getEventValues(
         request.getParameter("event_type"),
-        request.getParameter("event_key"));
+        request.getParameter("event_key"),
+        prefix);
     response.getWriter().println(gson.toJson(values));
   }
 }

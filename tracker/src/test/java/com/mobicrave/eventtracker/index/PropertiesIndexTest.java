@@ -34,20 +34,26 @@ public class PropertiesIndexTest extends GuiceTestCase {
     }
 
     Assert.assertEquals(Lists.newArrayList("experiment", "hello", "treatment"), propertiesIndex.getKeys("signup"));
-    Assert.assertEquals(Lists.newArrayList("foo1"), propertiesIndex.getValues("signup", "experiment"));
-    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment"));
+    Assert.assertEquals(Lists.newArrayList("foo1"), propertiesIndex.getValues("signup", "experiment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment", ""));
     Assert.assertEquals(Lists.newArrayList("experiment", "treatment", "x"), propertiesIndex.getKeys("submission"));
-    Assert.assertEquals(Lists.newArrayList("foo2"), propertiesIndex.getValues("submission", "experiment"));
-    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getValues("submission", "treatment"));
+    Assert.assertEquals(Lists.newArrayList("foo2"), propertiesIndex.getValues("submission", "experiment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getValues("submission", "treatment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment", "bar"));
+    Assert.assertEquals(Lists.newArrayList("bar1"), propertiesIndex.getValues("signup", "treatment", "bar1"));
+    Assert.assertEquals(Lists.newArrayList("bar2"), propertiesIndex.getValues("signup", "treatment", "bar2"));
     propertiesIndex.close();
 
     propertiesIndex = propertiesIndexProvider.get();
     Assert.assertEquals(Lists.newArrayList("experiment", "hello", "treatment"), propertiesIndex.getKeys("signup"));
-    Assert.assertEquals(Lists.newArrayList("foo1"), propertiesIndex.getValues("signup", "experiment"));
-    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment"));
+    Assert.assertEquals(Lists.newArrayList("foo1"), propertiesIndex.getValues("signup", "experiment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment", ""));
     Assert.assertEquals(Lists.newArrayList("experiment", "treatment", "x"), propertiesIndex.getKeys("submission"));
-    Assert.assertEquals(Lists.newArrayList("foo2"), propertiesIndex.getValues("submission", "experiment"));
-    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getValues("submission", "treatment"));
+    Assert.assertEquals(Lists.newArrayList("foo2"), propertiesIndex.getValues("submission", "experiment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getValues("submission", "treatment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment", "bar"));
+    Assert.assertEquals(Lists.newArrayList("bar1"), propertiesIndex.getValues("signup", "treatment", "bar1"));
+    Assert.assertEquals(Lists.newArrayList("bar2"), propertiesIndex.getValues("signup", "treatment", "bar2"));
   }
 
   private Provider<PropertiesIndex> getPropertiesIndexProvider() {

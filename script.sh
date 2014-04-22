@@ -81,8 +81,12 @@ echo -e "\033[1;32mshow all event keys for \"signup\" event type:\033[0m"
 curl 'http://localhost:8080/events/keys?event_type=signup'
 echo ""
 
-echo -e "\033[1;32mshow all event keys for 'treatment' values with \"signup\" event type:\033[0m"
+echo -e "\033[1;32mshow all event values for 'treatment' event key and \"signup\" event type:\033[0m"
 curl 'http://localhost:8080/events/values?event_type=signup&event_key=treatment'
+echo ""
+
+echo -e "\033[1;32mshow all event values for 'treatment' event key, \"signup\" event type and prefix \"fa\":\033[0m"
+curl 'http://localhost:8080/events/values?event_type=signup&event_key=treatment&prefix=fa'
 echo ""
 
 echo -e "\033[1;32mshow all event types:\033[0m"
@@ -118,10 +122,10 @@ curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&e
 echo ""
 
 
-echo -e "\033[1;32mshow the first event for chengtao@codecademy.com"
+echo -e "\033[1;32mshow the first event for chengtao@codecademy.com\033[0m"
 curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=0\&num_records\=1
 echo ""
 
-echo -e "\033[1;32mshow the following 10 events for chengtao@codecademy.com"
+echo -e "\033[1;32mshow the following 10 events for chengtao@codecademy.com\033[0m"
 curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=1\&num_records\=10
 echo ""

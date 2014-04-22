@@ -41,11 +41,13 @@ public class PropertiesIndex implements Closeable {
   }
 
   public List<String> getKeys(String eventType) {
-    return db.findByPrefix(getKeyKey(eventType));
+    String keyKey = getKeyKey(eventType);
+    return db.findByPrefix(keyKey, keyKey.length());
   }
 
-  public List<String> getValues(String eventType, String key) {
-    return db.findByPrefix(getValueKey(eventType, key));
+  public List<String> getValues(String eventType, String key, String valuePrefix) {
+    String valueKey = getValueKey(eventType, key);
+    return db.findByPrefix(valueKey + valuePrefix, valueKey.length());
   }
 
   @Override

@@ -11,6 +11,7 @@ import com.mobicrave.eventtracker.storage.BloomFilteredEventStorage;
 import com.mobicrave.eventtracker.storage.BloomFilteredUserStorage;
 
 import javax.inject.Named;
+import java.io.File;
 import java.util.Properties;
 
 public class EventTrackerModule extends AbstractModule {
@@ -23,6 +24,7 @@ public class EventTrackerModule extends AbstractModule {
   @Override
   protected void configure() {
     Names.bindProperties(super.binder(), properties);
+    new File(properties.getProperty("eventtracker.directory")).mkdirs();
   }
 
   @Provides

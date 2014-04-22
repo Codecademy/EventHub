@@ -114,6 +114,11 @@ Test all user related endpoints
     curl -X POST http://localhost:8080/users/view --data "user_id[]=0&user_id[]=1"
     ```
 
+* add or update user information
+    ```bash
+    curl -X POST http://localhost:8080/users/add_or_update --data "external_user_id=chengtao@codecademy.com&foo=bar&hello=world"
+    ```
+
 #### Load testing with Jmeter
 We use [Apache Jmeter](http://jmeter.apache.org) for load testing, and the load testing script can be found in `${EVENT_TRACKER_DIR}/jmeter.jmx`.
 ```bash

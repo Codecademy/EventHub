@@ -14,5 +14,6 @@ public interface UserStorage extends Closeable {
   User getUser(int userId);
   Visitor getFilterVisitor(int userId);
   void alias(String fromExternalUserId, int toUserId);
+  int getNumRecords();
   String getVarz(int indentation);
 }

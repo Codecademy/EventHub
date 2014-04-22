@@ -1,5 +1,6 @@
 package com.mobicrave.eventtracker.storage;
 
+import com.google.common.collect.Maps;
 import com.mobicrave.eventtracker.storage.filter.ExactMatch;
 import com.mobicrave.eventtracker.base.BloomFilter;
 import com.mobicrave.eventtracker.base.KeyValueCallback;
@@ -35,6 +36,13 @@ public class BloomFilteredUserStorage extends DelegateUserStorage {
     }
     id = super.ensureUser(externalUserId);
     final BloomFilter bloomFilter = bloomFilterProvider.get();
+    User user = new User.Builder(externalUserId, Maps.<String, String>newHashMap()).build();
+    user.enumerate(new KeyValueCallback() {
+      @Override
+      public void callback(String key, String value) {
+        bloomFilter.add(getBloomFilterKey(key, value));
+      }
+    });
     bloomFilterDmaList.add(bloomFilter);
     return id;
   }

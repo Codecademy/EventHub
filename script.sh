@@ -3,6 +3,7 @@
 today=`date +'%Y%m%d'`
 end_date=`(date -d '+14day' +'%Y%m%d' || date -v '+14d' +'%Y%m%d') 2> /dev/null`
 
+echo -e "\033[1;31m=============== event related endpoints ================\033[0m\n"
 echo -e "\033[1;32mtrack event:\033[0m anonymous user (w/ gnerated user id: generated_id_123) visited Codecademy's home page"
 curl -X POST http://localhost:8080/events/track --data "event_type=pageview&external_user_id=generated_id_123&page=home&experiment=homepage_v1&treatment=control"
 echo ""
@@ -31,40 +32,40 @@ echo ""
 echo -e "\033[1;32mbatch track events for a few other users:\033[0m"
 curl -X POST http://localhost:8080/events/batch_track --data "events=[
 {
-  external_user_id: 'chengtao+1@codecademy.com',
+  external_user_id: 'chengtao1@codecademy.com',
   event_type: 'pageview',
   experiment: 'homepage_v1',
   treatment: 'new console',
   page: 'home'
 }, {
-  external_user_id: 'chengtao+1@codecademy.com',
+  external_user_id: 'chengtao1@codecademy.com',
   event_type: 'signup',
   experiment: 'signup_v1',
   treatment: 'fancy onboarding'
 }, {
-  external_user_id: 'chengtao+1@codecademy.com',
+  external_user_id: 'chengtao1@codecademy.com',
   event_type: 'submission'
 }, {
-  external_user_id: 'chengtao+2@codecademy.com',
+  external_user_id: 'chengtao2@codecademy.com',
   event_type: 'signup',
   experiment: 'signup_v1',
   treatment: 'fancy onboarding'
 }, {
-  external_user_id: 'chengtao+2@codecademy.com',
+  external_user_id: 'chengtao2@codecademy.com',
   event_type: 'submission'
 }, {
-  external_user_id: 'chengtao+3@codecademy.com',
+  external_user_id: 'chengtao3@codecademy.com',
   event_type: 'pageview',
   experiment: 'homepage_v1',
   treatment: 'new console',
   page: 'home'
 }, {
-  external_user_id: 'chengtao+3@codecademy.com',
+  external_user_id: 'chengtao3@codecademy.com',
   event_type: 'signup',
   experiment: 'signup_v1',
   treatment: 'fancy onboarding'
 }, {
-  external_user_id: 'chengtao+4@codecademy.com',
+  external_user_id: 'chengtao4@codecademy.com',
   event_type: 'pageview',
   experiment: 'homepage_v1',
   treatment: 'new console',
@@ -122,10 +123,19 @@ curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&e
 echo ""
 
 
+echo -e "\033[1;31m=============== user related endpoints ================\033[0m\n"
 echo -e "\033[1;32mshow the first event for chengtao@codecademy.com\033[0m"
 curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=0\&num_records\=1
 echo ""
 
 echo -e "\033[1;32mshow the following 10 events for chengtao@codecademy.com\033[0m"
 curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=1\&num_records\=10
+echo ""
+
+echo -e "\033[1;32mshow ids of users whose email\033[0m"
+curl -X POST http://localhost:8080/users/find --data "ufk[]=external_user_id&ufv[]=chengtao1@codecademy.com"
+echo ""
+
+echo -e "\033[1;32mshow user information given user_id 0 and 1\033[0m"
+curl -X POST http://localhost:8080/users/view --data "user_id[]=0&user_id[]=1"
 echo ""

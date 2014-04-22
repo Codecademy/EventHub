@@ -22,6 +22,9 @@ public class MemIdList implements IdList {
 
   @Override
   public void add(long id) {
+    if (list.length == 0) {
+      list = new long[1];
+    }
     if (numRecords == list.length) {
       long[] newList = new long[list.length * 2];
       System.arraycopy(list, 0, newList, 0, list.length);
@@ -44,6 +47,10 @@ public class MemIdList implements IdList {
 
   @Override
   public void close() {}
+
+  public long[] getList() {
+    return Arrays.copyOf(list, numRecords);
+  }
 
   public static class Iterator implements IdList.Iterator {
     private final long[] list;

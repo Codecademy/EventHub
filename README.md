@@ -36,6 +36,12 @@ mvn -am -pl web clean test
 ```
 
 #### Manual testing with curl
+Comprehensive examples can be found in `script.sh`.
+```bash
+cd ${EVENT_TRACKER_DIR}; ./script.sh
+```
+
+Test all event related endpoints
 * Add new event
     ```bash
     curl -X POST http://localhost:8080/events/track --data "event_type=signup&external_user_id=foobar&event_property_1=1"
@@ -92,10 +98,21 @@ mvn -am -pl web clean test
     curl -X POST "http://localhost:8080/events/cohort" --data "start_date=${today}&end_date=${end_date}&row_event_type=signup&column_event_type=view_shopping_cart&num_days_per_row=1&num_columns=2"
     ```
 
-#### Automated testing with curl
-```bash
-cd ${EVENT_TRACKER_DIR}; ./script.sh
-```
+Test all user related endpoints
+* show paginated events for a given user
+    ```bash
+    curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=0\&num_records\=5
+    ```
+
+* show ids of users who have matched property keys & values
+    ```bash
+    curl -X POST http://localhost:8080/users/find --data "ufk[]=external_user_id&ufv[]=chengtao1@codecademy.com"
+    ```
+
+* show properties of users given user ids
+    ```bash
+    curl -X POST http://localhost:8080/users/view --data "user_id[]=0&user_id[]=1"
+    ```
 
 #### Load testing with Jmeter
 We use [Apache Jmeter](http://jmeter.apache.org) for load testing, and the load testing script can be found in `${EVENT_TRACKER_DIR}/jmeter.jmx`.

@@ -93,6 +93,8 @@ public class EventTrackerTest extends GuiceTestCase {
     final String[] USER_IDS = { "10", "11", "12", "13", "14", "15", "16", "17", "18" };
     final String[] DATES = { "20130101", "20130102", "20130103", "20130104", "20130105" };
 
+    tracker.addOrUpdateUser(new User.Builder("10", Maps.<String, String>newHashMap()).build());
+    tracker.addOrUpdateUser(new User.Builder("11", ImmutableMap.of("hello", "world")).build());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[0], DATES[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[1], DATES[0], Maps.<String, String>newHashMap());
     addEvent(tracker, EVENT_TYPES[0], USER_IDS[3], DATES[0], Maps.<String, String>newHashMap());
@@ -134,6 +136,12 @@ public class EventTrackerTest extends GuiceTestCase {
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
             eventFilters, TrueFilter.INSTANCE));
+    Assert.assertArrayEquals(new long[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 },
+        tracker.findUsers(TrueFilter.INSTANCE));
+    Assert.assertArrayEquals(new long[] { 1 },
+        tracker.findUsers(new ExactMatch("hello", "world")));
+    Assert.assertArrayEquals(new long[] { 3 },
+        tracker.findUsers(new ExactMatch("external_user_id", "16")));
 
     tracker.close();
     tracker = eventTrackerProvider.get();
@@ -147,6 +155,12 @@ public class EventTrackerTest extends GuiceTestCase {
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
             eventFilters, TrueFilter.INSTANCE));
+    Assert.assertArrayEquals(new long[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 },
+        tracker.findUsers(TrueFilter.INSTANCE));
+    Assert.assertArrayEquals(new long[] { 1 },
+        tracker.findUsers(new ExactMatch("hello", "world")));
+    Assert.assertArrayEquals(new long[] { 3 },
+        tracker.findUsers(new ExactMatch("external_user_id", "16")));
   }
 
   @Test

@@ -45,6 +45,11 @@ public class JournalUserStorage implements UserStorage {
   }
 
   @Override
+  public int getNumRecords() {
+    return (int) metaDataList.getMaxId();
+  }
+
+  @Override
   public synchronized int updateUser(User user) {
     int id = getId(user.getExternalId());
     try {

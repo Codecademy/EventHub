@@ -44,3 +44,17 @@
   top: 9px;
   right: -25px;
 }
+
+.filter-value {
+  margin-top: 7px;
+}
+
+.filter-value:after {
+  content: " ";
+  background-color: #ccc;
+  width: 1px;
+  height: 8px;
+  position: absolute;
+  left: 50%;
+  top: 33px;
+}

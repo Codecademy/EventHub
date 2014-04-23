@@ -233,7 +233,7 @@ var Funnel = (function () {
       values = JSON.parse(values);
 
       $filterValue.typeahead({
-        source: ['a', 'ab', 'abc', 'abcd', 'abcde', 'abcdef', 'abcdefg', 'abcdefgh', 'abdefghi', 'abdefghij', 'abdefghijk'],
+        source: values,
         items: 100
       });
 

@@ -142,6 +142,8 @@
       }
 
       next.addClass('active')
+      var nextScrollTop = this.$menu.scrollTop() + next.position().top - this.$menu.position().top;
+      this.$menu.scrollTop(nextScrollTop);
     }
 
   , prev: function (event) {
@@ -153,6 +155,8 @@
       }
 
       prev.addClass('active')
+      var nextScrollTop = this.$menu.scrollTop() + prev.position().top - this.$menu.position().top;
+      this.$menu.scrollTop(nextScrollTop);
     }
 
   , listen: function () {

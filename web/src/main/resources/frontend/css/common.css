@@ -63,6 +63,11 @@ input.typeahead {
   display: inline-block;
 }
 
+.typeahead.dropdown-menu {
+  max-height: 200px;
+  overflow: scroll;
+}
+
 .btn-group {
 	margin-bottom: 0 !important;
 }

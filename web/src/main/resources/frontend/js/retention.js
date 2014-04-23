@@ -157,7 +157,8 @@ var Retention = (function () {
     $('.cohort-definition').html(Mustache.render(showMeTemplate, view, partials));
 
     $('.event-type--input').typeahead({
-      source: EVENT_TYPES
+      source: EVENT_TYPES,
+      items: 100
     });
   };
 
@@ -181,7 +182,8 @@ var Retention = (function () {
       values = JSON.parse(values);
 
       $filterValue.typeahead({
-        source: values
+        source: values,
+        items: 100
       });
 
       if (cb) cb($filterValue);
@@ -194,7 +196,8 @@ var Retention = (function () {
 
     $filtersContainer.append(Mustache.render(filterKeyTemplate));
     $filtersContainer.find('.filter-key--input').typeahead({
-        source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventSelector.val()])
+        source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventSelector.val()]),
+        items: 100
     });
 
     this.bindFilterKeyListeners($eventContainer);

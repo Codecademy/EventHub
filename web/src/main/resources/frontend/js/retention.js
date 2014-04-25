@@ -175,19 +175,25 @@ var Retention = (function () {
 
     var $filterValue = $eventContainer.find('.filter-value--input').last();
 
-    $.ajax({
-      type: "GET",
-      url: "/events/values?" + $.param(params)
-    }).done(function(values) {
-      values = JSON.parse(values);
-
-      $filterValue.typeahead({
-        source: values,
-        items: 100
-      });
-
-      if (cb) cb($filterValue);
+    $filterValue.typeahead({
+      source: function (query, process) {
+        if (query) {
+          params.prefix = query;
+          $.ajax({
+            type: "GET",
+            url: "/events/values?" + $.param(params)
+          }).done(function(values) {
+            values = JSON.parse(values);
+            process(values);
+          });
+        } else {
+          process([]);
+        }
+      },
+      items: 100
     });
+
+    if (cb) cb($filterValue);
   };
 
   cls.renderFilterKey = function ($eventContainer) {

@@ -135,7 +135,7 @@ var Funnel = (function () {
 
     $step.find('.event-type--input').typeahead({
       source: EVENT_TYPES,
-      items: 100
+      items: 10000
     });
 
     this.bindEventSelectorListeners($step);
@@ -205,7 +205,7 @@ var Funnel = (function () {
     $filtersContainer.append(Mustache.render(filterKeyTemplate));
     $step.find('.filter-key--input').typeahead({
         source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventsSelector.val()]),
-        items: 100
+        items: 10000
     });
 
     this.bindFilterKeyListeners($step);
@@ -241,7 +241,7 @@ var Funnel = (function () {
           process([]);
         }
       },
-      items: 100
+      items: 10000
     });
 
     if (cb) cb($filterValue);

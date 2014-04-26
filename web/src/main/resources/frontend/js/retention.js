@@ -158,7 +158,7 @@ var Retention = (function () {
 
     $('.event-type--input').typeahead({
       source: EVENT_TYPES,
-      items: 100
+      items: 10000
     });
   };
 
@@ -190,7 +190,7 @@ var Retention = (function () {
           process([]);
         }
       },
-      items: 100
+      items: 10000
     });
 
     if (cb) cb($filterValue);
@@ -203,7 +203,7 @@ var Retention = (function () {
     $filtersContainer.append(Mustache.render(filterKeyTemplate));
     $filtersContainer.find('.filter-key--input').typeahead({
         source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventSelector.val()]),
-        items: 100
+        items: 10000
     });
 
     this.bindFilterKeyListeners($eventContainer);

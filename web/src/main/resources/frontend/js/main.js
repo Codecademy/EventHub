@@ -14,6 +14,7 @@ var EVENT_TYPE_KEYS = {};
 
 var Retention = new Retention();
 var Funnel = new Funnel();
+var Users = new Users();
 var Utils = new Utils();
 
 $(document).ready(function() {
@@ -31,6 +32,9 @@ function bindNavBar() {
   });
   $('.nav-retention').click(function () {
      Retention.render();
+  });
+  $('.nav-users').click(function () {
+     Users.render();
   });
 }
 

@@ -162,3 +162,7 @@ header {
   opacity: 1;
   cursor: pointer;
 }
+
+.glyphicon-plus {
+  font-size: 14px;
+}

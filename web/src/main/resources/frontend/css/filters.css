@@ -36,7 +36,8 @@
   display: none;
   margin-top: 15px;
   width: 135px;
-  text-align: center;
+  text-align: left;
+  margin-left: 15px;
 }
 
 .remove-filter {

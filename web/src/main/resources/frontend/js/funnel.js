@@ -203,9 +203,9 @@ var Funnel = (function () {
     var $eventsSelector = $step.find('.event-type--input');
 
     $filtersContainer.append(Mustache.render(filterKeyTemplate));
-    $step.find('.filter-key--input').typeahead({
-        source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventsSelector.val()]),
-        items: 10000
+    $step.find('.filter-key--input').last().typeahead({
+      source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventsSelector.val()]),
+      items: 10000
     });
 
     this.bindFilterKeyListeners($step);

@@ -201,9 +201,9 @@ var Retention = (function () {
     var $eventSelector = $eventContainer.find('.event-type--input');
 
     $filtersContainer.append(Mustache.render(filterKeyTemplate));
-    $filtersContainer.find('.filter-key--input').typeahead({
-        source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventSelector.val()]),
-        items: 10000
+    $filtersContainer.find('.filter-key--input').last().typeahead({
+      source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventSelector.val()]),
+      items: 10000
     });
 
     this.bindFilterKeyListeners($eventContainer);

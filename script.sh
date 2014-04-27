@@ -141,11 +141,11 @@ curl -X POST http://localhost:8080/users/view --data "user_id[]=0&user_id[]=1"
 echo ""
 
 echo -e "\033[1;32madd new user information\033[0m"
-curl -X POST http://localhost:8080/users/add_or_update --data "external_user_id=chengtao5@codecademy.com&foo=bar&hello=world"
+curl -X POST http://localhost:8080/users/add_or_update --data "external_user_id=chengtao5@codecademy.com&foo=bar&hello=world1"
 echo ""
 
 echo -e "\033[1;32mupdate user information\033[0m"
-curl -X POST http://localhost:8080/users/add_or_update --data "external_user_id=chengtao3@codecademy.com&foo=bar&hello=world"
+curl -X POST http://localhost:8080/users/add_or_update --data "external_user_id=chengtao3@codecademy.com&foo=bar&hello=world2"
 echo ""
 
 echo -e "\033[1;32mshow ids of users whose email\033[0m"
@@ -154,4 +154,16 @@ echo ""
 
 echo -e "\033[1;32mshow user information given user_id 0 and 1\033[0m"
 curl -X POST http://localhost:8080/users/view --data "user_id[]=0&user_id[]=1"
+echo ""
+
+echo -e "\033[1;32mshow all user keys:\033[0m"
+curl -X POST http://localhost:8080/users/keys
+echo ""
+
+echo -e "\033[1;32mshow all user values for 'hello' user key:\033[0m"
+curl -X POST http://localhost:8080/users/values --data "user_key=hello"
+echo ""
+
+echo -e "\033[1;32mshow all user values for 'hello' user key and prefix 'w':\033[0m"
+curl -X POST http://localhost:8080/users/values --data "user_key=hello&prefix=w"
 echo ""

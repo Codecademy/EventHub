@@ -119,6 +119,16 @@ Test all user related endpoints
     curl -X POST http://localhost:8080/users/add_or_update --data "external_user_id=chengtao@codecademy.com&foo=bar&hello=world"
     ```
 
+* Show all property keys for users
+    ```bash
+    curl 'http://localhost:8080/users/keys
+    ```
+
+* Show all property values for users given property key and (optional) value prefix
+    ```bash
+    curl 'http://localhost:8080/users/values?user_key=hello&prefix=w'
+    ```
+
 #### Load testing with Jmeter
 We use [Apache Jmeter](http://jmeter.apache.org) for load testing, and the load testing script can be found in `${EVENT_TRACKER_DIR}/jmeter.jmx`.
 ```bash

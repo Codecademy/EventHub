@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 import com.mobicrave.eventtracker.integration.GuiceTestCase;
 import com.mobicrave.eventtracker.model.Event;
+import com.mobicrave.eventtracker.model.User;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,28 +33,40 @@ public class PropertiesIndexTest extends GuiceTestCase {
     for (Event event : events) {
       propertiesIndex.addEvent(event);
     }
+    propertiesIndex.addUser(new User.Builder("user_id1", ImmutableMap.of("foo1", "bar1")).build());
+    propertiesIndex.addUser(new User.Builder("user_id2", ImmutableMap.of("foo1", "bar2", "foo2", "bar3")).build());
 
-    Assert.assertEquals(Lists.newArrayList("experiment", "hello", "treatment"), propertiesIndex.getKeys("signup"));
-    Assert.assertEquals(Lists.newArrayList("foo1"), propertiesIndex.getValues("signup", "experiment", ""));
-    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment", ""));
-    Assert.assertEquals(Lists.newArrayList("experiment", "treatment", "x"), propertiesIndex.getKeys("submission"));
-    Assert.assertEquals(Lists.newArrayList("foo2"), propertiesIndex.getValues("submission", "experiment", ""));
-    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getValues("submission", "treatment", ""));
-    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment", "bar"));
-    Assert.assertEquals(Lists.newArrayList("bar1"), propertiesIndex.getValues("signup", "treatment", "bar1"));
-    Assert.assertEquals(Lists.newArrayList("bar2"), propertiesIndex.getValues("signup", "treatment", "bar2"));
+    Assert.assertEquals(Lists.newArrayList("experiment", "hello", "treatment"), propertiesIndex.getEventKeys("signup"));
+    Assert.assertEquals(Lists.newArrayList("foo1"), propertiesIndex.getEventValues("signup", "experiment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getEventValues("signup", "treatment", ""));
+    Assert.assertEquals(Lists.newArrayList("experiment", "treatment", "x"), propertiesIndex.getEventKeys("submission"));
+    Assert.assertEquals(Lists.newArrayList("foo2"), propertiesIndex.getEventValues("submission", "experiment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getEventValues("submission", "treatment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getEventValues("signup", "treatment", "bar"));
+    Assert.assertEquals(Lists.newArrayList("bar1"), propertiesIndex.getEventValues("signup", "treatment", "bar1"));
+    Assert.assertEquals(Lists.newArrayList("bar2"), propertiesIndex.getEventValues("signup", "treatment", "bar2"));
+
+    Assert.assertEquals(Lists.newArrayList("foo1", "foo2"), propertiesIndex.getUserKeys());
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getUserValues("foo1", "b"));
+    Assert.assertTrue(propertiesIndex.getUserValues("foo1", "c").isEmpty());
+    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getUserValues("foo2", ""));
     propertiesIndex.close();
 
     propertiesIndex = propertiesIndexProvider.get();
-    Assert.assertEquals(Lists.newArrayList("experiment", "hello", "treatment"), propertiesIndex.getKeys("signup"));
-    Assert.assertEquals(Lists.newArrayList("foo1"), propertiesIndex.getValues("signup", "experiment", ""));
-    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment", ""));
-    Assert.assertEquals(Lists.newArrayList("experiment", "treatment", "x"), propertiesIndex.getKeys("submission"));
-    Assert.assertEquals(Lists.newArrayList("foo2"), propertiesIndex.getValues("submission", "experiment", ""));
-    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getValues("submission", "treatment", ""));
-    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getValues("signup", "treatment", "bar"));
-    Assert.assertEquals(Lists.newArrayList("bar1"), propertiesIndex.getValues("signup", "treatment", "bar1"));
-    Assert.assertEquals(Lists.newArrayList("bar2"), propertiesIndex.getValues("signup", "treatment", "bar2"));
+    Assert.assertEquals(Lists.newArrayList("experiment", "hello", "treatment"), propertiesIndex.getEventKeys("signup"));
+    Assert.assertEquals(Lists.newArrayList("foo1"), propertiesIndex.getEventValues("signup", "experiment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getEventValues("signup", "treatment", ""));
+    Assert.assertEquals(Lists.newArrayList("experiment", "treatment", "x"), propertiesIndex.getEventKeys("submission"));
+    Assert.assertEquals(Lists.newArrayList("foo2"), propertiesIndex.getEventValues("submission", "experiment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getEventValues("submission", "treatment", ""));
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getEventValues("signup", "treatment", "bar"));
+    Assert.assertEquals(Lists.newArrayList("bar1"), propertiesIndex.getEventValues("signup", "treatment", "bar1"));
+    Assert.assertEquals(Lists.newArrayList("bar2"), propertiesIndex.getEventValues("signup", "treatment", "bar2"));
+
+    Assert.assertEquals(Lists.newArrayList("foo1", "foo2"), propertiesIndex.getUserKeys());
+    Assert.assertEquals(Lists.newArrayList("bar1", "bar2"), propertiesIndex.getUserValues("foo1", "b"));
+    Assert.assertTrue(propertiesIndex.getUserValues("foo1", "c").isEmpty());
+    Assert.assertEquals(Lists.newArrayList("bar3"), propertiesIndex.getUserValues("foo2", ""));
   }
 
   private Provider<PropertiesIndex> getPropertiesIndexProvider() {

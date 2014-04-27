@@ -145,7 +145,9 @@ public class EventTracker implements Closeable {
 
   public synchronized int addOrUpdateUser(User user) {
     userStorage.ensureUser(user.getExternalId());
-    return userStorage.updateUser(user);
+    int userId = userStorage.updateUser(user);
+    propertiesIndex.addUser(user);
+    return userId;
   }
 
   public List<User> getUsers(List<Integer> userIds) {
@@ -247,11 +249,19 @@ public class EventTracker implements Closeable {
   }
 
   public List<String> getEventKeys(String eventType) {
-    return propertiesIndex.getKeys(eventType);
+    return propertiesIndex.getEventKeys(eventType);
   }
 
   public List<String> getEventValues(String eventType, String eventKey, String prefix) {
-    return propertiesIndex.getValues(eventType, eventKey, prefix);
+    return propertiesIndex.getEventValues(eventType, eventKey, prefix);
+  }
+
+  public List<String> getUserKeys() {
+    return propertiesIndex.getUserKeys();
+  }
+
+  public List<String> getUserValues(String eventKey, String prefix) {
+    return propertiesIndex.getUserValues(eventKey, prefix);
   }
 
   public long[] findUsers(Filter filter) {

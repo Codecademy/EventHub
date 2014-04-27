@@ -1,0 +1,69 @@
+/* Main */
+
+.users-show {
+  padding: 20px;
+  border: 1px solid #ddd;
+}
+
+.user-filters, .users-table, .user-show {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.user-filters {
+  width: 175px;
+}
+
+.users-table {
+  width: 300px;
+  margin: 0 10px;
+}
+
+.user-show {
+  width: 545px;
+}
+
+.user-filters .add-filter {
+  display: block;
+}
+
+.user-filters .filters-container .filters {
+  display: block;
+}
+
+.find-users {
+  margin-top: 15px;
+}
+
+.users-table .table, .user-show .table {
+  margin-top: 15px;
+  border-bottom: 1px solid rgb(221, 221, 221);
+}
+
+.users-table .table tr:hover {
+  cursor: pointer;
+}
+
+.user-show .user-show--row {
+  margin-top: 15px;
+  padding: 15px;
+  border: solid 1px rgb(221, 221, 221);
+}
+
+.user-show .user-properties {
+  margin-right: 15px;
+}
+
+.user-show--activity-feed {
+  min-width: 240px;
+  border-left: 1px solid rgb(221,221,221);
+  padding-left: 15px;
+}
+
+.user-show .user-properties, .user-show .user-show--activity-feed {
+  float: left;
+}
+
+.user-show .activity-feed--title {
+  margin-bottom: 10px;
+}

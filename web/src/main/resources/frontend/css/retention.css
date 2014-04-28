@@ -73,13 +73,13 @@
   text-align: left;
 }
 
-.table-container {
+.retention-show .table-container {
   border: 1px solid #ddd;
   margin: 20px auto 0;
   display: none;
 }
 
-.table-container.rendered {
+.retention-show .table-container.rendered {
   display: inline-block;
 }
 

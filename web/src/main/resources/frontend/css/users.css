@@ -79,3 +79,9 @@
 .user-show .activity-feed--title {
   margin-bottom: 10px;
 }
+
+.users-table .table-container {
+  max-height: 550px;
+  overflow: scroll;
+  margin-top: 15px;
+}

@@ -48,11 +48,11 @@
   cursor: pointer;
 }
 
-.users-table {
+.users-table, .user-show {
   display: none;
 }
 
-.users-table.rendered {
+.users-table.rendered, .user-show.rendered {
   display: inline-block;
 }
 
@@ -64,6 +64,7 @@
 
 .user-show .user-properties {
   margin-right: 15px;
+  max-width: 50%;
 }
 
 .user-show--activity-feed {
@@ -84,4 +85,13 @@
   max-height: 550px;
   overflow: scroll;
   margin-top: 15px;
+}
+
+.user-properties .property-name {
+  font-weight: bold;
+  display: inline-block;
+}
+
+.user-properties .property-value {
+  display: inline-block;
 }

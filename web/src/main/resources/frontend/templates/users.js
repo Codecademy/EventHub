@@ -16,32 +16,7 @@ var usersTemplate = ' \
   </div> \
   <div class="user-show"> \
     Selected User \
-    <div class="user-show--row cf"> \
-      <div class="user-properties"> \
-        <div>Name: Mark</div> \
-        <br> \
-        <div>Created At: April 27th</div> \
-      </div> \
-      <div class="user-show--activity-feed"> \
-        <div class="activity-feed--title">Activity Feed</div> \
-        <table class="table"> \
-          <tbody> \
-            <tr> \
-              <td>1</td> \
-              <td>Visit Home Page</td> \
-            </tr> \
-            <tr> \
-              <td>2</td> \
-              <td>Sign Up</td> \
-            </tr> \
-            <tr> \
-              <td>3</td> \
-              <td>Submit Exercise</td> \
-            </tr> \
-          </tbody> \
-        </table> \
-      </div> \
-    </div> \
+    <div class="user-show-container"></div> \
   </div> \
 </div> \
 '

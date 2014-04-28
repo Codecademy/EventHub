@@ -4,6 +4,9 @@ var Users = (function () {
 
   };
 
+  var USERS_PROPERTIES = {};
+  var USER_KEYS;
+
   cls.render = function () {
     $('.body-container').html(Mustache.render(usersTemplate));
 
@@ -50,15 +53,18 @@ var Users = (function () {
       data: params
     }).done(function(users) {
       users = JSON.parse(users);
+      users.forEach(function (user, i) {
+        USERS_PROPERTIES[user.external_user_id] = user;
+      });
       self.renderFilteredUsers(users);
     });
   };
 
-  cls.getUser = function(user) {
+  cls.getUser = function(externalUserId) {
     var self = this;
 
     var params = {
-      external_user_id: user,
+      external_user_id: externalUserId,
       offset: 0,
       num_records: 100000
     };
@@ -69,7 +75,7 @@ var Users = (function () {
       data: params
     }).done(function(timeline) {
       timeline = JSON.parse(timeline);
-      self.renderUserTimeline(users);
+      self.renderUserTimeline(timeline, externalUserId);
     });
   };
 
@@ -124,8 +130,9 @@ var Users = (function () {
   cls.bindUsersTableInputs = function () {
     var self = this;
     $('.users-table tr').click(function () {
-      var user = $(this).data('user');
-      self.getUser(user);
+      $('.user-show').addClass('rendered');
+      var externalUserId = $(this).data('user');
+      self.getUser(externalUserId);
     });
   };
 
@@ -163,7 +170,7 @@ var Users = (function () {
     var table = [];
 
     users.forEach(function (user, i) {
-      table.push({ index: i, user: user });
+      table.push({ index: i, user: user.external_user_id });
     });
 
     var view = {
@@ -178,8 +185,19 @@ var Users = (function () {
     $('.user-filters .spinner').removeClass('rendered');
   };
 
-  cls.renderUserTimeline = function (timeline) {
-    console.log(timeline);
+  cls.renderUserTimeline = function (timeline, externalUserId) {
+    var properties = [];
+    var userProperties = USERS_PROPERTIES[externalUserId];
+    Object.keys(userProperties).forEach(function (key) {
+      properties.push({ propertyName: key, propertyValue: userProperties[key] });
+    });
+
+    var view = {
+      timeline: timeline,
+      properties: properties
+    }
+
+    $('.user-show-container').html(Mustache.render(userShowTemplate, view));
   };
 
   return cls;

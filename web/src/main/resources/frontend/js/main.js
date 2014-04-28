@@ -11,7 +11,6 @@
 
 var EVENT_TYPES;
 var EVENT_TYPE_KEYS = {};
-var USER_KEYS;
 
 var Retention = new Retention();
 var Funnel = new Funnel();

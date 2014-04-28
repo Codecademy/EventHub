@@ -31,12 +31,16 @@
   display: block;
 }
 
+.user-filters .spinner {
+  position: relative;
+  top: 14px;
+}
+
 .find-users {
   margin-top: 15px;
 }
 
 .users-table .table, .user-show .table {
-  margin-top: 15px;
   border-bottom: 1px solid rgb(221, 221, 221);
 }
 

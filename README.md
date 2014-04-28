@@ -104,14 +104,9 @@ Test all user related endpoints
     curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=0\&num_records\=5
     ```
 
-* show ids of users who have matched property keys & values
+* show information of users who have matched property keys & values
     ```bash
     curl -X POST http://localhost:8080/users/find --data "ufk[]=external_user_id&ufv[]=chengtao1@codecademy.com"
-    ```
-
-* show properties of users given user ids
-    ```bash
-    curl -X POST http://localhost:8080/users/view --data "user_id[]=0&user_id[]=1"
     ```
 
 * add or update user information

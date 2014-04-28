@@ -150,15 +150,6 @@ public class EventTracker implements Closeable {
     return userId;
   }
 
-  public List<User> getUsers(List<Integer> userIds) {
-    return Lists.transform(userIds, new Function<Integer, User>() {
-      @Override
-      public User apply(Integer input) {
-        return getUser(input);
-      }
-    });
-  }
-
   public User getUser(int userId) {
     return userStorage.getUser(userId);
   }
@@ -264,14 +255,14 @@ public class EventTracker implements Closeable {
     return propertiesIndex.getUserValues(eventKey, prefix);
   }
 
-  public long[] findUsers(Filter filter) {
-    MemIdList memIdList = new MemIdList(new long[0], 0);
+  public List<User> findUsers(Filter filter) {
+    List<User> users = Lists.newArrayList();
     for (int userId = 0; userId < userStorage.getNumRecords(); userId++) {
       if (filter.accept(userStorage.getFilterVisitor(userId))) {
-        memIdList.add(userId);
+        users.add(getUser(userId));
       }
     }
-    return memIdList.getList();
+    return users;
   }
 
   private static class AggregateUserIds implements EventIndex.Callback {

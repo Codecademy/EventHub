@@ -1,5 +1,6 @@
 package com.mobicrave.eventtracker.integration;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -136,12 +137,18 @@ public class EventTrackerTest extends GuiceTestCase {
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
             eventFilters, TrueFilter.INSTANCE));
-    Assert.assertArrayEquals(new long[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 },
-        tracker.findUsers(TrueFilter.INSTANCE));
-    Assert.assertArrayEquals(new long[] { 1 },
-        tracker.findUsers(new ExactMatch("hello", "world")));
-    Assert.assertArrayEquals(new long[] { 3 },
-        tracker.findUsers(new ExactMatch("external_user_id", "16")));
+    Function<User, String> getExternalUserId = new Function<User, String>() {
+      @Override
+      public String apply(User user) {
+        return user.getExternalId();
+      }
+    };
+    Assert.assertEquals(Lists.newArrayList("10", "11", "13", "16", "17", "12", "15", "18", "14"),
+        Lists.transform(tracker.findUsers(TrueFilter.INSTANCE), getExternalUserId));
+    Assert.assertEquals(Lists.newArrayList("11"),
+        Lists.transform(tracker.findUsers(new ExactMatch("hello", "world")), getExternalUserId));
+    Assert.assertEquals(Lists.newArrayList("16"),
+        Lists.transform(tracker.findUsers(new ExactMatch("external_user_id", "16")), getExternalUserId));
 
     tracker.close();
     tracker = eventTrackerProvider.get();
@@ -155,12 +162,12 @@ public class EventTrackerTest extends GuiceTestCase {
     Assert.assertArrayEquals(new int[] { 4, 1, 0 },
         tracker.getFunnelCounts(DATES[1], DATES[2], funnelSteps, 1 /* numDaysToCompleteFunnel */,
             eventFilters, TrueFilter.INSTANCE));
-    Assert.assertArrayEquals(new long[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 },
-        tracker.findUsers(TrueFilter.INSTANCE));
-    Assert.assertArrayEquals(new long[] { 1 },
-        tracker.findUsers(new ExactMatch("hello", "world")));
-    Assert.assertArrayEquals(new long[] { 3 },
-        tracker.findUsers(new ExactMatch("external_user_id", "16")));
+    Assert.assertEquals(Lists.newArrayList("10", "11", "13", "16", "17", "12", "15", "18", "14"),
+        Lists.transform(tracker.findUsers(TrueFilter.INSTANCE), getExternalUserId));
+    Assert.assertEquals(Lists.newArrayList("11"),
+        Lists.transform(tracker.findUsers(new ExactMatch("hello", "world")), getExternalUserId));
+    Assert.assertEquals(Lists.newArrayList("16"),
+        Lists.transform(tracker.findUsers(new ExactMatch("external_user_id", "16")), getExternalUserId));
   }
 
   @Test

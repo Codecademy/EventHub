@@ -132,12 +132,8 @@ echo -e "\033[1;32mshow the following 10 events for chengtao@codecademy.com\033[
 curl http://localhost:8080/users/timeline\?external_user_id\=chengtao@codecademy.com\&offset\=1\&num_records\=10
 echo ""
 
-echo -e "\033[1;32mshow ids of users whose email\033[0m"
+echo -e "\033[1;32mshow ids of users whose email is chengtao1@codecademy.com\033[0m"
 curl -X POST http://localhost:8080/users/find --data "ufk[]=external_user_id&ufv[]=chengtao1@codecademy.com"
-echo ""
-
-echo -e "\033[1;32mshow user information given user_id 0 and 1\033[0m"
-curl -X POST http://localhost:8080/users/view --data "user_id[]=0&user_id[]=1"
 echo ""
 
 echo -e "\033[1;32madd new user information\033[0m"
@@ -146,14 +142,6 @@ echo ""
 
 echo -e "\033[1;32mupdate user information\033[0m"
 curl -X POST http://localhost:8080/users/add_or_update --data "external_user_id=chengtao3@codecademy.com&foo=bar&hello=world2"
-echo ""
-
-echo -e "\033[1;32mshow ids of users whose email\033[0m"
-curl -X POST http://localhost:8080/users/find --data "ufk[]=foo&ufv[]=bar&ufk[]=hello&ufv[]=world"
-echo ""
-
-echo -e "\033[1;32mshow user information given user_id 0 and 1\033[0m"
-curl -X POST http://localhost:8080/users/view --data "user_id[]=0&user_id[]=1"
 echo ""
 
 echo -e "\033[1;32mshow all user keys:\033[0m"

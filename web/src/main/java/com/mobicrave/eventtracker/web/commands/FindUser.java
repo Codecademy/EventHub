@@ -2,12 +2,14 @@ package com.mobicrave.eventtracker.web.commands;
 
 import com.google.gson.Gson;
 import com.mobicrave.eventtracker.EventTracker;
+import com.mobicrave.eventtracker.model.User;
 import com.mobicrave.eventtracker.storage.filter.Filter;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @Path("/users/find")
 public class FindUser extends Command {
@@ -25,7 +27,7 @@ public class FindUser extends Command {
     Filter filter = getFilter(
         request.getParameterValues("ufk[]"),
         request.getParameterValues("ufv[]"));
-    long[] userIds = eventTracker.findUsers(filter);
-    response.getWriter().println(gson.toJson(userIds));
+    List<User> users = eventTracker.findUsers(filter);
+    response.getWriter().println(gson.toJson(users));
   }
 }

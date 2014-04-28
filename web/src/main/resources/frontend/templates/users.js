@@ -12,22 +12,7 @@ var usersTemplate = ' \
   </div> \
   <div class="users-table"> \
     Filtered Users \
-    <table class="table table-hover"> \
-      <tbody> \
-        <tr> \
-          <td>1</td> \
-          <td>Mark</td> \
-        </tr> \
-        <tr> \
-          <td>2</td> \
-          <td>Jacob</td> \
-        </tr> \
-        <tr> \
-          <td>3</td> \
-          <td>Larry the Bird</td> \
-        </tr> \
-      </tbody> \
-    </table> \
+    <div class="table-container"></div> \
   </div> \
   <div class="user-show"> \
     Selected User \

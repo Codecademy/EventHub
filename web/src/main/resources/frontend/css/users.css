@@ -48,6 +48,14 @@
   cursor: pointer;
 }
 
+.users-table {
+  display: none;
+}
+
+.users-table.rendered {
+  display: inline-block;
+}
+
 .user-show .user-show--row {
   margin-top: 15px;
   padding: 15px;

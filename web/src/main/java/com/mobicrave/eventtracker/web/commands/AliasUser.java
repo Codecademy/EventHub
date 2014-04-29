@@ -21,6 +21,6 @@ public class AliasUser extends Command {
     eventTracker.aliasUser(
         request.getParameter("from_external_user_id"),
         request.getParameter("to_external_user_id"));
-    response.getWriter().println("OK");
+    response.getWriter().println("\"OK\"");
   }
 }

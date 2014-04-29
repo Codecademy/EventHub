@@ -1,5 +1,6 @@
 package com.mobicrave.eventtracker.web.commands;
 
+import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.mobicrave.eventtracker.EventTracker;
@@ -32,6 +33,7 @@ public class BatchTrackEvent extends Command {
 
     List<Map<String, String>> events = gson.fromJson(
         request.getParameter("events"), new TypeToken<List<Map<String, String>>>() {}.getType());
+    List<Long> eventIds = Lists.newArrayList();
     PrintWriter writer = response.getWriter();
     for (Map<String, String> eventMap : events) {
       String date = eventMap.get("date");
@@ -43,7 +45,8 @@ public class BatchTrackEvent extends Command {
           eventMap.get("external_user_id"),
           date,
           eventMap).build();
-      writer.println(eventTracker.addEvent(event));
+      eventIds.add(eventTracker.addEvent(event));
     }
+    writer.println(gson.toJson(eventIds));
   }
 }

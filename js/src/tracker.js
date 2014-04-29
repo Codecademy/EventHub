@@ -190,6 +190,8 @@ window.DevTips=window.DevTips||{}; (function(dt){ var _2=0; var _3="Query string
     };
 
     this.identify = function(id, properties) {
+      properties = properties || {};
+
       this.queue.enqueue({
         type: "identify",
         params: {

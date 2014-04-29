@@ -51,7 +51,7 @@ describe("EventTracker", function() {
         expect(DevTips.jsonp.calls.mostRecent().args[0]).toBe('http://example.com/events/batch_track');
         var generatedId = eventTracker._getUser().id;
         expect(generatedId).not.toBeNull();
-        expect(DevTips.jsonp.calls.mostRecent().args[1].events).toEqual([
+        expect(JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events)).toEqual([
           {
             event_type: 'submission',
             external_user_id: generatedId,
@@ -82,7 +82,7 @@ describe("EventTracker", function() {
         jasmine.clock().tick(1001);
 
         expect(DevTips.jsonp.calls.count()).toBe(1);
-        expect(DevTips.jsonp.calls.mostRecent().args[1].events).toEqual([
+        expect(JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events)).toEqual([
           {
             event_type: 'submission',
             external_user_id: 'foo@example.com',
@@ -117,7 +117,7 @@ describe("EventTracker", function() {
 
         expect(DevTips.jsonp.calls.count()).toBe(3);
         expect(DevTips.jsonp.calls.all()[0].args[0]).toBe('http://example.com/events/batch_track');
-        expect(DevTips.jsonp.calls.all()[0].args[1].events[0]).toEqual(jasmine.objectContaining({
+        expect(JSON.parse(DevTips.jsonp.calls.all()[0].args[1].events)[0]).toEqual(jasmine.objectContaining({
           event_type: 'pageview',
           foo: 'bar'
         }));
@@ -126,7 +126,7 @@ describe("EventTracker", function() {
           from_external_user_id: 'foo@example.com',
           to_external_user_id: generatedId
         }));
-        expect(DevTips.jsonp.calls.all()[2].args[1].events[0]).toEqual(jasmine.objectContaining({
+        expect(JSON.parse(DevTips.jsonp.calls.all()[2].args[1].events)[0]).toEqual(jasmine.objectContaining({
           external_user_id: 'foo@example.com',
           event_type: 'submission',
           hello: 'world',
@@ -149,14 +149,14 @@ describe("EventTracker", function() {
         jasmine.clock().tick(1001);
 
         expect(DevTips.jsonp.calls.count()).toBe(2);
-        expect(DevTips.jsonp.calls.first().args[1].events).toEqual([
+        expect(JSON.parse(DevTips.jsonp.calls.first().args[1].events)).toEqual([
           {
             event_type: 'submission',
             external_user_id: 'foo@example.com',
             hello: 'world',
             age: 30
           }]);
-        expect(DevTips.jsonp.calls.mostRecent().args[1].events).toEqual([
+        expect(JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events)).toEqual([
           {
             event_type: 'pageview',
             external_user_id: 'foo@example.com',

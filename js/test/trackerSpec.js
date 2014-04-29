@@ -43,7 +43,7 @@ describe("EventTracker", function() {
       expect(DevTips.jsonp.calls.count()).toBe(1);
       var args = DevTips.jsonp.calls.mostRecent().args;
       expect(args[0]).toBe('http://example.com/events/batch_track');
-      var eventsSent = args[1].events;
+      var eventsSent = JSON.parse(args[1].events);
       expect(eventsSent[0]).toEqual(
         jasmine.objectContaining({ event_type: 'submission', a: 'b' }));
     });
@@ -59,7 +59,7 @@ describe("EventTracker", function() {
       expect(DevTips.jsonp).not.toHaveBeenCalled();
       jasmine.clock().tick(500);
       expect(DevTips.jsonp.calls.count()).toBe(1);
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events.length).toBe(3);
+      expect(JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events).length).toBe(3);
       jasmine.clock().tick(5000);
       expect(DevTips.jsonp.calls.count()).toBe(1);
     });
@@ -71,11 +71,11 @@ describe("EventTracker", function() {
       eventTracker.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(2);
-      expect(DevTips.jsonp.calls.first().args[1].events.length).toBe(1);
-      expect(DevTips.jsonp.calls.first().args[1].events[0]).toEqual(
+      expect(JSON.parse(DevTips.jsonp.calls.first().args[1].events).length).toBe(1);
+      expect(JSON.parse(DevTips.jsonp.calls.first().args[1].events)[0]).toEqual(
         jasmine.objectContaining({ event_type: 'prev-submission', a: 'b' }));
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events.length).toBe(1);
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0]).toEqual(
+      expect(JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events).length).toBe(1);
+      expect(JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events)[0]).toEqual(
         jasmine.objectContaining({ event_type: 'submission', c: 'd' }));
     });
   });
@@ -95,7 +95,7 @@ describe("EventTracker", function() {
       eventTracker.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(1);
-      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
+      var eventsSent = JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events);
       var generatedId = eventTracker._getUser().id;
       expect(generatedId).toBeDefined();
       expect(eventsSent[0].external_user_id).toBe(generatedId);
@@ -111,7 +111,7 @@ describe("EventTracker", function() {
       eventTracker.track("submission");
       eventTracker.flush();
 
-      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
+      var eventsSent = JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events);
       expect(eventsSent[0]).toEqual({
         event_type: 'submission',
         external_user_id: generatedUser.id,
@@ -145,15 +145,15 @@ describe("EventTracker", function() {
       eventTracker.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(2);
-      expect(DevTips.jsonp.calls.first().args[1].events.length).toBe(1);
-      expect(DevTips.jsonp.calls.first().args[1].events[0]).toEqual({
+      expect(JSON.parse(DevTips.jsonp.calls.first().args[1].events).length).toBe(1);
+      expect(JSON.parse(DevTips.jsonp.calls.first().args[1].events)[0]).toEqual({
         external_user_id: generatedUser.id,
         event_type: 'prev-submission',
         a: 'b',
         foo: 'bar'
       });
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events.length).toBe(1);
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0]).toEqual({
+      expect(JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events).length).toBe(1);
+      expect(JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events)[0]).toEqual({
         external_user_id: generatedUser.id,
         event_type: 'submission',
         c: 'd',
@@ -170,7 +170,7 @@ describe("EventTracker", function() {
       eventTracker.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(1);
-      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
+      var eventsSent = JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events);
       expect(eventsSent[0]).toEqual(
         jasmine.objectContaining({
           event_type: 'submission',
@@ -189,7 +189,7 @@ describe("EventTracker", function() {
       eventTracker.track("submission");
       eventTracker.flush();
 
-      var eventsSent = DevTips.jsonp.calls.mostRecent().args[1].events;
+      var eventsSent = JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events);
       expect(eventsSent[0].external_user_id).not.toBe('foo');
       expect(eventsSent[0].foo).toBeUndefined();
     });
@@ -205,17 +205,18 @@ describe("EventTracker", function() {
       eventTracker.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(2);
-      expect(DevTips.jsonp.calls.first().args[1].events.length).toBe(1);
-      expect(DevTips.jsonp.calls.first().args[1].events[0]).toEqual({
+      expect(JSON.parse(DevTips.jsonp.calls.first().args[1].events).length).toBe(1);
+      expect(JSON.parse(DevTips.jsonp.calls.first().args[1].events)[0]).toEqual({
         external_user_id: 'foo',
         event_type: 'prev-submission',
         a: 'b',
         foo: 'bar'
       });
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events.length).toBe(1);
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0].external_user_id).not.toBe('foo');
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0].foo).toBeUndefined();
-      expect(DevTips.jsonp.calls.mostRecent().args[1].events[0]).toEqual(jasmine.objectContaining({
+      var events = JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events);
+      expect(events.length).toBe(1);
+      expect(events[0].external_user_id).not.toBe('foo');
+      expect(events[0].foo).toBeUndefined();
+      expect(events[0]).toEqual(jasmine.objectContaining({
         event_type: 'submission',
         c: 'd'
       }));

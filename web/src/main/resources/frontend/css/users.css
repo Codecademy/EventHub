@@ -63,7 +63,9 @@
 }
 
 .user-show .user-properties {
-  margin-right: 15px;
+  padding-right: 15px;
+  border-right: 1px solid rgb(221,221,221);
+  margin-right: -1px;
   max-width: 50%;
 }
 
@@ -71,6 +73,8 @@
   min-width: 240px;
   border-left: 1px solid rgb(221,221,221);
   padding-left: 15px;
+  max-height: 540px;
+  overflow: scroll;
 }
 
 .user-show .user-properties, .user-show .user-show--activity-feed {

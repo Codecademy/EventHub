@@ -1,6 +1,8 @@
 var userShowTemplate = '\
   <div class="user-show--row cf"> \
     <div class="user-properties"> \
+      <div>User Properties</div> \
+      <br> \
       {{#properties}} \
         <div> \
           <div class="property-name">{{propertyName}}</div>: \

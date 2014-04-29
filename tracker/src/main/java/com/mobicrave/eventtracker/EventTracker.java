@@ -119,16 +119,22 @@ public class EventTracker implements Closeable {
         aggregateUserIdsCallback);
     int[] numFunnelStepsMatched = new int[funnelStepsEventTypes.length];
     IdList.Iterator firstStepEventIdIterator = firstStepEventIdList.iterator();
-    for (int userId : userIdsList) {
-      long firstStepEventId = firstStepEventIdIterator.next();
-      long maxLastStepEventId = datedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
-      CountMatchedFunnelSteps countMatchedFunnelSteps = new CountMatchedFunnelSteps(
-          eventStorage, userStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/,
-          maxLastStepEventId, eventFilters, userFilter);
-      userEventIndex.enumerateEventIds(userId, userEventIndex.getEventOffset(userId, firstStepEventId),
-          Integer.MAX_VALUE, countMatchedFunnelSteps);
-      for (int i = 0; i < countMatchedFunnelSteps.getNumMatchedSteps(); i++) {
-        numFunnelStepsMatched[i]++;
+    if (funnelStepsEventTypes.length == 1) {
+      for (int userId : userIdsList) {
+        numFunnelStepsMatched[0]++;
+      }
+    } else {
+      for (int userId : userIdsList) {
+        long firstStepEventId = firstStepEventIdIterator.next();
+        long maxLastStepEventId = datedEventIndex.findFirstEventIdOnDate(firstStepEventId, numDaysToCompleteFunnel);
+        CountMatchedFunnelSteps countMatchedFunnelSteps = new CountMatchedFunnelSteps(
+            eventStorage, userStorage, funnelStepsEventTypeIds, 1 /* first step already matched*/,
+            maxLastStepEventId, eventFilters, userFilter);
+        userEventIndex.enumerateEventIds(userId, userEventIndex.getEventOffset(userId, firstStepEventId),
+            Integer.MAX_VALUE, countMatchedFunnelSteps);
+        for (int i = 0; i < countMatchedFunnelSteps.getNumMatchedSteps(); i++) {
+          numFunnelStepsMatched[i]++;
+        }
       }
     }
     return numFunnelStepsMatched;

@@ -62,6 +62,9 @@ public class EventTrackerTest extends GuiceTestCase {
 
     final String[] funnelSteps = { EVENT_TYPES[1], EVENT_TYPES[2], EVENT_TYPES[3] };
     List<Filter> eventFilters = Lists.<Filter>newArrayList(TrueFilter.INSTANCE, TrueFilter.INSTANCE, TrueFilter.INSTANCE);
+    Assert.assertArrayEquals(new int[] { 1 },
+        tracker.getFunnelCounts(DATES[0], DATES[4], new String[] { EVENT_TYPES[1] }, 7 /* numDaysToCompleteFunnel */,
+            eventFilters, TrueFilter.INSTANCE));
     Assert.assertArrayEquals(new int[] { 1, 1, 1 },
         tracker.getFunnelCounts(DATES[0], DATES[4], funnelSteps, 7 /* numDaysToCompleteFunnel */,
             eventFilters, TrueFilter.INSTANCE));

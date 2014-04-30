@@ -48,6 +48,10 @@
   cursor: pointer;
 }
 
+.users-table .table td.index {
+  color: rgba(0, 0, 0, 0.3);
+}
+
 .users-table, .user-show {
   display: none;
 }

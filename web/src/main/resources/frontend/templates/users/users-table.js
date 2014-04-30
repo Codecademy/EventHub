@@ -3,8 +3,8 @@ var usersTableTemplate = '\
     <tbody> \
       {{#table}} \
       <tr data-user={{user}}> \
-        <td>{{index}}</td> \
-        <td>{{user}}</td> \
+        <td class="index">{{index}}</td> \
+        <td class="user">{{user}}</td> \
       </tr> \
       {{/table}} \
     </tbody> \

@@ -233,7 +233,7 @@ The method will create an EventTracker and start the timer which clears out the 
 var name = "EventTracker";
 var options = {
   url: 'http://example.com/',
-  flushInterval: 1000 /* in milliseconds */
+  flushInterval: 10 /* in seconds */
 };
 var eventTracker = window.newEventTracker(name, options);
 ```

@@ -52,6 +52,10 @@
   display: block;
 }
 
+#daysToComplete {
+  margin-right: 2px;
+}
+
 .steps-container {
   display: inline-block;
   vertical-align: top;

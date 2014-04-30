@@ -135,6 +135,8 @@ var Users = (function () {
   cls.bindUsersTableInputs = function () {
     var self = this;
     $('.users-table tr').click(function () {
+      $('.users-table tr.active').removeClass('active');
+      $(this).addClass('active');
       $('.user-show').addClass('rendered');
       var externalUserId = $(this).data('user');
       self.getUser(externalUserId);
@@ -193,8 +195,19 @@ var Users = (function () {
   cls.renderUserTimeline = function (timeline, externalUserId) {
     var properties = [];
     var userProperties = USERS_PROPERTIES[externalUserId];
+
     Object.keys(userProperties).forEach(function (key) {
       properties.push({ propertyName: key, propertyValue: userProperties[key] });
+    });
+
+    var lastDate;
+    timeline = timeline.map(function (event) {
+      var date = lastDate === event.date ? '' : Utils.unFormatDate(event.date)
+      lastDate = event.date;
+      return {
+        date: date,
+        event_type: event.event_type,
+      }
     });
 
     var view = {

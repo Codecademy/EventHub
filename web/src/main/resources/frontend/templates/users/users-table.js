@@ -1,5 +1,5 @@
 var usersTableTemplate = '\
-  <table class="table table-hover"> \
+  <table class="table table-hover text--light"> \
     <tbody> \
       {{#table}} \
       <tr data-user={{user}}> \

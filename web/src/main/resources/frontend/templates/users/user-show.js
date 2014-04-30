@@ -1,19 +1,19 @@
 var userShowTemplate = '\
   <div class="user-show--row cf"> \
     <div class="user-properties"> \
-      <div>User Properties</div> \
+      <div class="user-properties--title">User Properties</div> \
       <br> \
       {{#properties}} \
-        <div> \
-          <div class="property-name">{{propertyName}}</div>: \
-          <div class="property-value">{{propertyValue}}</div> \
-        </div> \
+        <dl> \
+          <dt class="property-name text--light">{{propertyName}}</dt>: \
+          <dd class="property-value text--light">{{propertyValue}}</dd> \
+        </dl> \
         <br> \
       {{/properties}} \
     </div> \
     <div class="user-show--activity-feed"> \
       <div class="activity-feed--title">Activity Feed</div> \
-      <table class="table"> \
+      <table class="table text--light"> \
         <tbody> \
           {{#timeline}} \
           <tr> \

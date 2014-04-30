@@ -14,7 +14,7 @@ var funnelTemplate = ' \
           <input type="text" id="funnelStartDate" placeholder="Start Date"> - <input type="text" id="funnelEndDate" placeholder="End Date"> \
         </div> \
         <span> \
-          <input class="two-digits" id="daysToComplete" type="text" name="days" value="7"> <span class="text--light">days to complete funnel\
+          <input class="two-digits" id="daysToComplete" type="text" name="days" value="7"> <span class="text--light">days to complete funnel</span>\
         </span> \
         <input class="btn btn-success calculate-btn calculate-funnel" type="submit" value="Calculate"> \
         <img class="spinner" src="spinner.gif"> \

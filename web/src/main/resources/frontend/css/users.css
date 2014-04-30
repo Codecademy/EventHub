@@ -85,6 +85,10 @@
   margin-bottom: 10px;
 }
 
+.activity-feed--title, .user-properties--title {
+  font-style: italic;
+}
+
 .users-table .table-container {
   max-height: 550px;
   overflow: scroll;
@@ -98,4 +102,8 @@
 
 .user-properties .property-value {
   display: inline-block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 15px;
 }

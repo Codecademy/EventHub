@@ -228,7 +228,6 @@
         case 18: // alt
           break
 
-        case 9: // tab
         case 13: // enter
           if (!this.shown) return
           this.select()

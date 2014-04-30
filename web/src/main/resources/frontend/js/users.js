@@ -101,7 +101,7 @@ var Users = (function () {
     var $filterKey = $filtersContainer.find('.filter-key--input').last();
 
     $filterKey.typeahead({
-      source: ['no filter'].concat(USER_KEYS),
+      source: USER_KEYS,
       items: 10000
     });
 
@@ -121,9 +121,7 @@ var Users = (function () {
     var self = this;
     $filterKey.change(function () {
       $(this).parent().find('.filter-value').remove();
-      if ($(this).val() !== 'no filter') {
-        self.renderFilterValue($(this));
-      }
+      self.renderFilterValue($(this));
     });
   };
 

@@ -101,9 +101,21 @@ var Retention = (function () {
     var start_date = retention.start_date ? Utils.unFormatDate(retention.start_date) : '01/01/2014';
     var end_date = retention.end_date ? Utils.unFormatDate(retention.end_date) : '01/30/2014';
     $( "#retentionStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
-                                           .datepicker('setValue', start_date);
+                                           .datepicker('setValue', start_date)
+                                           .on('keydown', function (e) {
+                                             var keyCode = e.keyCode || e.which;
+                                             if (keyCode === 9) {
+                                               $(this).datepicker('hide');
+                                             }
+                                           });
     $( "#retentionEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
-                                         .datepicker('setValue', end_date);
+                                         .datepicker('setValue', end_date)
+                                         .on('keydown', function (e) {
+                                           var keyCode = e.keyCode || e.which;
+                                           if (keyCode === 9) {
+                                             $(this).datepicker('hide');
+                                           }
+                                         });
   };
 
   cls.initializeRetentionShowMe = function(retention) {
@@ -205,7 +217,7 @@ var Retention = (function () {
 
     $filtersContainer.append(Mustache.render(filterKeyTemplate));
     $filtersContainer.find('.filter-key--input').last().typeahead({
-      source: ['no filter'].concat(EVENT_TYPE_KEYS[$eventSelector.val()]),
+      source: EVENT_TYPE_KEYS[$eventSelector.val()],
       items: 10000
     });
 
@@ -227,9 +239,7 @@ var Retention = (function () {
 
     $eventContainer.find('.filter-key--input').last().change(function () {
       $(this).parent().find('.filter-value').remove();
-      if ($(this).val() !== 'no filter') {
-        self.renderFilterValue($(this));
-      }
+      self.renderFilterValue($(this));
     });
   };
 

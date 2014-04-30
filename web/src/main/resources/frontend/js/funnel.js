@@ -14,10 +14,7 @@ var Funnel = (function () {
     }
     else {
       funnel = {};
-      history.pushState(""
-                      , document.title
-                      , window.location.pathname
-      );
+      history.pushState("", document.title, window.location.pathname);
     }
 
     this.initializeFunnelSteps(funnel);
@@ -266,6 +263,7 @@ var Funnel = (function () {
   cls.renderFunnelGraph = function(eventVolumes) {
     $('.middle').addClass('rendered');
     $('.graph').empty();
+
     var maxEventVolume = Math.max.apply(Math, eventVolumes);
     var diviser = Math.pow(10, (maxEventVolume.toString().length - 2));
     var Y_AXIS_MAX = Math.ceil(maxEventVolume / diviser) * diviser;
@@ -282,6 +280,8 @@ var Funnel = (function () {
                 conversion: (v / previousVolume * 100).toFixed(2)
             };
             $('.graph').append(Mustache.render(spaceTemplate, view));
+        } else {
+          $('.graph').append(Mustache.render(heightExpanderTemplate));
         }
         var view = {
             height: (v / Y_AXIS_MAX * 100),

@@ -145,6 +145,10 @@
   width: 110px;
 }
 
+.graph .height-expander {
+  height: 100%;
+}
+
 .space .conversion-container {
   position: absolute;
   top: 75%;

@@ -31,7 +31,7 @@ var funnelTemplate = ' \
         <div class="y-value"></div> \
         <div class="y-value"></div> \
       </div> \
-      <div class="graph"> \
+      <div class="graph"></div> \
     </div> \
     </div> \
   </div> \

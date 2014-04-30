@@ -48,13 +48,13 @@
 
 .axis div {
   display: inline-block;
-  width: 78px;
+  width: 77px;
   text-align: center;
 }
 
 .retention .box {
   display: inline-block;
-  width: 78px;
+  width: 77px;
   padding: 10px;
   text-align: center;
   color: white;
@@ -76,8 +76,8 @@
 }
 
 .gradient-0 {
-  background-color: #CAE4FF;
-  border: 1px solid #CAE4FF;
+  background-color: white;
+  border: 1px solid white;
 }
 
 .gradient-1 {

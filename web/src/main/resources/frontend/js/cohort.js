@@ -14,10 +14,7 @@ var Cohort = (function () {
     }
     else {
       cohort = {};
-      history.pushState(""
-                      , document.title
-                      , window.location.pathname
-      );
+      history.pushState("", document.title, window.location.pathname);
     }
 
     $('.body-container').html(Mustache.render(cohortTemplate));

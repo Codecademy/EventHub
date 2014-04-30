@@ -20,11 +20,11 @@ var Users = (function () {
       history.pushState("", document.title, window.location.pathname);
     }
 
-    this.initializeFilters();
+    this.initializeFilters(users);
     this.bindInputListeners();
   };
 
-  cls.initializeFilters = function () {
+  cls.initializeFilters = function (users) {
     var self = this;
 
     $.ajax({
@@ -32,7 +32,21 @@ var Users = (function () {
       url: "/users/keys",
     }).done(function (keys) {
       USER_KEYS = JSON.parse(keys)
-      self.renderFilterKey();
+
+      if (users.ufv) {
+        users.ufv.forEach(function (filterValue, i) {
+          self.renderFilterKey();
+
+          var filterKey = users.ufk[i];
+          var $filterKey = $('.user-filters').find('.filter-key--input').last();
+          $filterKey.val(filterKey)
+
+          self.renderFilterValue($filterKey, function ($filterValue) {
+            $filterValue.val(filterValue)
+          });
+        });
+      }
+
       self.bindAddFilterListener();
     });
   };
@@ -40,24 +54,27 @@ var Users = (function () {
   cls.findUsers = function () {
     var self = this;
 
-    var params = {
+    var users = {
       ufk: [],
-      ufv: []
+      ufv: [],
+      type: 'users'
     };
 
     $('.filters-container .filters').each(function (i, filters) {
       var $filterValue = $(filters).find('.filter-value--input');
       var $filterKey = $(filters).find('.filter-key--input');
       if ($filterValue.length) {
-        params.ufk.push($filterKey.val());
-        params.ufv.push($filterValue.val());
+        users.ufk.push($filterKey.val());
+        users.ufv.push($filterValue.val());
       }
     });
+
+    window.history.replaceState({}, '', '/?' + $.param(users));
 
     $.ajax({
       type: "GET",
       url: "/users/find",
-      data: params
+      data: users
     }).done(function(users) {
       users = JSON.parse(users);
       users.forEach(function (user, i) {
@@ -143,7 +160,7 @@ var Users = (function () {
     });
   };
 
-  cls.renderFilterValue = function ($filterKey) {
+  cls.renderFilterValue = function ($filterKey, cb) {
     var $filters = $filterKey.parent();
 
     $filters.append(Mustache.render(filterValueTemplate));
@@ -164,6 +181,8 @@ var Users = (function () {
         source: values,
         items: 10000
       });
+
+      if(cb) cb($filterValue);
     });
   };
 

@@ -10,8 +10,15 @@ var Users = (function () {
   cls.render = function () {
     $('.body-container').html(Mustache.render(usersTemplate));
 
+    var users;
     var params = $.deparam(window.location.search.substring(1));
-    var retention = params.type === 'users' ? params : {};
+    if (params.type === 'users') {
+      users = params;
+    }
+    else {
+      users = {};
+      history.pushState("", document.title, window.location.pathname);
+    }
 
     this.initializeFilters();
     this.bindInputListeners();

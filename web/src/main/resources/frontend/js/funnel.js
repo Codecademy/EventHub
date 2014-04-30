@@ -7,8 +7,18 @@ var Funnel = (function () {
   cls.render = function () {
     $('.body-container').html(Mustache.render(funnelTemplate));
 
+    var funnel;
     var params = $.deparam(window.location.search.substring(1));
-    var funnel = params.type === 'funnel' ? params : {};
+    if (params.type === 'funnel') {
+      funnel = params;
+    }
+    else {
+      funnel = {};
+      history.pushState(""
+                      , document.title
+                      , window.location.pathname
+      );
+    }
 
     this.initializeFunnelSteps(funnel);
     this.initializeDatePickers(funnel);

@@ -7,8 +7,15 @@ var Retention = (function () {
   cls.render = function () {
     var self = this;
 
+    var retention;
     var params = $.deparam(window.location.search.substring(1));
-    var retention = params.type === 'retention' ? params : {};
+    if (params.type === 'retention') {
+      retention = params;
+    }
+    else {
+      retention = {};
+      history.pushState("", document.title, window.location.pathname);
+    }
 
     $('.body-container').html(Mustache.render(retentionTemplate));
 

@@ -7,14 +7,6 @@
 
 /* Rest */
 
-.cohort-definition.show-filters .filters {
-  display: block;
-}
-
-.cohort-definition.show-filters .add-filter {
-  display: block;
-}
-
 .show-me p {
   display: inline-block;
   vertical-align: top;

@@ -1,39 +1,12 @@
 /* Filter styles */
 
-.filter-toggle {
-  margin-top: 12px;
-  font-size: 14px;
-  color: gray;
-}
-
-.filter-toggle:hover {
-  cursor: pointer;
-}
-
-.filter-toggle.hide {
-  display: none;
-}
-
-.filter-toggle .down-arrow {
-  position: relative;
-  bottom: 9px;
-  left: 5px;
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-bottom: 4px solid gray;
-}
-
 .filters {
-  display: none;
   position: relative;
   margin-top: 15px;
   width: 135px;
 }
 
 .add-filter {
-  display: none;
   margin-top: 15px;
   width: 135px;
   text-align: left;

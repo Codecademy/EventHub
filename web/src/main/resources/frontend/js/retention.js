@@ -5,10 +5,12 @@ var Retention = (function () {
   };
 
   cls.render = function () {
-    $('.body-container').html(Mustache.render(retentionTemplate));
+    var self = this;
 
     var params = $.deparam(window.location.search.substring(1));
     var retention = params.type === 'retention' ? params : {};
+
+    $('.body-container').html(Mustache.render(retentionTemplate));
 
     this.initializeRetentionShowMe(retention);
     this.initializeRetentionDatePickers(retention);
@@ -110,7 +112,6 @@ var Retention = (function () {
     Utils.getEventTypes(function(eventTypes) {
       EVENT_TYPES = JSON.parse(eventTypes);
       Utils.getEventKeys(function () {
-        self.bindShowFiltersListener();
         self.renderShowMe(retention);
 
         var rowEventType = retention.row_event_type || EVENT_TYPES[0];
@@ -119,11 +120,8 @@ var Retention = (function () {
         var columnEventType = retention.column_event_type || EVENT_TYPES[1];
         $('.show-me .event-type--input').eq(1).last().val(columnEventType);
 
-        var showFilters = false;
-
         ['r', 'c'].forEach(function (axis, i) {
           if (retention[axis + 'efv']) {
-            showFilters = true;
             retention[axis + 'efv'].forEach(function (filterValue, j) {
               var $eventContainer = $('.event-container').eq(i);
               self.renderFilterKey($eventContainer);
@@ -138,13 +136,13 @@ var Retention = (function () {
             });
           }
         });
-
-        if (showFilters) $('.retention-filters-toggle').click();
       });
     });
   };
 
   cls.renderShowMe = function (retention) {
+    var self = this;
+
     var view = {
       eventTypes: EVENT_TYPES,
       daysLater: retention.num_days_per_row || 7
@@ -155,6 +153,11 @@ var Retention = (function () {
     };
 
     $('.cohort-definition').html(Mustache.render(showMeTemplate, view, partials));
+
+    $('.event-container').each(function (i, el) {
+      self.bindAddFilterListener($(el));
+      self.bindEventSelectorListeners($(el));
+    });
 
     $('.event-type--input').typeahead({
       source: EVENT_TYPES,
@@ -216,19 +219,6 @@ var Retention = (function () {
     $('.calculate-retention').click(function () {
       $('.range-container .spinner').addClass('rendered');
       self.getRetention();
-    });
-  };
-
-  cls.bindShowFiltersListener = function () {
-    var self = this;
-
-    $('.retention-filters-toggle').click(function () {
-      $(this).addClass('hide');
-      $('.cohort-definition').addClass('show-filters');
-      $('.event-container').each(function (i, el) {
-        self.bindAddFilterListener($(el));
-        self.bindEventSelectorListeners($(el));
-      });
     });
   };
 

@@ -1,13 +1,13 @@
-var retentionTemplate = ' \
-<div class="retention-show cf"> \
+var cohortTemplate = ' \
+<div class="cohort-show cf"> \
   <h2>Cohort Definition</h2><br> \
   <div class="cohort-definition"></div> \
   <div class="range-container"> \
     <h2>Parameters</h2><br> \
     <div class="date-container"> \
-      <input type="text" id="retentionStartDate" placeholder="Start Date"> - <input type="text" id="retentionEndDate" placeholder="End Date"> \
+      <input type="text" id="cohortStartDate" placeholder="Start Date"> - <input type="text" id="cohortEndDate" placeholder="End Date"> \
     </div> \
-    <input class="btn btn-success calculate-btn calculate-retention" type="submit" value="Calculate Retention"> \
+    <input class="btn btn-success calculate-btn calculate-cohort" type="submit" value="Calculate"> \
     <img class="spinner" src="spinner.gif"> \
   </div> \
   <div class="cf table-container"> \
@@ -21,11 +21,11 @@ var retentionTemplate = ' \
       <div class="events"> \
       </div> \
     </div> \
-    <div class="retention-container"> \
-      <div class="retention-title"> \
+    <div class="cohort-container"> \
+      <div class="cohort-title"> \
         <div class="axis"></div> \
       </div> \
-      <div class="retention"> \
+      <div class="cohort"> \
       </div> \
     </div> \
   </div> \

@@ -1,4 +1,4 @@
-var Retention = (function () {
+var Cohort = (function () {
 
   var cls = function () {
 
@@ -7,34 +7,37 @@ var Retention = (function () {
   cls.render = function () {
     var self = this;
 
-    var retention;
+    var cohort;
     var params = $.deparam(window.location.search.substring(1));
-    if (params.type === 'retention') {
-      retention = params;
+    if (params.type === 'cohort') {
+      cohort = params;
     }
     else {
-      retention = {};
-      history.pushState("", document.title, window.location.pathname);
+      cohort = {};
+      history.pushState(""
+                      , document.title
+                      , window.location.pathname
+      );
     }
 
-    $('.body-container').html(Mustache.render(retentionTemplate));
+    $('.body-container').html(Mustache.render(cohortTemplate));
 
-    this.initializeRetentionShowMe(retention);
-    this.initializeRetentionDatePickers(retention);
+    this.initializeCohortShowMe(cohort);
+    this.initializeCohortDatePickers(cohort);
     this.bindInputListeners();
   };
 
-  cls.getRetention = function () {
+  cls.getCohort = function () {
     var self = this;
 
-    var retention = {
-      start_date: Utils.formatDate($('#retentionStartDate').val()),
-      end_date: Utils.formatDate($('#retentionEndDate').val()),
+    var cohort = {
+      start_date: Utils.formatDate($('#cohortStartDate').val()),
+      end_date: Utils.formatDate($('#cohortEndDate').val()),
       row_event_type: $('.show-me .event-type--input').eq(0).val(),
       column_event_type: $('.show-me .event-type--input').eq(1).val(),
       num_days_per_row: $('#daysLater').val(),
       num_columns: 11, //$('#numColumns').val()... Why make things more complicated...
-      type: 'retention'
+      type: 'cohort'
     };
 
     $('.event-container').each(function (i, event) {
@@ -43,47 +46,47 @@ var Retention = (function () {
         var $filterKey = $(filters).find('.filter-key--input');
         if ($filterValue.length) {
           var axis = i === 1 ? 'c' : 'r';
-          retention[axis + "efk"] = retention[axis + "efk"] || [];
-          retention[axis + "efk"] = retention[axis + "efk"].concat($filterKey.val());
-          retention[axis + "efv"] = retention[axis + "efv"] || [];
-          retention[axis + "efv"] = retention[axis + "efv"].concat($filterValue.val());
+          cohort[axis + "efk"] = cohort[axis + "efk"] || [];
+          cohort[axis + "efk"] = cohort[axis + "efk"].concat($filterKey.val());
+          cohort[axis + "efv"] = cohort[axis + "efv"] || [];
+          cohort[axis + "efv"] = cohort[axis + "efv"].concat($filterValue.val());
         }
       });
     });
 
-    window.history.replaceState({}, '', '/?' + $.param(retention));
+    window.history.replaceState({}, '', '/?' + $.param(cohort));
 
     $.ajax({
       type: "GET",
       url: "/events/cohort",
-      data: retention
-    }).done(function(retention) {
-        retention = JSON.parse(retention);
-        self.renderGraph(retention);
+      data: cohort
+    }).done(function(cohort) {
+        cohort = JSON.parse(cohort);
+        self.renderGraph(cohort);
     });
   };
 
-  cls.renderGraph = function (retention) {
-    this.resetRetentionGraph();
+  cls.renderGraph = function (cohort) {
+    this.resetCohortGraph();
     $('.table-container').addClass('rendered');
 
     $('.date-title').text('Date');
     $('.event-title').text('People');
 
     var count = 0;
-    var currentDate = new Date($('#retentionStartDate').val());
-    for (var i = 0; i < retention.length; i++) {
-       $('.events').append('<div>' + retention[i][0] + '</div>');
+    var currentDate = new Date($('#cohortStartDate').val());
+    for (var i = 0; i < cohort.length; i++) {
+       $('.events').append('<div>' + cohort[i][0] + '</div>');
 
        var date = (currentDate.getMonth() + 1) + '/' + currentDate.getDate() + '/' + currentDate.getFullYear();
        $('.dates').append('<div>' + date + '</div>');
        var daysLater = parseInt($('#daysLater').val(), 10);
        currentDate.setDate(currentDate.getDate() + daysLater); // change
 
-       $('.retention').append('<div class="row' + i + '"></div>');
-       for (var j = 1; j < retention[i].length; j++) {
+       $('.cohort').append('<div class="row' + i + '"></div>');
+       for (var j = 1; j < cohort[i].length; j++) {
           if (i === 0) $('.axis').append('<div>' + j + '</div>');
-          var percentage = retention[i][j] === 0 ? 0 : retention[i][j] / retention[i][0] * 100;
+          var percentage = cohort[i][j] === 0 ? 0 : cohort[i][j] / cohort[i][0] * 100;
           percentage = percentage === 100 ? percentage : percentage.toFixed(2);
           var boxClass = 'gradient-' + parseInt(percentage / 10, 10);
           $('.row' + i).append('<div class="box ' + boxClass + '">' + percentage + '%</div>');
@@ -93,21 +96,21 @@ var Retention = (function () {
     $('.range-container .spinner').removeClass('rendered');
   };
 
-  cls.resetRetentionGraph = function () {
+  cls.resetCohortGraph = function () {
     $('.events').empty();
     $('.dates').empty();
-    $('.retention').empty();
+    $('.cohort').empty();
     $('.axis').empty();
   };
 
-  cls.initializeRetentionDaysLater = function (retention) {
-    $('#daysLater').val(retention.num_days_per_row || 7);
+  cls.initializeCohortDaysLater = function (cohort) {
+    $('#daysLater').val(cohort.num_days_per_row || 7);
   };
 
-  cls.initializeRetentionDatePickers = function (retention) {
-    var start_date = retention.start_date ? Utils.unFormatDate(retention.start_date) : '01/01/2014';
-    var end_date = retention.end_date ? Utils.unFormatDate(retention.end_date) : '01/30/2014';
-    $( "#retentionStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+  cls.initializeCohortDatePickers = function (cohort) {
+    var start_date = cohort.start_date ? Utils.unFormatDate(cohort.start_date) : '01/01/2014';
+    var end_date = cohort.end_date ? Utils.unFormatDate(cohort.end_date) : '01/30/2014';
+    $( "#cohortStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
                                            .datepicker('setValue', start_date)
                                            .on('keydown', function (e) {
                                              var keyCode = e.keyCode || e.which;
@@ -115,7 +118,7 @@ var Retention = (function () {
                                                $(this).datepicker('hide');
                                              }
                                            });
-    $( "#retentionEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
+    $( "#cohortEndDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
                                          .datepicker('setValue', end_date)
                                          .on('keydown', function (e) {
                                            var keyCode = e.keyCode || e.which;
@@ -125,27 +128,27 @@ var Retention = (function () {
                                          });
   };
 
-  cls.initializeRetentionShowMe = function(retention) {
+  cls.initializeCohortShowMe = function(cohort) {
     var self = this;
 
     Utils.getEventTypes(function(eventTypes) {
       EVENT_TYPES = JSON.parse(eventTypes);
       Utils.getEventKeys(function () {
-        self.renderShowMe(retention);
+        self.renderShowMe(cohort);
 
-        var rowEventType = retention.row_event_type || EVENT_TYPES[0];
+        var rowEventType = cohort.row_event_type || EVENT_TYPES[0];
         $('.show-me .event-type--input').eq(0).last().val(rowEventType);
 
-        var columnEventType = retention.column_event_type || EVENT_TYPES[1];
+        var columnEventType = cohort.column_event_type || EVENT_TYPES[1];
         $('.show-me .event-type--input').eq(1).last().val(columnEventType);
 
         ['r', 'c'].forEach(function (axis, i) {
-          if (retention[axis + 'efv']) {
-            retention[axis + 'efv'].forEach(function (filterValue, j) {
+          if (cohort[axis + 'efv']) {
+            cohort[axis + 'efv'].forEach(function (filterValue, j) {
               var $eventContainer = $('.event-container').eq(i);
               self.renderFilterKey($eventContainer);
 
-              var filterKey = retention[axis + 'efk'][j];
+              var filterKey = cohort[axis + 'efk'][j];
               var $filterKey = $eventContainer.find('.filter-key--input').last();
               $filterKey.val(filterKey);
 
@@ -159,12 +162,12 @@ var Retention = (function () {
     });
   };
 
-  cls.renderShowMe = function (retention) {
+  cls.renderShowMe = function (cohort) {
     var self = this;
 
     var view = {
       eventTypes: EVENT_TYPES,
-      daysLater: retention.num_days_per_row || 7
+      daysLater: cohort.num_days_per_row || 7
     };
 
     var partials = {
@@ -235,9 +238,9 @@ var Retention = (function () {
   cls.bindInputListeners = function () {
     var self = this;
 
-    $('.calculate-retention').click(function () {
+    $('.calculate-cohort').click(function () {
       $('.range-container .spinner').addClass('rendered');
-      self.getRetention();
+      self.getCohort();
     });
   };
 

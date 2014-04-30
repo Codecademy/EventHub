@@ -12,7 +12,7 @@
 var EVENT_TYPES;
 var EVENT_TYPE_KEYS = {};
 
-var Retention = new Retention();
+var Cohort = new Cohort();
 var Funnel = new Funnel();
 var Users = new Users();
 var Utils = new Utils();
@@ -30,8 +30,8 @@ function bindNavBar() {
   $('.nav-funnel').click(function () {
      Funnel.render();
   });
-  $('.nav-retention').click(function () {
-     Retention.render();
+  $('.nav-cohort').click(function () {
+     Cohort.render();
   });
   $('.nav-users').click(function () {
      Users.render();
@@ -41,8 +41,10 @@ function bindNavBar() {
 function handleParams() {
   var params = document.location.search;
 
-  if (params.indexOf('type=retention') > -1) {
-    $('.nav-retention').click();
+  if (params.indexOf('type=cohort') > -1) {
+    $('.nav-cohort').click();
+  } else if (params.indexOf('type=users') > -1) {
+    $('.nav-users').click();
   } else {
     $('.nav-funnel').click();
   }

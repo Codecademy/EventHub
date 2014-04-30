@@ -1,6 +1,6 @@
 /* Main */
 
-.retention-show {
+.cohort-show {
   padding: 20px;
   border: 1px solid #ddd;
 }
@@ -25,19 +25,19 @@
   border-right: 1px solid #ddd;
 }
 
-.dates-column-container, .events-column-container, .retention-container {
+.dates-column-container, .events-column-container, .cohort-container {
   float: left;
   text-align: center;
 }
 
 .dates-column-container .date-title, .events-column-container .event-title,
-.retention-container .retention-title {
+.cohort-container .cohort-title {
   padding: 10px;
   text-align: center;
   border-bottom: 1px solid #ddd;
 }
 
-.retention-container .retention-title {
+.cohort-container .cohort-title {
   padding: 10px 0;
 }
 
@@ -52,7 +52,7 @@
   text-align: center;
 }
 
-.retention .box {
+.cohort .box {
   display: inline-block;
   width: 77px;
   padding: 10px;
@@ -60,18 +60,18 @@
   color: white;
 }
 
-.retention {
+.cohort {
   display: inline-block;
   text-align: left;
 }
 
-.retention-show .table-container {
+.cohort-show .table-container {
   border: 1px solid #ddd;
   margin: 20px auto 0;
   display: none;
 }
 
-.retention-show .table-container.rendered {
+.cohort-show .table-container.rendered {
   display: inline-block;
 }
 

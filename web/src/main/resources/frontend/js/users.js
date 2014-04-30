@@ -154,22 +154,16 @@ var Users = (function () {
       user_key: $filterKey.val(),
     };
 
-    $filterValue.typeahead({
-      source: function (query, process) {
-        if (query) {
-          params.prefix = query;
-          $.ajax({
-            type: "GET",
-            url: "/users/values?" + $.param(params)
-          }).done(function(values) {
-            values = JSON.parse(values);
-            process(values);
-          });
-        } else {
-          process([]);
-        }
-      },
-      items: 10000
+    $.ajax({
+      type: "GET",
+      url: "/users/values?" + $.param(params)
+    }).done(function(values) {
+      values = JSON.parse(values);
+
+      $filterValue.typeahead({
+        source: values,
+        items: 10000
+      });
     });
   };
 

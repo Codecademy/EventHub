@@ -229,25 +229,19 @@ var Funnel = (function () {
 
     var $filterValue = $stepContainer.find('.filter-value--input');
 
-    $filterValue.typeahead({
-      source: function (query, process) {
-        if (query) {
-          params.prefix = query;
-          $.ajax({
-            type: "GET",
-            url: "/events/values?" + $.param(params)
-          }).done(function(values) {
-            values = JSON.parse(values);
-            process(values);
-          });
-        } else {
-          process([]);
-        }
-      },
-      items: 10000
-    });
+    $.ajax({
+      type: "GET",
+      url: "/events/values?" + $.param(params)
+    }).done(function(values) {
+      values = JSON.parse(values);
 
-    if (cb) cb($filterValue);
+      $filterValue.typeahead({
+        source: values,
+        items: 10000
+      });
+
+      if (cb) cb($filterValue);
+    });
   };
 
   cls.renderAddFunnelStep = function () {

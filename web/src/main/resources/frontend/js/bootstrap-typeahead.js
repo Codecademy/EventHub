@@ -228,8 +228,10 @@
         case 18: // alt
           break
 
+        case 9: // tab
         case 13: // enter
           if (!this.shown) return
+          if (this.justFocused) return this.lookup()
           this.select()
           break
 
@@ -250,6 +252,10 @@
       if (!this.focused) this.$element.val('');
       if (!this.$element.val()) this.lookup()
       this.focused = true
+      this.justFocused = true;
+      setTimeout(function () {
+        this.justFocused = false;
+      }.bind(this), 200)
     }
 
   , blur: function (e) {

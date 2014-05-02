@@ -13,6 +13,20 @@ Most important of all, it is free and open sourced.
 - [Javascript Library](#javascript-library)
 
 ## Quick Start
+### Playground
+[demo server](http://floating-mesa-9408.herokuapp.com/)
+
+### Deploy with Heroku
+```bash
+git clone https://github.com/mobicrave/EventTracker.git
+
+cd EventTracker
+heroku create
+git push heroku master
+
+heroku open
+```
+
 ### Required dependency
 * [java sdk7](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
 * [maven](http://maven.apache.org)

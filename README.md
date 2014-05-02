@@ -14,7 +14,7 @@ Most important of all, it is free and open sourced.
 
 ## Quick Start
 ### Playground
-[demo server](http://floating-mesa-9408.herokuapp.com/) with username/password: codecademy/ryzacinc
+A [demo server](http://floating-mesa-9408.herokuapp.com/) is available on Heroku and the username/password to access the dashboard is `codecademy/ryzacinc`.
 
 ### Deploy with Heroku
 Developers who want to try EventTracker can quickly set the server up on Heroku with the following commands. However, please be aware that Heroku's file system is ephemeral and your data will be wiped after the instance is closed.
@@ -220,7 +220,6 @@ In the experiment, the server was bootstrapped differently. Instead of using the
 ## Dashboard
 The server comes with a built-in dashboard which is simply some static resources stored in `/web/src/main/resources/frontend` and gets compiled into the server jar file. After running the server, the dashboard can be accessed at [http://localhost:8080](http://localhost:8080). Through the dashboard, you can access the server for your funnel and cohort analysis.
 
-#### Screenshots
 #### Password protection
 The dashboard comes with insecure basic authentication which send unencrypted information without SSL. Please use it at your own discretion. The default username/password is codecademy/ryzacinc and you can change it by modifying your web.properties file or use the following command to start your server
 ```bash

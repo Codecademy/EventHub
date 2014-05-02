@@ -17,6 +17,7 @@ Most important of all, it is free and open sourced.
 [demo server](http://floating-mesa-9408.herokuapp.com/)
 
 ### Deploy with Heroku
+Developers who want to try EventTracker can quickly set the server up on Heroku with the following commands. However, please be aware that Heroku's file system is ephemeral and your data will be wiped after the instance is closed.
 ```bash
 git clone https://github.com/mobicrave/EventTracker.git
 

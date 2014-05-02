@@ -71,7 +71,8 @@ var Funnel = (function () {
   cls.bindAddFilterListener = function ($step) {
     var self = this;
     $step.find('.add-filter').click(function () {
-      self.renderFilterKey($step);
+      var $filterKey = self.renderFilterKey($step);
+      $filterKey.focus();
     });
   }
 
@@ -206,13 +207,16 @@ var Funnel = (function () {
     var $eventsSelector = $step.find('.event-type--input');
 
     $filtersContainer.append(Mustache.render(filterKeyTemplate));
-    $step.find('.filter-key--input').last().typeahead({
+    var $filterKey = $step.find('.filter-key--input').last();
+    $filterKey.typeahead({
       source: EVENT_TYPE_KEYS[$eventsSelector.val()],
       items: 10000
     });
 
     this.bindFilterKeyListeners($step);
     this.bindRemoveFilterListener($step);
+
+    return $filterKey;
   };
 
   cls.renderFilterValue = function ($filterKey, cb) {

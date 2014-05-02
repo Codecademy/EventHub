@@ -217,13 +217,16 @@ var Cohort = (function () {
     var $eventSelector = $eventContainer.find('.event-type--input');
 
     $filtersContainer.append(Mustache.render(filterKeyTemplate));
-    $filtersContainer.find('.filter-key--input').last().typeahead({
+    var $filterKey = $filtersContainer.find('.filter-key--input').last();
+    $filterKey.typeahead({
       source: EVENT_TYPE_KEYS[$eventSelector.val()],
       items: 10000
     });
 
     this.bindFilterKeyListeners($eventContainer);
     this.bindRemoveFilterListener($eventContainer);
+
+    return $filterKey
   };
 
   cls.bindInputListeners = function () {
@@ -247,7 +250,8 @@ var Cohort = (function () {
   cls.bindAddFilterListener = function ($eventContainer) {
     var self = this;
     $eventContainer.find('.add-filter').click(function () {
-      self.renderFilterKey($eventContainer);
+      var $filterKey = self.renderFilterKey($eventContainer);
+      $filterKey.focus();
     });
   };
 

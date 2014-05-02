@@ -114,7 +114,8 @@ var Users = (function () {
   cls.bindAddFilterListener = function () {
     var self = this;
     $('.user-filters .add-filter').click(function () {
-      self.renderFilterKey();
+      var $filterKey = self.renderFilterKey();
+      $filterKey.focus();
     });
   };
 
@@ -131,6 +132,8 @@ var Users = (function () {
 
     this.bindFilterKeyListeners($filterKey);
     this.bindRemoveFilterListener($filtersContainer)
+
+    return $filterKey;
   };
 
   cls.bindRemoveFilterListener = function ($filtersContainer) {

@@ -182,8 +182,8 @@ var Funnel = (function () {
   };
 
   cls.initializeDatePickers = function (funnel) {
-    var start_date = funnel.start_date ? Utils.unFormatDate(funnel.start_date) : '01/01/2014';
-    var end_date = funnel.end_date ? Utils.unFormatDate(funnel.end_date) : '01/30/2014';
+    var start_date = funnel.start_date ? Utils.unFormatDate(funnel.start_date) : Utils.getOneWeekAgoDate();
+    var end_date = funnel.end_date ? Utils.unFormatDate(funnel.end_date) : Utils.getCurrentDate();
     $("#funnelStartDate").datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
                                         .datepicker('setValue', start_date)
                                         .on('keydown', function (e) {

@@ -105,8 +105,8 @@ var Cohort = (function () {
   };
 
   cls.initializeCohortDatePickers = function (cohort) {
-    var start_date = cohort.start_date ? Utils.unFormatDate(cohort.start_date) : '01/01/2014';
-    var end_date = cohort.end_date ? Utils.unFormatDate(cohort.end_date) : '01/30/2014';
+    var start_date = cohort.start_date ? Utils.unFormatDate(cohort.start_date) : Utils.getOneWeekAgoDate();
+    var end_date = cohort.end_date ? Utils.unFormatDate(cohort.end_date) : Utils.getCurrentDate();
     $( "#cohortStartDate" ).datepicker().on('changeDate', function () { $(this).datepicker('hide'); })
                                            .datepicker('setValue', start_date)
                                            .on('keydown', function (e) {

@@ -47,7 +47,24 @@ var Utils = (function () {
 
   cls.unFormatDate = function (date) {
     return date.substring(4,6) + '/' + date.substring(6,8) + '/' + date.substring(0,4);
-  }
+  };
+
+  cls.getCurrentDate = function () {
+    var date = new Date()
+    var month = date.getMonth() < 10 ? '0' + date.getMonth() : date.getMonth();
+    var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+    var year = date.getFullYear();
+    return month + '/' + day + '/' + year;
+  };
+
+  cls.getOneWeekAgoDate = function () {
+    var date = new Date();
+    date.setDate(date.getDate() - 7);
+    var month = date.getMonth() < 10 ? '0' + date.getMonth() : date.getMonth();
+    var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+    var year = date.getFullYear();
+    return month + '/' + day + '/' + year;
+  };
 
   return cls;
 });

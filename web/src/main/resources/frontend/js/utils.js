@@ -51,7 +51,7 @@ var Utils = (function () {
 
   cls.getCurrentDate = function () {
     var date = new Date()
-    var month = date.getMonth() < 10 ? '0' + date.getMonth() : date.getMonth();
+    var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
     var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
     var year = date.getFullYear();
     return month + '/' + day + '/' + year;
@@ -60,7 +60,7 @@ var Utils = (function () {
   cls.getOneWeekAgoDate = function () {
     var date = new Date();
     date.setDate(date.getDate() - 7);
-    var month = date.getMonth() < 10 ? '0' + date.getMonth() : date.getMonth();
+    var month = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
     var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
     var year = date.getFullYear();
     return month + '/' + day + '/' + year;

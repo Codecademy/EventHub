@@ -107,6 +107,8 @@ var Users = (function () {
     var self = this;
     $('.find-users').off().click(function () {
       $('.user-filters .spinner').addClass('rendered');
+      $('.users-table').removeClass('rendered');
+      $('.user-show').removeClass('rendered');
       self.findUsers();
     });
   };
@@ -131,7 +133,7 @@ var Users = (function () {
     });
 
     this.bindFilterKeyListeners($filterKey);
-    this.bindRemoveFilterListener($filtersContainer)
+    this.bindRemoveFilterListener($filtersContainer);
 
     return $filterKey;
   };

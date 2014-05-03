@@ -15,8 +15,8 @@
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
           <collectionProp name="Arguments.arguments"/>
         </elementProp>
-        <stringProp name="HTTPSampler.domain">localhost</stringProp>
-        <stringProp name="HTTPSampler.port">8080</stringProp>
+        <stringProp name="HTTPSampler.domain">${__P(host,localhost)}</stringProp>
+        <stringProp name="HTTPSampler.port">${__P(port,8080)}</stringProp>
         <stringProp name="HTTPSampler.connect_timeout"></stringProp>
         <stringProp name="HTTPSampler.response_timeout"></stringProp>
         <stringProp name="HTTPSampler.protocol"></stringProp>
@@ -64,7 +64,7 @@
           </elementProp>
           <elementProp name="NUM_USERS" elementType="Argument">
             <stringProp name="Argument.name">NUM_USERS</stringProp>
-            <stringProp name="Argument.value">10000</stringProp>
+            <stringProp name="Argument.value">${__P{numUsers,10000)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="NUM_EVENTS_PER_THREAD" elementType="Argument">
@@ -74,7 +74,7 @@
           </elementProp>
           <elementProp name="NUM_EVENTS_PER_DAY" elementType="Argument">
             <stringProp name="Argument.name">NUM_EVENTS_PER_DAY</stringProp>
-            <stringProp name="Argument.value">100000</stringProp>
+            <stringProp name="Argument.value">${__P(numEventsPerDay,100000)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="NUM_PROPERTY_1" elementType="Argument">
@@ -150,7 +150,7 @@
           <stringProp name="variableName">USER_INDEX</stringProp>
           <stringProp name="outputFormat"></stringProp>
           <stringProp name="minimumValue">1</stringProp>
-          <stringProp name="maximumValue">${NUM_USERS}</stringProp>
+          <stringProp name="maximumValue">${__P(numUsers,10000)}</stringProp>
           <stringProp name="randomSeed">104</stringProp>
           <boolProp name="perThread">true</boolProp>
         </RandomVariableConfig>

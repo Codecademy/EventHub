@@ -11,6 +11,7 @@ Most important of all, it is free and open sourced.
 - [Server](#server)
 - [Dashboard](#dashboard)
 - [Javascript Library](#javascript-library)
+- [Ruby Library](#ruby-library)
 
 ## Quick Start
 ### Playground
@@ -380,4 +381,7 @@ and
   page: 'javascript exercise 1'
 }
 ```
+
+## Ruby Library
+Separate ruby gem is also available at [https://github.com/Codecademy/EventTrackerClient](https://github.com/Codecademy/EventTrackerClient)
 

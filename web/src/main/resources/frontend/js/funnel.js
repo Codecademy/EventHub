@@ -74,7 +74,7 @@ var Funnel = (function () {
       var $filterKey = self.renderFilterKey($step);
       $filterKey.focus();
     });
-  }
+  };
 
   cls.bindRemoveFilterListener = function ($step) {
     var self = this;
@@ -82,12 +82,13 @@ var Funnel = (function () {
       var $filters = $(this).parent();
       $filters.remove();
     });
-  }
+  };
 
   cls.bindAddStepListener = function () {
     var self = this;
     $('.add-step').off().click(function () {
-      self.addStep();
+      var $step = self.addStep();
+      $step.find('.event-type--input').focus();
     });
   };
 
@@ -141,6 +142,7 @@ var Funnel = (function () {
     this.bindFilterKeyListeners($step);
 
     if ($('.step-container').length === 5) $('.add-step').css('display', 'none');
+    return $step;
   };
 
   cls.initializeFunnelSteps = function (funnel) {
@@ -291,7 +293,7 @@ var Funnel = (function () {
     });
 
     $('.funnel-inputs .spinner').removeClass('rendered');
-  }
+  };
 
   return cls;
 

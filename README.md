@@ -11,10 +11,15 @@ Most important of all, it is free and open sourced.
 - [Server](#server)
 - [Dashboard](#dashboard)
 - [Javascript Library](#javascript-library)
+- [Ruby Library](#ruby-library)
 
 ## Quick Start
 ### Playground
-A [demo server](http://floating-mesa-9408.herokuapp.com/) is available on Heroku and the username/password to access the dashboard is `codecademy/ryzacinc`.
+A [demo server](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/) is available on Heroku and the username/password to access the dashboard is `codecademy/ryzacinc`.
+
+- [Example funnel query](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?start_date=20130101&end_date=20130107&num_days_to_complete_funnel=7&funnel_steps%5B%5D=receive_email&funnel_steps%5B%5D=view_track_page&funnel_steps%5B%5D=finish_course&type=funnel)
+- [Example cohort query](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?start_date=20130101&end_date=20130107&row_event_type=receive_email&column_event_type=start_track&num_days_per_row=1&num_columns=11&type=cohort)
+- [Example users segmentation](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?type=users)
 
 ### Deploy with Heroku
 Developers who want to try EventTracker can quickly set the server up on Heroku with the following commands. However, please be aware that Heroku's file system is ephemeral and your data will be wiped after the instance is closed.
@@ -376,4 +381,7 @@ and
   page: 'javascript exercise 1'
 }
 ```
+
+## Ruby Library
+Separate ruby gem is also available at [https://github.com/Codecademy/EventTrackerClient](https://github.com/Codecademy/EventTrackerClient)
 

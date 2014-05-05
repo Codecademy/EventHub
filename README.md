@@ -256,7 +256,7 @@ The method will create an EventHub and start the timer which clears out the even
 ```javascript
 var name = "EventHub";
 var options = {
-  url: 'http://example.com/',
+  url: 'http://example.com',
   flushInterval: 10 /* in seconds */
 };
 var eventHub = window.newEventHub(name, options);

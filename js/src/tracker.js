@@ -65,7 +65,7 @@ window.DevTips=window.DevTips||{}; (function(dt){ var _2=0; var _3="Query string
   }).call(StorageQueue.prototype);
 
 
-  var EventTracker = function(name, queue, localStorage, sessionStorage, options) {
+  var EventHub = function(name, queue, localStorage, sessionStorage, options) {
     this.queue = queue;
     this.localStorage = localStorage;
     this.sessionStorage = sessionStorage;
@@ -80,7 +80,7 @@ window.DevTips=window.DevTips||{}; (function(dt){ var _2=0; var _3="Query string
     this.generatedUserKey = name + "::generatedUser";
   };
 
-  (function() { // merge to EventTracker.prototype
+  (function() { // merge to EventHub.prototype
     var isTrackCommand = function(command) {
       return command.type === 'track';
     };
@@ -249,23 +249,23 @@ window.DevTips=window.DevTips||{}; (function(dt){ var _2=0; var _3="Query string
       };
       setTimeout(flushWrapper, this.flushInterval);
     };
-  }).call(EventTracker.prototype);
+  }).call(EventHub.prototype);
 
 
   window.FakeStorage = FakeStorage;
   window.StorageQueue = StorageQueue;
-  window.EventTracker = EventTracker;
-  window.newEventTracker = function(name, options) {
+  window.EventHub = EventHub;
+  window.newEventHub = function(name, options) {
     var storageQueue = new StorageQueue(name, window.localStorage || new FakeStorage());
-    var eventTracker = new EventTracker(
+    var eventHub = new EventHub(
         name,
         storageQueue,
         window.localStorage || new FakeStorage(),
         window.sessionStorage || new FakeStorage(),
         options);
 
-    eventTracker.initialize();
-    eventTracker.start();
-    return eventTracker;
+    eventHub.initialize();
+    eventHub.start();
+    return eventHub;
   };
 })(window);

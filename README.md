@@ -240,6 +240,11 @@ The project comes with a javascript library which can be integrated with your we
 #### install [karma](http://karma-runner.github.io/0.12/index.html)
 ```bash
 cd ${EVENT_TRACKER_DIR}
+
+npm install -g karma
+npm install -g karma-jasmine@2_0
+npm install -g karma-chrome-launcher
+
 karma start karma.conf.js
 ```
 

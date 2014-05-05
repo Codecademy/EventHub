@@ -1,10 +1,10 @@
-describe("EventTracker", function() {
-  var name = "EventTracker";
+describe("EventHub", function() {
+  var name = "EventHub";
   var sessionKey = name + "::activeSession";
   var generatedIdKey = name + "::generatedId";
   var identifiedUserKey = name + "::identifiedUser";
   var generatedUserKey = name + "::generatedUser";
-  var eventTracker;
+  var eventHub;
 
   var clearStorage = function() {
     delete sessionStorage[sessionKey];
@@ -24,7 +24,7 @@ describe("EventTracker", function() {
       }
     });
 
-    eventTracker = new EventTracker(name,
+    eventHub = new EventHub(name,
      new StorageQueue(name, window.localStorage),
       window.localStorage,
       window.sessionStorage,
@@ -39,16 +39,16 @@ describe("EventTracker", function() {
     describe("signup conversion", function() {
       it("should send tracking events with generated id and registered properties, " +
           "then alias, and finally send events with identified user properties", function() {
-        eventTracker.initialize();
-        eventTracker.register({ experiment: 'signup_v20', treatment: 'A' });
-        eventTracker.start();
+        eventHub.initialize();
+        eventHub.register({ experiment: 'signup_v20', treatment: 'A' });
+        eventHub.start();
         jasmine.clock().tick(1001);
-        var generatedId = eventTracker._getUser().id;
+        var generatedId = eventHub._getUser().id;
 
-        eventTracker.track('pageview', { page: 'home page' });
-        eventTracker.alias('foo@example.com');
-        eventTracker.identify('foo@example.com', { age: 30 });
-        eventTracker.track('signup', { hello: 'world' });
+        eventHub.track('pageview', { page: 'home page' });
+        eventHub.alias('foo@example.com');
+        eventHub.identify('foo@example.com', { age: 30 });
+        eventHub.track('signup', { hello: 'world' });
 
         jasmine.clock().tick(5001);
         expect(DevTips.jsonp.calls.count()).toBe(3);
@@ -76,15 +76,15 @@ describe("EventTracker", function() {
     describe("feature conversion", function() {
       it("should send tracking events with generated id and registered properties, " +
           "then alias, and finally send events with identified user properties", function() {
-        eventTracker.initialize();
-        eventTracker.start();
-        eventTracker.identify('foo@example.com', {
+        eventHub.initialize();
+        eventHub.start();
+        eventHub.identify('foo@example.com', {
           age: 30,
           experiment: 'track_page_v20',
           treatment: 'A'
         });
-        eventTracker.track('pageview', { page: 'javascript track page' });
-        eventTracker.track('start track', { track: 'javascript' });
+        eventHub.track('pageview', { page: 'javascript track page' });
+        eventHub.track('start track', { track: 'javascript' });
 
         jasmine.clock().tick(5001);
         expect(DevTips.jsonp.calls.count()).toBe(1);

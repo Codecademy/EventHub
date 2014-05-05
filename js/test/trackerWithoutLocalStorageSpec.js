@@ -1,10 +1,10 @@
-describe("EventTracker without localStorage", function() {
-  var name = "EventTracker";
+describe("EventHub without localStorage", function() {
+  var name = "EventHub";
   var sessionKey = name + "::activeSession";
   var generatedIdKey = name + "::generatedId";
   var identifiedUserKey = name + "::identifiedUser";
   var generatedUserKey = name + "::generatedUser";
-  var eventTracker;
+  var eventHub;
 
   beforeEach(function() {
     jasmine.clock().install();
@@ -15,7 +15,7 @@ describe("EventTracker without localStorage", function() {
       }
     });
 
-    eventTracker = new EventTracker(name,
+    eventHub = new EventHub(name,
       new StorageQueue(name, new FakeStorage()),
       new FakeStorage(),
       new FakeStorage(),
@@ -28,8 +28,8 @@ describe("EventTracker without localStorage", function() {
 
   describe("basic tracking", function() {
     it("should send event with given url, event_type and properties", function() {
-      eventTracker.track("submission", { a: 'b' });
-      eventTracker.flush();
+      eventHub.track("submission", { a: 'b' });
+      eventHub.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(1);
       var args = DevTips.jsonp.calls.mostRecent().args;
@@ -40,11 +40,11 @@ describe("EventTracker without localStorage", function() {
     });
 
     it("should batch send events after the flushInterval", function() {
-      eventTracker.initialize();
-      eventTracker.start();
-      eventTracker.track("submission");
-      eventTracker.track("submission");
-      eventTracker.track("submission");
+      eventHub.initialize();
+      eventHub.start();
+      eventHub.track("submission");
+      eventHub.track("submission");
+      eventHub.track("submission");
 
       jasmine.clock().tick(501);
       expect(DevTips.jsonp).not.toHaveBeenCalled();
@@ -56,10 +56,10 @@ describe("EventTracker without localStorage", function() {
     });
 
     it("should send previously queued events after resumed", function() {
-      eventTracker.track('prev-submission', { a: 'b' });
-      eventTracker.initialize();
-      eventTracker.track('submission', { c: 'd' });
-      eventTracker.flush();
+      eventHub.track('prev-submission', { a: 'b' });
+      eventHub.initialize();
+      eventHub.track('submission', { c: 'd' });
+      eventHub.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(2);
       expect(JSON.parse(DevTips.jsonp.calls.first().args[1].events).length).toBe(1);
@@ -73,21 +73,21 @@ describe("EventTracker without localStorage", function() {
 
   describe("tracking with generated user", function() {
     it("should generate a new user id during initialization", function() {
-      expect(eventTracker._getUser().id).toBeUndefined();
+      expect(eventHub._getUser().id).toBeUndefined();
 
-      eventTracker.initialize();
-      eventTracker.flush();
-      expect(eventTracker._getUser().id).toBeDefined();
+      eventHub.initialize();
+      eventHub.flush();
+      expect(eventHub._getUser().id).toBeDefined();
     });
 
     it("should send events with generated id", function() {
-      eventTracker.initialize();
-      eventTracker.track("submission");
-      eventTracker.flush();
+      eventHub.initialize();
+      eventHub.track("submission");
+      eventHub.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(1);
       var eventsSent = JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events);
-      var generatedId = eventTracker._getUser().id;
+      var generatedId = eventHub._getUser().id;
       expect(generatedId).toBeDefined();
       expect(eventsSent[0].external_user_id).toBe(generatedId);
     });
@@ -95,10 +95,10 @@ describe("EventTracker without localStorage", function() {
 
   describe("tracking with identified user", function() {
     it("should send events with identified user id, and properties", function() {
-      eventTracker.initialize();
-      eventTracker.identify('foo@example.com', { foo: 'bar' });
-      eventTracker.track("submission", { a: 'b' });
-      eventTracker.flush();
+      eventHub.initialize();
+      eventHub.identify('foo@example.com', { foo: 'bar' });
+      eventHub.track("submission", { a: 'b' });
+      eventHub.flush();
 
       expect(DevTips.jsonp.calls.count()).toBe(1);
       var eventsSent = JSON.parse(DevTips.jsonp.calls.mostRecent().args[1].events);

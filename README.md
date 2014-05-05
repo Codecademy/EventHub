@@ -1,5 +1,5 @@
-# Event Tracker
-Event Tracker enables companies to do cross devices event tracking. The events will be joined by their associated users at the server, and the server also comes with a built-in dashboard which can be used to answer the following common business questions
+# EventHub
+EventHub enables companies to do cross devices event tracking. The events will be joined by their associated users at the server, and the server also comes with a built-in dashboard which can be used to answer the following common business questions
 * what is my funnel conversion rate
 * what is my cohorted KPI retention
 * which variant in my A/B testing has higher conversion rate
@@ -22,11 +22,11 @@ A [demo server](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/) is
 - [Example users segmentation](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?type=users)
 
 ### Deploy with Heroku
-Developers who want to try EventTracker can quickly set the server up on Heroku with the following commands. However, please be aware that Heroku's file system is ephemeral and your data will be wiped after the instance is closed.
+Developers who want to try EventHub can quickly set the server up on Heroku with the following commands. However, please be aware that Heroku's file system is ephemeral and your data will be wiped after the instance is closed.
 ```bash
-git clone https://github.com/mobicrave/EventTracker.git
+git clone https://github.com/Codecademy/EventHub.git
 
-cd EventTracker
+cd EventHub
 heroku create
 git push heroku master
 
@@ -42,9 +42,9 @@ heroku open
 # set up proper JAVA_HOME for mac
 export JAVA_HOME=$(/usr/libexec/java_home)
 
-git clone https://github.com/mobicrave/EventTracker.git
-cd EventTracker
-export EVENT_TRACKER_DIR=`pwd`
+git clone https://github.com/Codecademy/EventHub.git
+cd EventHub
+export EVENT_HUB_DIR=`pwd`
 mvn -am -pl web clean package
 java -jar web/target/web-1.0-SNAPSHOT.jar
 ```
@@ -58,7 +58,7 @@ mvn -am -pl web clean test
 #### Manual testing with curl
 Comprehensive examples can be found in `script.sh`.
 ```bash
-cd ${EVENT_TRACKER_DIR}; ./script.sh
+cd ${EVENT_HUB_DIR}; ./script.sh
 ```
 
 Test all event related endpoints
@@ -145,7 +145,7 @@ Test all user related endpoints
     ```
 
 #### Load testing with Jmeter
-We use [Apache Jmeter](http://jmeter.apache.org) for load testing, and the load testing script can be found in `${EVENT_TRACKER_DIR}/jmeter.jmx`.
+We use [Apache Jmeter](http://jmeter.apache.org) for load testing, and the load testing script can be found in `${EVENT_HUB_DIR}/jmeter.jmx`.
 ```bash
 export JMETER_DIR=~/Downloads/apache-jmeter-2.11/
 java -jar ${JMETER_DIR}/bin/ApacheJMeter.jar -JnumThreads=1 -n -t jmeter.jmx -p jmeter.properties
@@ -175,18 +175,18 @@ With the above two assumptions, we can rely on server generated monotonically in
 Lastly, for both indices, since they are sharded by event types or users, we expect the size of the indices can be significantly further reduced with proper compression.
 
 ### Architecture
-At the highest level, `com.mobicrave.eventracker.web.EventTrackerHandler` is the main entry point. It runs a [Jetty](http://www.eclipse.org/jetty) server, reflectively collects supported commands under `com.mobicrave.eventracker.web.commands`, handles JSONP request transparently, handles requests to static resources like the dashboard, and most importantly, act as a proxy which translates http request and respones to and from method calls to `com.mobicrave.eventracker.EventTracker`.
+At the highest level, `com.codecademy.evenhub.web.EventHubHandler` is the main entry point. It runs a [Jetty](http://www.eclipse.org/jetty) server, reflectively collects supported commands under `com.codecademy.evenhub.web.commands`, handles JSONP request transparently, handles requests to static resources like the dashboard, and most importantly, act as a proxy which translates http request and respones to and from method calls to `com.codecademy.evenhub.EventHub`.
 
-`com.mobicrave.eventracker.EventTracker` can be thought of as a facade to the key components of `UserStorage`, `EventStorage`, `ShardedEventIndex`, `DatedEventIndex`, `UserEventIndex` and `PropertiesIndex`.
+`com.codecademy.evenhub.EventHub` can be thought of as a facade to the key components of `UserStorage`, `EventStorage`, `ShardedEventIndex`, `DatedEventIndex`, `UserEventIndex` and `PropertiesIndex`.
 
 For `UserStorage` and `EventStorage`, at the lowest level, we implemented `Journal{User,Event}Storage` backed by [HawtJournal](https://github.com/fusesource/hawtjournal/) to store underlying records reliably. In addition, when clients is quering records which cannot be filtered by the supported indices, the server will loop through all tne potential hits, look up the properties from the `Journal` and then filter. For better performance, there are also decorators for each storage like `Cached{User,Event}Storage` to support caching and `BloomFiltered{User,Event}Storage` to support fast rejection for filters like `ExactMatch`. Please also beware that each `Storage` maintains a monotonically increasing counter as the internal id generator for each event and user received.
 
-To make the funnel and corhot queries fast, `EventTracker` also maintains three indices, `ShardedEventIndex`, `UserEventIndex`, and `DatedEventIndex` behind the scene. `DatedEventIndex` simply tracks the mapping from a given date, the id of the first event received in that day. `ShardedEventIndex` can be thought of as sorted event ids sharded by event type. `UserEventIndex` can be thought of as sorted event ids sharded by users.
+To make the funnel and corhot queries fast, `EventHub` also maintains three indices, `ShardedEventIndex`, `UserEventIndex`, and `DatedEventIndex` behind the scene. `DatedEventIndex` simply tracks the mapping from a given date, the id of the first event received in that day. `ShardedEventIndex` can be thought of as sorted event ids sharded by event type. `UserEventIndex` can be thought of as sorted event ids sharded by users.
 
-Lastly, `EventTracker` maintains a `PropertiesIndex` backed by [LevelDB Jni](https://github.com/fusesource/leveldbjni) to track what properties keys are available for a given event type and what properties values are available for a given event type and a property key.
+Lastly, `EventHub` maintains a `PropertiesIndex` backed by [LevelDB Jni](https://github.com/fusesource/leveldbjni) to track what properties keys are available for a given event type and what properties values are available for a given event type and a property key.
 
 ### Horizontal scalabiltiy
-While EventTracker does not need any information from different users, with a broker in front of EventTracker servers, EventTracker can be easily sharded by users and scale horizontally.
+While EventHub does not need any information from different users, with a broker in front of EventHub servers, EventHub can be easily sharded by users and scale horizontally.
 
 ### Performance
 In the following three experiments, the spec of the computer used can be found in the following table
@@ -230,7 +230,7 @@ The dashboard comes with insecure basic authentication which send unencrypted in
 ```bash
 USERNAME=foo
 PASSWORD=bar
-java -Deventtrackerhandler.username=${USERNAME} -Deventtrackerhandler.password=${PASSWORD} -jar web/target/web-1.0-SNAPSHOT.jar
+java -Deventhubhandler.username=${USERNAME} -Deventhubhandler.password=${PASSWORD} -jar web/target/web-1.0-SNAPSHOT.jar
 ```
 
 ## Javascript Library
@@ -239,7 +239,7 @@ The project comes with a javascript library which can be integrated with your we
 ### How to run JS tests
 #### install [karma](http://karma-runner.github.io/0.12/index.html)
 ```bash
-cd ${EVENT_TRACKER_DIR}
+cd ${EVENT_HUB_DIR}
 
 npm install -g karma
 npm install -g karma-jasmine@2_0
@@ -249,17 +249,17 @@ karma start karma.conf.js
 ```
 
 ### API
-The javascript library is extremely simple and heavily inspired by mixpanel. There are only five methods that developer needs to understand. Beware that behind the scene, the library maintains a queue backed by localStorage, buffers the events in the queue, and have a timer reguarly clear the queue. If the browser doesn't support localStorage, instead, a in-memory queue will be created as the EventTracker is created. Also, our implementation relies on the server to track the timestamp of each event. Therefore, in the case of a browser session disconnected before all the events are sent, the remaining events will be sent in the next browser session and thus have the timestamp recorded as the next session starts.
+The javascript library is extremely simple and heavily inspired by mixpanel. There are only five methods that developer needs to understand. Beware that behind the scene, the library maintains a queue backed by localStorage, buffers the events in the queue, and have a timer reguarly clear the queue. If the browser doesn't support localStorage, instead, a in-memory queue will be created as the EventHub is created. Also, our implementation relies on the server to track the timestamp of each event. Therefore, in the case of a browser session disconnected before all the events are sent, the remaining events will be sent in the next browser session and thus have the timestamp recorded as the next session starts.
 
-#### window.newEventTracker()
-The method will create an EventTracker and start the timer which clears out the event queue in every second (default)
+#### window.newEventHub()
+The method will create an EventHub and start the timer which clears out the event queue in every second (default)
 ```javascript
-var name = "EventTracker";
+var name = "EventHub";
 var options = {
   url: 'http://example.com/',
   flushInterval: 10 /* in seconds */
 };
-var eventHub = window.newEventTracker(name, options);
+var eventHub = window.newEventHub(name, options);
 ```
 
 #### eventHub.track()
@@ -299,7 +299,7 @@ eventHub.register({
 #### Link the events sent before and after an user sign up
 The following code
 ```javascript
-var eventHub = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+var eventHub = window.newEventHub('EventHub', { url: 'http://example.com' });
 eventHub.track('pageview', { page: 'home' });
 eventHub.register({
   ip: '10.0.0.1'
@@ -332,7 +332,7 @@ link 'chengtao@codecademy.com' to 'something generated'
 #### A/B testing
 The following code
 ```javascript
-var eventHub = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+var eventHub = window.newEventHub('EventHub', { url: 'http://example.com' });
 eventHub.identify('chengtao@codecademy.com', {});
 eventHub.track('pageview', {
   page: 'javascript exercise 1',
@@ -345,7 +345,7 @@ eventHub.track('submit', {
 ```
 and
 ```javascript
-var eventHub = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+var eventHub = window.newEventHub('EventHub', { url: 'http://example.com' });
 eventHub.identify('bob@codecademy.com', {});
 eventHub.track('pageview', {
   page: 'javascript exercise 1',
@@ -388,5 +388,5 @@ and
 ```
 
 ## Ruby Library
-Separate ruby gem is also available at [https://github.com/Codecademy/EventTrackerClient](https://github.com/Codecademy/EventTrackerClient)
+Separate ruby gem is also available at [https://github.com/Codecademy/EventHubClient](https://github.com/Codecademy/EventHubClient)
 

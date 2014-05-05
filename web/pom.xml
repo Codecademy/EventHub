@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>EventTracker</artifactId>
-        <groupId>EventTracker</groupId>
+        <artifactId>EventHub</artifactId>
+        <groupId>EventHub</groupId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../parent.xml</relativePath>
     </parent>
@@ -36,8 +36,8 @@
             <version>2.2.4</version>
         </dependency>
         <dependency>
-            <groupId>EventTracker</groupId>
-            <artifactId>tracker</artifactId>
+            <groupId>EventHub</groupId>
+            <artifactId>hub</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -62,7 +62,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.mobicrave.eventtracker.web.EventTrackerHandler</mainClass>
+                                    <mainClass>com.codecademy.eventhub.web.EventHubHandler</mainClass>
                                 </transformer>
                             </transformers>
                             <artifactSet>

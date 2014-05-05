@@ -254,37 +254,37 @@ var options = {
   url: 'http://example.com/',
   flushInterval: 10 /* in seconds */
 };
-var eventTracker = window.newEventTracker(name, options);
+var eventHub = window.newEventTracker(name, options);
 ```
 
-#### eventTracker.track()
+#### eventHub.track()
 The method enqueue the given event which will be cleared in batch at every flushInterval. Beware that if there is no identify method called before the track method is called, the library will automatically generate an user id which remain the same for the entire session (clear after the browser tab is closed), and send the generated user id along with the queued event. On the other hand, if there is an identify method called before the track method is called, the user information passed along with the identify method call will be merged to the queued event.
 ```javascript
-eventTracker.track("signup", {
+eventHub.track("signup", {
   property_1: 'value1',
   property_2: 'value2'
 });
 ```
 
-#### eventTracker.alias()
+#### eventHub.alias()
 The method links the given user to the automatically generated user. Typically, you only want to call this method once, and right after the user successfully signs up.
 ```javascript
-eventTracker.alias('chengtao@codecademy.com');
+eventHub.alias('chengtao@codecademy.com');
 ```
 
-#### eventTracker.identify()
+#### eventHub.identify()
 The method tells the library instead of using the automatically generated user information, use the given information instead.
 ```javascript
-eventTracker.identify('chengtao@codecademy.com', {
+eventHub.identify('chengtao@codecademy.com', {
   user_property_1: 'value1',
   user_property_2: 'value2'
 });
 ```
 
-#### eventTracker.register()
+#### eventHub.register()
 The method allows the developer to add additional information to the generated user.
 ```javascript
-eventTracker.register({
+eventHub.register({
   user_property_1: 'value1',
   user_property_2: 'value2'
 });
@@ -294,18 +294,18 @@ eventTracker.register({
 #### Link the events sent before and after an user sign up
 The following code
 ```javascript
-var eventTracker = window.newEventTracker('EventTracker', { url: 'http://example.com' });
-eventTracker.track('pageview', { page: 'home' });
-eventTracker.register({
+var eventHub = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+eventHub.track('pageview', { page: 'home' });
+eventHub.register({
   ip: '10.0.0.1'
 });
 
 // after user signup
-eventTracker.alias('chengtao@codecademy.com');
-eventTracker.identify('chengtao@codecademy.com', {
+eventHub.alias('chengtao@codecademy.com');
+eventHub.identify('chengtao@codecademy.com', {
   gender: 'male'
 });
-eventTracker.track('pageview', { page: 'learn' });
+eventHub.track('pageview', { page: 'learn' });
 ```
  will result in a funnel like
 ```javascript
@@ -327,27 +327,27 @@ link 'chengtao@codecademy.com' to 'something generated'
 #### A/B testing
 The following code
 ```javascript
-var eventTracker = window.newEventTracker('EventTracker', { url: 'http://example.com' });
-eventTracker.identify('chengtao@codecademy.com', {});
-eventTracker.track('pageview', {
+var eventHub = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+eventHub.identify('chengtao@codecademy.com', {});
+eventHub.track('pageview', {
   page: 'javascript exercise 1',
   experiment: 'fancy feature',
   treatment: 'new'
 });
-eventTracker.track('submit', {
+eventHub.track('submit', {
   page: 'javascript exercise 1'
 });
 ```
 and
 ```javascript
-var eventTracker = window.newEventTracker('EventTracker', { url: 'http://example.com' });
-eventTracker.identify('bob@codecademy.com', {});
-eventTracker.track('pageview', {
+var eventHub = window.newEventTracker('EventTracker', { url: 'http://example.com' });
+eventHub.identify('bob@codecademy.com', {});
+eventHub.track('pageview', {
   page: 'javascript exercise 1',
   experiment: 'fancy feature',
   treatment: 'control'
 });
-eventTracker.track('skip', {
+eventHub.track('skip', {
   page: 'javascript exercise 1'
 });
 ```

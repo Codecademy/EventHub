@@ -33,7 +33,7 @@ var Cohort = (function () {
       row_event_type: $('.show-me .event-type--input').eq(0).val(),
       column_event_type: $('.show-me .event-type--input').eq(1).val(),
       num_days_per_row: $('#daysLater').val(),
-      num_columns: 11, //$('#numColumns').val()... Why make things more complicated...
+      num_columns: 10, //$('#numColumns').val()... Why make things more complicated...
       type: 'cohort'
     };
 
@@ -100,10 +100,6 @@ var Cohort = (function () {
     $('.axis').empty();
   };
 
-  cls.initializeCohortDaysLater = function (cohort) {
-    $('#daysLater').val(cohort.num_days_per_row || 7);
-  };
-
   cls.initializeCohortDatePickers = function (cohort) {
     var start_date = cohort.start_date ? Utils.unFormatDate(cohort.start_date) : Utils.getOneWeekAgoDate();
     var end_date = cohort.end_date ? Utils.unFormatDate(cohort.end_date) : Utils.getCurrentDate();
@@ -164,7 +160,7 @@ var Cohort = (function () {
 
     var view = {
       eventTypes: EVENT_TYPES,
-      daysLater: cohort.num_days_per_row || 7
+      daysLater: cohort.num_days_per_row || 1
     };
 
     var partials = {

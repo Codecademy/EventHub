@@ -15,11 +15,11 @@ Most important of all, it is free and open sourced.
 
 ## Quick Start
 ### Playground
-A [demo server](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/) is available on Heroku and the username/password to access the dashboard is `codecademy/ryzacinc`.
+A [demo server](http://codecademy:codecademy@54.193.159.140/) is available on Heroku and the username/password to access the dashboard is `codecademy/codecademy`.
 
-- [Example funnel query](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?start_date=20130101&end_date=20130107&num_days_to_complete_funnel=7&funnel_steps%5B%5D=receive_email&funnel_steps%5B%5D=view_track_page&funnel_steps%5B%5D=finish_course&type=funnel)
-- [Example cohort query](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?start_date=20130101&end_date=20130107&row_event_type=receive_email&column_event_type=start_track&num_days_per_row=1&num_columns=11&type=cohort)
-- [Example users segmentation](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?type=users)
+- [Example funnel query](http://codecademy:codecademy@54.193.159.140/?start_date=20130101&end_date=20130107&num_days_to_complete_funnel=7&funnel_steps%5B%5D=receive_email&funnel_steps%5B%5D=view_track_page&funnel_steps%5B%5D=finish_course&type=funnel)
+- [Example cohort query](http://codecademy:codecademy@54.193.159.140/?start_date=20130101&end_date=20130107&row_event_type=receive_email&column_event_type=start_track&num_days_per_row=1&num_columns=11&type=cohort)
+- [Example users segmentation](http://codecademy:codecademy@54.193.159.140/?type=users)
 
 ### Screenshots
 ![Funnel screenshot](https://raw.githubusercontent.com/Codecademy/EventHub/master/funnel-screenshot.png)
@@ -230,7 +230,7 @@ In the experiment, the server was bootstrapped differently. Instead of using the
 The server comes with a built-in dashboard which is simply some static resources stored in `/web/src/main/resources/frontend` and gets compiled into the server jar file. After running the server, the dashboard can be accessed at [http://localhost:8080](http://localhost:8080). Through the dashboard, you can access the server for your funnel and cohort analysis.
 
 #### Password protection
-The dashboard comes with insecure basic authentication which send unencrypted information without SSL. Please use it at your own discretion. The default username/password is codecademy/ryzacinc and you can change it by modifying your web.properties file or use the following command to start your server
+The dashboard comes with insecure basic authentication which send unencrypted information without SSL. Please use it at your own discretion. The default username/password is codecademy/codecademy and you can change it by modifying your web.properties file or use the following command to start your server
 ```bash
 USERNAME=foo
 PASSWORD=bar

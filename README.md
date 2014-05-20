@@ -21,6 +21,10 @@ A [demo server](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/) is
 - [Example cohort query](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?start_date=20130101&end_date=20130107&row_event_type=receive_email&column_event_type=start_track&num_days_per_row=1&num_columns=11&type=cohort)
 - [Example users segmentation](http://codecademy:ryzacinc@floating-mesa-9408.herokuapp.com/?type=users)
 
+### Screenshots
+![Funnel screenshot](https://raw.githubusercontent.com/Codecademy/EventHub/master/funnel-screenshot.png)
+![Cohort screenshot](https://raw.githubusercontent.com/Codecademy/EventHub/master/cohort-screenshot.png)
+
 ### Deploy with Heroku
 Developers who want to try EventHub can quickly set the server up on Heroku with the following commands. However, please be aware that Heroku's file system is ephemeral and your data will be wiped after the instance is closed.
 ```bash

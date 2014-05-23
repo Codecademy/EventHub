@@ -394,3 +394,7 @@ and
 ## Ruby Library
 Separate ruby gem is also available at [https://github.com/Codecademy/EventHubClient](https://github.com/Codecademy/EventHubClient)
 
+## License
+MIT License.  
+Copyright (c) 2014 Ryzac, Inc.
+

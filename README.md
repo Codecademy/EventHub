@@ -19,7 +19,6 @@ A [demo server](http://codecademy:codecademy@54.193.159.140/) is available on He
 
 - [Example funnel query](http://codecademy:codecademy@54.193.159.140/?start_date=20130101&end_date=20130107&num_days_to_complete_funnel=7&funnel_steps%5B%5D=receive_email&funnel_steps%5B%5D=view_track_page&funnel_steps%5B%5D=finish_course&type=funnel)
 - [Example cohort query](http://codecademy:codecademy@54.193.159.140/?start_date=20130101&end_date=20130107&row_event_type=receive_email&column_event_type=start_track&num_days_per_row=1&num_columns=11&type=cohort)
-- [Example users segmentation](http://codecademy:codecademy@54.193.159.140/?type=users)
 
 ### Screenshots
 ![Funnel screenshot](https://raw.githubusercontent.com/Codecademy/EventHub/master/funnel-screenshot.png)

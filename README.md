@@ -168,7 +168,7 @@ Our goal is to build something usable on a single machine with reasonably large 
 
 Also, to efficiently run basic funnel and cohort queries without filtering, only two forward indices are needed, event index sharded by event types and event index sharded by users. Therefore, our strategy is to make those two indices as small as possible to fit in memory, and if the client want to do filtering for events, we build a bloomfilter rejects most of the non exact-match. Imagine we are running another hypothetical query while assuming both indices and the bloomfilters can be fitted in memory. Say there are 1M events that cannot rejected and need to hit the disk, assuming each SSD disk read is 16 microseconds, we are talking about sub-minute query time, while assuming none of the data are in memory. In practice, the situation is likely much better as we cache all the recently hit records, and most of the queries likely only concern about most recent data.
 
-To simplifies the design of the server and store indices compactly so that they will fit in memory, we made the following two assumptions.
+To simplify the design of the server and store indices compactly so that they will fit in memory, we made the following two assumptions.
 
 1. Times are associated to the events by the server when received
 2. Date is the finest level of granularity
@@ -182,9 +182,9 @@ At the highest level, `com.codecademy.evenhub.web.EventHubHandler` is the main e
 
 `com.codecademy.evenhub.EventHub` can be thought of as a facade to the key components of `UserStorage`, `EventStorage`, `ShardedEventIndex`, `DatedEventIndex`, `UserEventIndex` and `PropertiesIndex`.
 
-For `UserStorage` and `EventStorage`, at the lowest level, we implemented `Journal{User,Event}Storage` backed by [HawtJournal](https://github.com/fusesource/hawtjournal/) to store underlying records reliably. In addition, when clients is quering records which cannot be filtered by the supported indices, the server will loop through all tne potential hits, look up the properties from the `Journal` and then filter. For better performance, there are also decorators for each storage like `Cached{User,Event}Storage` to support caching and `BloomFiltered{User,Event}Storage` to support fast rejection for filters like `ExactMatch`. Please also beware that each `Storage` maintains a monotonically increasing counter as the internal id generator for each event and user received.
+For `UserStorage` and `EventStorage`, at the lowest level, we implemented `Journal{User,Event}Storage` backed by [HawtJournal](https://github.com/fusesource/hawtjournal/) to store underlying records reliably. In addition, when clients is quering records which cannot be filtered by the supported indices, the server will loop through all the potential hits, look up the properties from the `Journal` and then filter. For better performance, there are also decorators for each storage like `Cached{User,Event}Storage` to support caching and `BloomFiltered{User,Event}Storage` to support fast rejection for filters like `ExactMatch`. Please also beware that each `Storage` maintains a monotonically increasing counter as the internal id generator for each event and user received.
 
-To make the funnel and corhot queries fast, `EventHub` also maintains three indices, `ShardedEventIndex`, `UserEventIndex`, and `DatedEventIndex` behind the scene. `DatedEventIndex` simply tracks the mapping from a given date, the id of the first event received in that day. `ShardedEventIndex` can be thought of as sorted event ids sharded by event type. `UserEventIndex` can be thought of as sorted event ids sharded by users.
+To make the funnel and cohort queries fast, `EventHub` also maintains three indices, `ShardedEventIndex`, `UserEventIndex`, and `DatedEventIndex` behind the scene. `DatedEventIndex` simply tracks the mapping from a given date, the id of the first event received in that day. `ShardedEventIndex` can be thought of as sorted event ids sharded by event type. `UserEventIndex` can be thought of as sorted event ids sharded by users.
 
 Lastly, `EventHub` maintains a `PropertiesIndex` backed by [LevelDB Jni](https://github.com/fusesource/leveldbjni) to track what properties keys are available for a given event type and what properties values are available for a given event type and a property key.
 
@@ -223,7 +223,7 @@ In the experiment, the server was bootstrapped differently. Instead of using the
 |---------------------------|-----------------|------|
 | ShardedEventIndex         | 424Mb           | (data size) + (index size) <br>= (event id size * number of events) + negligible<br>= (8 * 53M) |
 | UserEventIndex            | 722Mb           | (data size) + (index size) <br>= (event id size * number of events) + (index entry size * number of users)<br>= (8 * 53M) + ((numPointersPerIndexEntry * 2 + 1) * 8 + 4) * 2.4M)<br>= (8 * 53M) + (124 * 2.4M) |
-| BloomFitleredEventStorage | 848Mb           | (bloomfilter size) * (number of events) <br>= 16 * 53M |
+| BloomFilteredEventStorage | 848Mb           | (bloomfilter size) * (number of events) <br>= 16 * 53M |
 
 ## Dashboard
 The server comes with a built-in dashboard which is simply some static resources stored in `/web/src/main/resources/frontend` and gets compiled into the server jar file. After running the server, the dashboard can be accessed at [http://localhost:8080](http://localhost:8080). Through the dashboard, you can access the server for your funnel and cohort analysis.

@@ -20,6 +20,7 @@ public class ViewEvent extends Command {
     this.eventHub = eventHub;
   }
 
+  @Override
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
     Event event = eventHub.getEvent(Long.parseLong(request.getParameter("event_id")));

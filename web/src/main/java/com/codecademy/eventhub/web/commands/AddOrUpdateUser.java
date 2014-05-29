@@ -17,6 +17,7 @@ public class AddOrUpdateUser extends Command {
     this.eventHub = eventHub;
   }
 
+  @Override
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
     int userId = eventHub.addOrUpdateUser(new User.Builder(

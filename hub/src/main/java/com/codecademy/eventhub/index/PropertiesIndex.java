@@ -26,6 +26,7 @@ public class PropertiesIndex implements Closeable {
   public void addEvent(final Event event) {
     final String eventType = event.getEventType();
     db.put(new DB.AtomicWrite() {
+      @Override
       public void write(final DB.WriteBatch writeBatch) {
         event.enumerate(new KeyValueCallback() {
           @Override
@@ -43,6 +44,7 @@ public class PropertiesIndex implements Closeable {
 
   public void addUser(final User user) {
     db.put(new DB.AtomicWrite() {
+      @Override
       public void write(final DB.WriteBatch writeBatch) {
         user.enumerate(new KeyValueCallback() {
           @Override

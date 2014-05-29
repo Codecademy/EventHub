@@ -33,6 +33,7 @@ public class BloomFilter {
     return bitSet;
   }
 
+  @Override
   public String toString() {
     return bitSet.toString();
   }

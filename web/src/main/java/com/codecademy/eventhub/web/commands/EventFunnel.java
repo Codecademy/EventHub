@@ -22,6 +22,7 @@ public class EventFunnel extends Command {
     this.eventHub = eventHub;
   }
 
+  @Override
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
     String[] funnelSteps = request.getParameterValues("funnel_steps[]");

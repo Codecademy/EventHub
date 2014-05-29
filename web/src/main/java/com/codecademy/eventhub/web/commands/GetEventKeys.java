@@ -20,6 +20,7 @@ public class GetEventKeys extends Command {
     this.eventHub = eventHub;
   }
 
+  @Override
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
     List<String> keys = eventHub.getEventKeys(request.getParameter("event_type"));

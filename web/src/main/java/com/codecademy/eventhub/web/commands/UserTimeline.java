@@ -21,6 +21,7 @@ public class UserTimeline extends Command {
     this.eventHub = eventHub;
   }
 
+  @Override
   public synchronized void execute(final HttpServletRequest request,
       final HttpServletResponse response) throws IOException {
     List<Event> userEvents = eventHub.getUserEvents(

@@ -2,7 +2,7 @@
 EventHub enables companies to do cross device event tracking. Events are joined by their associated user on EventHub and can be visualized by the built-in dashboard to answer the following common business questions
 * what is my funnel conversion rate?
 * what is my cohorted KPI retention?
-* which variant in my A/B testing has higher conversion rate?
+* which variant in my A/B test has a higher conversion rate?
 
 Most important of all, EventHub is free and open source.
 

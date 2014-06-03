@@ -4,7 +4,7 @@ EventHub enables companies to do cross device event tracking. Events are joined 
 * what is my cohorted KPI retention?
 * which variant in my A/B testing has higher conversion rate?
 
-Most important of all, EventHub is free and open sourced.
+Most important of all, EventHub is free and open source.
 
 **Table of Contents**
 - [Quick Start](#quick-start)

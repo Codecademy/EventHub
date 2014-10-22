@@ -255,12 +255,13 @@ karma start karma.conf.js
 The javascript library is extremely simple and heavily inspired by mixpanel. There are only five methods that a developer needs to understand. Beware that behind the scenes, the library maintains a queue backed by localStorage, buffers the events in the queue, and has a timer reguarly clear the queue. If the browser doesn't support localStorage, a in-memory queue will be created as EventHub is created. Also, our implementation relies on the server to track the timestamp of each event. Therefore, in the case of a browser session disconnected before all the events are sent, the remaining events will be sent in the next browser session and thus have the timestamp recorded as the next session starts.
 
 #### window.newEventHub()
-The method will create an EventHub and start the timer which clears out the event queue in every second (default)
+The method will create an EventHub, start the timer which clears out the event queue in every second and define a maximum attempts limit of 10 (default)
 ```javascript
 var name = "EventHub";
 var options = {
   url: 'http://example.com',
-  flushInterval: 10 /* in seconds */
+  flushInterval: 10 /* in seconds */,
+  maxAttempts: 10 /* Maxmimum attempts on failure */
 };
 var eventHub = window.newEventHub(name, options);
 ```

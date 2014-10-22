@@ -74,13 +74,13 @@ window.DevTips=window.DevTips||{}; (function(dt){ var _2=0; var _3="Query string
     this.url = options.url || "";
     this.flushInterval = (options.flushInterval || 1) * 1000;
     this.maxAttempts = options.maxAttempts || 10;
-	  this.currentAttempts = 0;
+    this.currentAttempts = 0;
 
     this.sessionKey = name + "::activeSession";
     this.generatedIdKey = name + "::generatedId";
     this.identifiedUserKey = name + "::identifiedUser";
     this.generatedUserKey = name + "::generatedUser";
-    
+
     this.timeout = null;
   };
 
@@ -150,26 +150,26 @@ window.DevTips=window.DevTips||{}; (function(dt){ var _2=0; var _3="Query string
       var generatedId = this.localStorage.getObject(this.generatedIdKey);
 
       window.DevTips.jsonp(this.url + '/users/alias', {
-          from_external_user_id: params.id,
-          to_external_user_id: generatedId
-        }, "",
-        function(res) {
-	        success(res);
-	        this._resetFailures();
-        }.bind(this),
-  	    this._onFailure.bind(this));
-      };
-  
-    	this._resetFailures = function() {
-    	  this.currentAttempts = 0;
-    	};
-  
-      this._onFailure = function() {
-  	  if (++this.currentAttempts === this.maxAttempts) {
-  		  clearTimeout(this.timeout);
-  		  throw '"Max Attempts" limit has been reached'
-  	  }
-  	};
+        from_external_user_id: params.id,
+        to_external_user_id: generatedId
+      }, "",
+      function(res) {
+        success(res);
+        this._resetFailures();
+      }.bind(this),
+      this._onFailure.bind(this));
+    };
+
+    this._resetFailures = function() {
+      this.currentAttempts = 0;
+    };
+
+    this._onFailure = function() {
+      if (++this.currentAttempts === this.maxAttempts) {
+        clearTimeout(this.timeout);
+        throw '"Maximum Attempts" limit has been reached'
+      }
+    };
 
     this._setGeneratedUser = function(properties) {
       var generatedId = this.localStorage.getObject(this.generatedIdKey);
@@ -277,11 +277,11 @@ window.DevTips=window.DevTips||{}; (function(dt){ var _2=0; var _3="Query string
   window.newEventHub = function(name, options) {
     var storageQueue = new StorageQueue(name, window.localStorage || new FakeStorage());
     var eventHub = new EventHub(
-        name,
-        storageQueue,
-        window.localStorage || new FakeStorage(),
-        window.sessionStorage || new FakeStorage(),
-        options);
+      name,
+      storageQueue,
+      window.localStorage || new FakeStorage(),
+      window.sessionStorage || new FakeStorage(),
+      options);
 
     eventHub.initialize();
     eventHub.start();

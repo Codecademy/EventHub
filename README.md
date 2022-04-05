@@ -395,5 +395,5 @@ Separate ruby gem is also available at [https://github.com/Codecademy/EventHubCl
 
 ## License
 MIT License.  
-Copyright (c) 2014 Ryzac, Inc.
+Copyright (c) 2022 Codecademy LLC
 
